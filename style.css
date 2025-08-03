@@ -1,0 +1,292 @@
+@import url("./colors.css");
+
+* {
+    all:unset;
+    font-family: "JetBrainsMono Nerd Font Propo";
+    font-weight:900;
+    font-size: 15px;
+    background: transparent;
+}
+
+/* @keyframes gradient-border {
+  0%   { border-image-source: linear-gradient(45deg, @color2, @color4, @color5, @color3, @color6); }
+  5%   { border-image-source: linear-gradient(63deg, @color4, @color5, @color3, @color6, @color7); }
+  10%  { border-image-source: linear-gradient(81deg, @color5, @color3, @color6, @color7, @color8); }
+  15%  { border-image-source: linear-gradient(99deg, @color3, @color6, @color7, @color8, @color9); }
+  20%  { border-image-source: linear-gradient(117deg, @color6, @color7, @color8, @color9, @color10); }
+  25%  { border-image-source: linear-gradient(135deg, @color7, @color8, @color9, @color10, @color11); }
+  30%  { border-image-source: linear-gradient(153deg, @color8, @color9, @color10, @color11, @color12); }
+  35%  { border-image-source: linear-gradient(171deg, @color9, @color10, @color11, @color12, @color13); }
+  40%  { border-image-source: linear-gradient(189deg, @color10, @color11, @color12, @color13, @color14); }
+  45%  { border-image-source: linear-gradient(207deg, @color11, @color12, @color13, @color14, @color15); }
+  50%  { border-image-source: linear-gradient(225deg, @color12, @color13, @color14, @color15, @color2); }
+  55%  { border-image-source: linear-gradient(243deg, @color13, @color14, @color15, @color2, @color4); }
+  60%  { border-image-source: linear-gradient(261deg, @color14, @color15, @color2, @color4, @color5); }
+  65%  { border-image-source: linear-gradient(279deg, @color15, @color2, @color4, @color5, @color3); }
+  70%  { border-image-source: linear-gradient(297deg, @color2, @color4, @color5, @color3, @color6); }
+  75%  { border-image-source: linear-gradient(315deg, @color4, @color5, @color3, @color6, @color7); }
+  80%  { border-image-source: linear-gradient(333deg, @color5, @color3, @color6, @color7, @color8); }
+  85%  { border-image-source: linear-gradient(351deg, @color3, @color6, @color7, @color8, @color9); }
+  90%  { border-image-source: linear-gradient(9deg, @color6, @color7, @color8, @color9, @color10); }
+  95%  { border-image-source: linear-gradient(27deg, @color7, @color8, @color9, @color10, @color11); }
+  100% { border-image-source: linear-gradient(45deg, @color2, @color4, @color5, @color3, @color6); }
+} */
+
+
+
+@keyframes animated-gradient {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* #bar {
+    background: linear-gradient(270deg, @color2, @color4, @color5, @color3, @color6);
+    background-size: 1000% 1000%;
+    animation: animated-gradient 15s ease infinite;
+} */
+
+/* 
+border-width:  0 0 3px 0 ;
+    border-style: solid;
+    border-image-slice: 1;
+    border-image-source: linear-gradient(45deg, @color2, @color4, @color5); 
+
+    animation: gradient-border 10s linear infinite; */
+
+/* #bar {
+    background-color: @background;
+    background-image: url("./22723-256x256x32.png");
+    background-repeat: repeat;
+    background-size: 10px;
+} */
+
+#bar {
+    background: @background;
+}
+
+
+#logout {
+    margin-right:15px;
+    color: @foreground;
+}
+
+#clock {
+    background: transparent;
+    color: @color4;
+    margin: 3px;
+    border: solid;
+    border-radius: 7px;
+}
+
+#cpu {
+    margin-left: 10px;
+    margin-right: 0px;
+}
+
+#cpu-label {
+    font-size: 15px;
+    font-weight: 600;
+    padding:10px;
+}
+
+#cpu-progress-bar{
+    color: @foreground;
+    border-color: @color3;
+}
+
+
+#memory {
+    margin-left: -10px;
+}
+
+#memory-label {
+    font-size: 12px;
+    font-weight: 600;
+    padding:10px;
+}
+
+#memory-progress-bar{
+    color: @foreground;
+    border-color: @color3;
+}
+
+#workspaces {
+  background-color: transparent;
+}
+
+
+.workspace-button {
+    padding:0;
+    background-color: transparent;
+  border-radius: 2px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-weight: 500;
+  color: lighter(@color8);
+  animation: ws_hover 60s ease-in-out 1;
+  transition: all 0.3s cubic-bezier(.55, -0.68, .48, 1.682);
+}
+
+.workspace-button.active , .workspace-button.active:hover{
+  background: radial-gradient(@color3, @color4, @color5, @color6, @color7);
+  color: @background;
+  font-weight: 900;
+  animation: ws_active 20s ease-in-out 1;
+  background-size: 1000% 1000%;
+  animation: animated-gradient 5s ease infinite;
+  transition: all 0.4s cubic-bezier(.55, -0.68, .48, 1.682);
+  padding-left:20px;
+  padding-right:20px;
+  border-radius: 40px;
+}
+
+
+
+.workspace-button:hover {
+  background: radial-gradient(@color4,@color2, @color5);
+  color: @background;
+  background-size: 1000% 1000%;
+  animation: ws_active 20s ease-in-out 1;
+  animation: animated-gradient 5s ease infinite;
+  transition: all 0.4s cubic-bezier(.55, 0.68, .48, 1.682);
+  padding-left:20px;
+  padding-right:20px;
+  border-radius: 40px;
+}
+
+#corner {
+background-color:@background;
+}
+
+#active-window {
+    color: @color4;
+}
+
+#cava {
+    padding:0;
+    background-color: transparent;
+    color: @color5;
+}
+
+
+
+tooltip {
+  background-color: @background;
+  color: mix(@color5,white,0.4);
+  border-radius: 7px;
+  padding: 4px 8px;
+  font-size: 15px;
+  padding-top: 400px;
+}
+
+#song-title {
+    color: lighter(@color4);
+}
+
+#pause-icon {
+    color: lighter(@color4);
+}
+
+#album-art {
+    border:solid;
+    border-radius: 10px;
+    color: @color3;
+}
+
+#mpris-overlay-window {
+    background-color: transparent;
+}
+
+
+#mpris-overlay {
+    background: alpha(@background,0.5);
+    font-weight: 900;
+    padding:0px;
+    margin-top:10px;
+    border-radius: 15px;
+    border:solid;
+}
+
+
+#song-title-overlay {
+    font-size: 20px;
+    color: lighter(@color4);
+}
+
+#song-artist-overlay {
+    font-size: 16px;
+}
+
+#album-art-overlay{
+    border:solid;
+    border-radius: 15px;
+    
+}
+
+#right-column {
+    padding:15px;
+}
+
+#prev-button label,#play-button label,#next-button label, #shuffle-button label,#repeat-button label{
+    font-size: 25px;
+}
+#notification-button {
+    background-color: lighter(@color3);
+    color: @background;
+    border-radius: 7px;
+    margin-top:8px;
+    margin-bottom:8px;
+    padding-top:0px;
+    padding-bottom: 0px;
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+#network-icon {
+    color:@color5;
+    font-size: 17px;
+    margin-left: 2px;
+}
+
+#bluetooth-percentage {
+    min-width:0px;
+    font-size: 14px;
+    color:@color5;
+}
+
+#bluetooth-icon {
+    font-size: 17px;
+    margin-right: 2px;
+    color:@color5;
+}
+
+#control-center {
+    background-color: @background;
+    padding:20px;
+    transition: all 0.3s cubic-bezier(.55, -0.68, .48, 1.682);
+}
+
+#battery-glyph {
+    font-size: 15px;
+    margin-right: 2px;
+}
+
+#battery-percent {
+    font-size:14px;
+}
+
+#audio-icon {
+    color: @foreground;
+    font-size: 16px;
+    font-weight: 600;
+    padding-top:2px;
+}
+
+#audio-progress-bar{
+    color: @foreground;
+    border-color: lighter(@color3);
+    border-width: 1px;
+}
