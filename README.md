@@ -4,7 +4,7 @@ custom bar and widgets written in fabric for my fedora hyprland rice
 
 # setup
 ```bash
-sudo dnf install gtk3-devel cairo-devel gtk-layer-shell-devel glib2 gobject-introspection-devel python3-devel python-pip python3-gobject python3-cairo python3-loguru pkgconf
+sudo dnf install gtk3-devel cairo-devel gtk-layer-shell-devel glib2 gobject-introspection-devel python3-devel python-pip python3-gobject python3-cairo python3-loguru pkgconf cava
 ```
 for other distro's refer to https://wiki.ffpy.org/getting-started/installation-guide/
 ```python

@@ -35,9 +35,12 @@
 
 
 @keyframes animated-gradient {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0%   { background-position: 0% 40%; }
+    25%  { background-position: 20% 60%; }
+    50%  { background-position: 50% 90%; }
+    75% { background-position: 90% 40%; }
+    90% { background-position: 60% 20%; }
+    100% { background-position: 0% 0%; }
 }
 
 /* #bar {
@@ -72,6 +75,7 @@ border-width:  0 0 3px 0 ;
 }
 
 #clock {
+    font-family: "Pixelify Sans Medium";
     background: transparent;
     color: @color4;
     margin: 3px;
@@ -92,7 +96,7 @@ border-width:  0 0 3px 0 ;
 
 #cpu-progress-bar{
     color: @foreground;
-    border-color: @color3;
+    border-color: shade(@color4,0.7);
 }
 
 
@@ -108,7 +112,7 @@ border-width:  0 0 3px 0 ;
 
 #memory-progress-bar{
     color: @foreground;
-    border-color: @color3;
+    border-color: shade(@color4,0.7);
 }
 
 #workspaces {
@@ -125,18 +129,18 @@ border-width:  0 0 3px 0 ;
   padding-left: 4px;
   padding-right: 4px;
   font-weight: 500;
-  color: lighter(@color8);
+  color: lighter(@color4);
   animation: ws_hover 60s ease-in-out 1;
   transition: all 0.3s cubic-bezier(.55, -0.68, .48, 1.682);
 }
 
 .workspace-button.active , .workspace-button.active:hover{
-  background: radial-gradient(@color3, @color4, @color5, @color6, @color7);
+  background: radial-gradient(@color4, @color5, @color6);
   color: @background;
   font-weight: 900;
-  animation: ws_active 20s ease-in-out 1;
+  animation: ws_active 10s ease-in-out 1;
   background-size: 1000% 1000%;
-  animation: animated-gradient 5s ease infinite;
+  animation: animated-gradient 25s ease infinite;
   transition: all 0.4s cubic-bezier(.55, -0.68, .48, 1.682);
   padding-left:20px;
   padding-right:20px;
@@ -162,13 +166,13 @@ background-color:@background;
 }
 
 #active-window {
-    color: @color4;
+    color: mix(@color4,@color5,0.5);
 }
 
 #cava {
     padding:0;
     background-color: transparent;
-    color: @color5;
+    color: @color4;
 }
 
 
@@ -193,7 +197,7 @@ tooltip {
 #album-art {
     border:solid;
     border-radius: 10px;
-    color: @color3;
+
 }
 
 #mpris-overlay-window {
@@ -202,7 +206,7 @@ tooltip {
 
 
 #mpris-overlay {
-    background: alpha(@background,0.5);
+    background: alpha(@backgroundWaybar,0.9);
     font-weight: 900;
     padding:0px;
     margin-top:10px;
@@ -213,7 +217,7 @@ tooltip {
 
 #song-title-overlay {
     font-size: 20px;
-    color: lighter(@color4);
+    color: @color4;
 }
 
 #song-artist-overlay {
@@ -234,7 +238,7 @@ tooltip {
     font-size: 25px;
 }
 #notification-button {
-    background-color: lighter(@color3);
+    background-color: @color4;
     color: @background;
     border-radius: 7px;
     margin-top:8px;
@@ -246,7 +250,7 @@ tooltip {
 }
 
 #network-icon {
-    color:@color5;
+    color:@color4;
     font-size: 17px;
     margin-left: 2px;
 }
@@ -254,13 +258,13 @@ tooltip {
 #bluetooth-percentage {
     min-width:0px;
     font-size: 14px;
-    color:@color5;
+    color:@color4;
 }
 
 #bluetooth-icon {
     font-size: 17px;
     margin-right: 2px;
-    color:@color5;
+    color:@color4;
 }
 
 #control-center {
@@ -287,6 +291,6 @@ tooltip {
 
 #audio-progress-bar{
     color: @foreground;
-    border-color: lighter(@color3);
+    border-color: shade(@color4,0.7);
     border-width: 1px;
 }

@@ -221,6 +221,51 @@ class Mpris(Box):
         elif state == "Track":
             self.repeat_button.set_label("󰑘")
 
+    def create_album_art(self,path, size=200):
+        try:
+            # Load the original image
+            original_pixbuf = GdkPixbuf.Pixbuf.new_from_file(path)
+            
+            # Get original dimensions
+            original_width = original_pixbuf.get_width()
+            original_height = original_pixbuf.get_height()
+            
+            # Check if aspect ratio is 1:1
+            if original_width == original_height:
+                # Square image - just scale it
+                pic2 = original_pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.BILINEAR)
+            else:
+                # Non-square image - center crop first, then scale
+                crop_size = min(original_width, original_height)
+                crop_x = (original_width - crop_size) // 2
+                crop_y = (original_height - crop_size) // 2
+                
+                # Create cropped pixbuf
+                cropped_pixbuf = GdkPixbuf.Pixbuf.new(
+                    GdkPixbuf.Colorspace.RGB,
+                    original_pixbuf.get_has_alpha(),
+                    original_pixbuf.get_bits_per_sample(),
+                    crop_size,
+                    crop_size
+                )
+                
+                # Copy the center square
+                original_pixbuf.copy_area(
+                    crop_x, crop_y,
+                    crop_size, crop_size,
+                    cropped_pixbuf,
+                    0, 0
+                )
+                
+                # Scale the cropped square
+                pic2 = cropped_pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.BILINEAR)
+            
+            return pic2
+            
+        except Exception as e:
+            print(f"Error processing image: {e}")
+            return None
+
     def _load_art(self, art_url: str):
         try:
             path = ""
@@ -235,8 +280,9 @@ class Mpris(Box):
                     self._cleanup_temp()
                     self.temp_art_path = path
             if not os.path.exists(path): return
-            pic1 = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, 20, 20, True)
-            pic2 = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, 200, 200, True)
+            pic1 = self.create_album_art(path=path,size=20)
+            pic2 = self.create_album_art(path=path,size=200)
+
             self.album_art.set_from_pixbuf(pic1)
             self.album_art_overlay.set_from_pixbuf(pic2)
         except Exception as e:
