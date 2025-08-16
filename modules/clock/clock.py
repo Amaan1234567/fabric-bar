@@ -7,6 +7,14 @@ class Clock(Box):
         super().__init__(name="clock", **kwargs)
 
         self.clock = DateTime(format_string = "%a, %b %d  %I:%M %p")
+        self.clock.connect(
+            "state-flags-changed",
+            lambda btn, *_: (
+                btn.set_cursor("pointer")
+                if btn.get_state_flags() & 2  # type: ignore
+                else btn.set_cursor("default"),
+            ),
+        )
         self.children = self.clock
         
 

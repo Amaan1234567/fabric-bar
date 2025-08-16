@@ -11,7 +11,7 @@ import dbus.mainloop.glib
 import NetworkManager as NM
 
 
-from widgets.control_center import ControlCenter
+from modules.control_center.control_center import ControlCenter
 from modules.bluetooth.bluetooth import BluetoothWidget
 from modules.network.network import NetworkWidget
 # Ensure D-Bus uses GLib main loop
@@ -27,6 +27,14 @@ class NotificationButton(Box):
         self.content = EventBox(on_button_release_event = self.trigger_control_center)
         self.container_box = Box(orientation='h',spacing=4)
         self.notifcations = Button(label="")
+        self.notifcations.connect(
+            "state-flags-changed",
+            lambda btn, *_: (
+                btn.set_cursor("pointer")
+                if btn.get_state_flags() & 2  # type: ignore
+                else btn.set_cursor("default"),
+            ),
+        )
         
         self.container_box.add(self.notifcations)
         self.content.add(self.container_box)

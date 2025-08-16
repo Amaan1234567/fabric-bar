@@ -5,12 +5,9 @@ import fabric
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.centerbox import CenterBox
-from fabric.widgets.datetime import DateTime
 from fabric.widgets.label import Label
 from fabric.widgets.wayland import WaylandWindow as Window
-from fabric.hyprland import Hyprland, HyprlandEvent
-from fabric.widgets.overlay import Overlay
-
+from fabric.widgets.separator import Separator
 
 
 from modules.clock.clock import Clock
@@ -25,6 +22,7 @@ from modules.battery.battery import BatteryWidget
 from modules.audio.audio import AudioWidget
 from modules.network.network import NetworkWidget
 from modules.bluetooth.bluetooth import BluetoothWidget
+from modules.system_tray.system_tray import barSystemTray
 
 class StatusBar(Window):
     def __init__(self, **kwargs):
@@ -47,7 +45,7 @@ class StatusBar(Window):
             on_clicked=lambda *a: subprocess.run(["wlogout","--protocol","layer-shell"]),
             name="logout"
         )
-
+        self.seperator = Separator(orientation='h')
         self.active_window = WindowName()
         self.cava = CavaWidget()
         self.right_module = NotificationButton()
@@ -55,16 +53,16 @@ class StatusBar(Window):
             self.cpu,
             self.memory,
             self.workspaces,
-            self.active_window,
-            self.cava
+
         ])
 
         self.mpris = Mpris(window=self)
         self.volume = AudioWidget()
         self.battery = BatteryWidget()
-        self.network = NetworkWidget(interval=1)
+        self.network = NetworkWidget(self,interval=1)
         self.bluetooth = BluetoothWidget(interval=1)
-        center_box = Box(orientation="h", children=[self.clock])
+        #self.system_tray = barSystemTray()
+        center_box = Box(orientation="h", spacing=10,h_align="center",children=[self.clock,self.cava,self.active_window,])
         right_box = Box(orientation="h", spacing=10, children=[
             self.mpris,
             self.volume,
@@ -75,10 +73,11 @@ class StatusBar(Window):
             self.logout_btn
         ])
 
-        self.content = CenterBox(name="bar",
+        self.content = CenterBox(name="bar",orientation="h",
             start_children=left_box,
             center_children=center_box,
-            end_children=right_box
+            end_children=right_box,
+            v_align="center"
         )
         
         self.add(self.content)

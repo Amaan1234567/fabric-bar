@@ -3,10 +3,10 @@ from widgets.corners import ScreenCorners
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
 from modules.right_module.right_module import control_center
-from multiprocessing import Pipe
+import loguru
 
 if __name__ == "__main__":
-    parent_conn , child_conn = Pipe()
+    loguru.logger.disable("")
     bar = StatusBar()
     corners = ScreenCorners()
     app = Application("hypr-fabric-bar", windows=[bar,corners,control_center])

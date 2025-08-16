@@ -13,7 +13,7 @@ class CavaWidget(Box):
 
         self.bars = 12
 
-        self.cava_label = Label(
+        self.cava_label = Label(label="▁"*self.bars,
             v_align="center",
             h_align="center",
         )
@@ -27,11 +27,20 @@ class CavaWidget(Box):
             stream=True,
         ).connect("changed",self.update_label)
         
-        
+        ctx = self.get_style_context()
+        ctx.add_class("cava-active")
 
     def update_label(self,_, label):
-        if( label == "▁"*self.bars): #means nothing playing
-            label=""
+        # ctx = self.get_style_context()
+        # ctx.add_class("cava-active")
+        # if( label == "▁"*self.bars): #means nothing playing
+        #     label=""
+        #     ctx.remove_class("cava-active")
+        #     ctx.add_class("cava-silent")
+        # else:
+        #     ctx.add_class("cava-active")
+        #     ctx.remove_class("cava-silent")
+            
         self.cava_label.set_label(label)
         #print(label)
         return True

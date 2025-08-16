@@ -1,4 +1,6 @@
 @import url("./colors.css");
+@import url('https://fonts.googleapis.com/css2?family=Open%20Sans:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Monoton&family=Pixelify+Sans:wght@400..700&display=swap');
 
 * {
     all:unset;
@@ -35,12 +37,11 @@
 
 
 @keyframes animated-gradient {
-    0%   { background-position: 0% 40%; }
-    25%  { background-position: 20% 60%; }
-    50%  { background-position: 50% 90%; }
-    75% { background-position: 90% 40%; }
-    90% { background-position: 60% 20%; }
-    100% { background-position: 0% 0%; }
+    0%   { background-position: 50% 0%; }
+    25%  { background-position: 100% 50%; }
+    50%  { background-position: 50% 100%; }
+    75%  { background-position: 0% 50%; }
+    100% { background-position: 50% 0%; }
 }
 
 /* #bar {
@@ -65,22 +66,20 @@ border-width:  0 0 3px 0 ;
 } */
 
 #bar {
-    background: @background;
+    background-color: @background;
 }
 
 
 #logout {
     margin-right:15px;
-    color: @foreground;
+    color: white;
 }
 
-#clock {
-    font-family: "Pixelify Sans Medium";
+#clock label {
     background: transparent;
     color: @color4;
     margin: 3px;
-    border: solid;
-    border-radius: 7px;
+   
 }
 
 #cpu {
@@ -88,15 +87,16 @@ border-width:  0 0 3px 0 ;
     margin-right: 0px;
 }
 
-#cpu-label {
+/* #cpu-label {
+    color: @color6;
     font-size: 15px;
     font-weight: 600;
     padding:10px;
-}
+} */
 
 #cpu-progress-bar{
-    color: @foreground;
-    border-color: shade(@color4,0.7);
+    color: white;
+    border-color: shade(@color4,0.85);
 }
 
 
@@ -105,14 +105,15 @@ border-width:  0 0 3px 0 ;
 }
 
 #memory-label {
-    font-size: 12px;
+    color: @color6;
+    font-size: 15px;
     font-weight: 600;
     padding:10px;
 }
 
 #memory-progress-bar{
-    color: @foreground;
-    border-color: shade(@color4,0.7);
+    color: white;
+    border-color: shade(@color4,0.85);
 }
 
 #workspaces {
@@ -150,7 +151,7 @@ border-width:  0 0 3px 0 ;
 
 
 .workspace-button:hover {
-  background: radial-gradient(@color4,@color2, @color5);
+  background: alpha(@color6,0.4);
   color: @background;
   background-size: 1000% 1000%;
   animation: ws_active 20s ease-in-out 1;
@@ -169,12 +170,22 @@ background-color:@background;
     color: mix(@color4,@color5,0.5);
 }
 
-#cava {
+.cava-active {
     padding:0;
-    background-color: transparent;
-    color: @color4;
+    background: linear-gradient(45deg,@color2,@color3,@color4, @color5, @color6,@color7,@color8);
+    background-size: 500% 500%;
+    color: @background;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    padding-right: 7px;
+    padding-left: 7px;
+    border-radius: 5px;
+    animation: animated-gradient 25s ease-in-out infinite;
 }
 
+.cava-silent {
+    all:unset;
+}
 
 
 tooltip {
@@ -214,6 +225,9 @@ tooltip {
     border:solid;
 }
 
+#mpris-overlay {
+    transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1.0); /* Example cubic-bezier values */
+}
 
 #song-title-overlay {
     font-size: 20px;
@@ -255,6 +269,32 @@ tooltip {
     margin-left: 2px;
 }
 
+#network-overlay-window {
+    background-color: transparent;
+}
+
+
+#wifi-networks-box {
+    background: alpha(@backgroundWaybar,0.9);
+    font-weight: 900;
+    padding:10px;
+    margin-top:10px;
+    border-radius: 15px;
+    border:solid;
+}
+
+#wifi-networks-box button {
+    color: mix(@color5,white,0.4);
+    padding: 5px;
+}
+
+#wifi-password-entry {
+    background-color: @color5;
+    padding: 4px;
+    margin-left: 14px;
+    border-radius: 5px;
+}
+
 #bluetooth-percentage {
     min-width:0px;
     font-size: 14px;
@@ -267,11 +307,7 @@ tooltip {
     color:@color4;
 }
 
-#control-center {
-    background-color: @background;
-    padding:20px;
-    transition: all 0.3s cubic-bezier(.55, -0.68, .48, 1.682);
-}
+
 
 #battery-glyph {
     font-size: 15px;
@@ -283,14 +319,82 @@ tooltip {
 }
 
 #audio-icon {
-    color: @foreground;
-    font-size: 16px;
+    color: @color6;
+    font-size: 18px;
     font-weight: 600;
     padding-top:2px;
 }
 
 #audio-progress-bar{
-    color: @foreground;
-    border-color: shade(@color4,0.7);
-    border-width: 1px;
+    color: white;
+    border-color: shade(@color4,0.85);
 }
+
+#control-center {
+    background-color: @background;
+    padding:20px;
+    transition: all 0.3s cubic-bezier(.55, -0.68, .48, 1.682);
+    margin-right: -4px;
+}
+
+#bluetooth-toggle{
+    padding-left: 17px;
+    padding-right: 17px;
+    border-radius: 10px;
+    border-width: 2px;
+    border-color: @color4;
+}
+
+#bluetooth-toggle label {
+    font-size: 25px;
+}
+
+.bluetooth-off {
+    color:@color4;
+    border:solid;
+    background-color: transparent;
+    border-width:1px;
+    border-color: @color4;
+}
+
+/* highlighted background when on */
+.bluetooth-on {
+    background-color: @color4; /* or any colour you want */
+    color: @background;
+}
+
+
+#wifi-toggle {
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 10px;
+    
+}
+
+#wifi-toggle label {
+    font-size: 20px;
+}
+
+.wifi-off {
+    color:@color4;
+    border:solid;
+    background-color: transparent;
+    border-width:1px;
+    border-color: @color4;
+}
+
+.wifi-on {
+    background-color: @color4;
+    color: @background;
+}
+
+#rog-button {
+    padding-left: 10px;
+    padding-right: 6px;
+    border-radius: 10px;
+    background-color: @color4;
+    color: @color2;
+    
+}
+
+

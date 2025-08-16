@@ -7,6 +7,9 @@ from fabric.widgets.revealer import Revealer
 from fabric.widgets.eventbox import EventBox
 from gi.repository import GLib
 
+from .bluetooth_toggle import BluetoothToggle
+from .wifi_toggle_button import WifiToggle
+from .rog_control_center_toggle import ROGButton
 # notify_child_revealed=lambda revealer, _: [
 #                 revealer.hide(),
 #                 self.set_visible(False),
@@ -28,8 +31,9 @@ class ControlCenter(Window):
             visible=False,
             **kwargs)
 
-        self.padding = Box(orientation='v',children=[Label(label="padding")])
-        self.power_profile_toggle = Box(name="control-center",children=[Button(name="power-profile",label="Performance")])
+        self.toggles = Box(orientation='h',h_align="center",spacing=15,children=[WifiToggle(),BluetoothToggle(),ROGButton()])
+        self.content = Box(name="control-center",orientation='v',h_align="center")
+        self.content.add(self.toggles)
         self.revealer: Revealer = Revealer(
             visible=True,
             name="control-center-revealer",
@@ -39,7 +43,7 @@ class ControlCenter(Window):
             
         )
         self.revealer.set_reveal_child(False)
-        self.revealer.add(self.power_profile_toggle)
+        self.revealer.add(self.content)
         self.add(self.revealer)
 
        

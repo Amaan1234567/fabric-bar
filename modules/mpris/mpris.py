@@ -13,6 +13,7 @@ from fabric.widgets.centerbox import CenterBox
 from fabric import Fabricator
 from fabric.widgets.wayland import WaylandWindow
 from fabric.widgets.revealer import Revealer
+from fabric.utils import cooldown
 
 from custom_widgets.popwindow import PopupWindow
 from custom_widgets.image_rounded import CustomImage
@@ -65,7 +66,7 @@ class Mpris(Box):
         # Overlay elements
         self.album_art_overlay = CustomImage(name="album-art-overlay")
         self.album_art_overlay.set_size_request(100, 100)
-
+        
         self.song_title = Label(name="song-title-overlay", line_wrap="word", chars_width=15, justification="center")
         self.song_artist = Label(name="song-artist-overlay", line_wrap="word", chars_width=15, justification="center")
 
@@ -127,7 +128,7 @@ class Mpris(Box):
             h_expand=False
         )
         
-        self.overlay_revealer = Revealer(child=self.column,transition_type="slide-down",transition_duration=250)
+        self.overlay_revealer = Revealer(name="mpris-revealer",child=self.column,transition_type="slide-down",transition_duration=250)
 
         self.overlay = PopupWindow(parent=window,pointing_to=self,
             name="mpris-overlay-window",
@@ -143,18 +144,23 @@ class Mpris(Box):
         self.overlay_hide_timeout_id = None
         self.overlay.connect("enter-notify-event", self.on_overlay_enter)
         self.overlay.connect("leave-notify-event", self.on_overlay_leave)
-        self.content_event_box.connect("enter-notify-event", self.on_hover_enter)
+        self.content_event_box.connect("enter-notify-event", self.hover_trigger)
         self.content_event_box.connect("leave-notify-event", self.on_hover_leave)
         self.overlay.do_reposition("x")
 
+    def hover_trigger(self):
+        self.delay = GLib.timeout_add(500,self.on_hover_enter)
     def on_hover_enter(self, *_):
+        print("triggered")
         if(len(self.title_label.get_label()) != 0):
             self._cancel_hide_timeout()
             self.overlay.set_visible(True)
             self.overlay_revealer.set_reveal_child(True)
 
     def on_hover_leave(self, *_):
+        print("triggered leave")
         self._schedule_overlay_hide()
+        GLib.source_remove(self.delay)
 
     def on_overlay_enter(self, *_):
         self._cancel_hide_timeout()
@@ -189,8 +195,6 @@ class Mpris(Box):
         new_mode = "None" if current == "Playlist" else "Track" if current == "None" else "Playlist"
         os.system(f"playerctl loop {new_mode}")
 
-    def toggle_overlay_visibility(self, *_):
-        self.overlay.set_visible(not self.overlay.get_property("visible"))
 
     def _on_metadata(self, _, output: str):
         parts = output.strip().split("|", 2)
