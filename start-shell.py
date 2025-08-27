@@ -1,5 +1,6 @@
 from widgets.bar import StatusBar
 from widgets.corners import ScreenCorners
+from widgets.borders import ScreenBorders
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
 from modules.right_module.right_module import control_center
@@ -9,7 +10,8 @@ if __name__ == "__main__":
     loguru.logger.disable("")
     bar = StatusBar()
     corners = ScreenCorners()
-    app = Application("hypr-fabric-bar", windows=[bar,corners,control_center])
+    borders = ScreenBorders()
+    app = Application("hypr-fabric-bar", windows=[bar,corners,borders,control_center])
 
     style_path = get_relative_path("./style.css")
     if style_path:

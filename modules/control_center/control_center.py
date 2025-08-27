@@ -33,8 +33,10 @@ class ControlCenter(Window):
         super().__init__(layer="top",
                          title="control_center",
             anchor="right top bottom",
-            exclusivity="none",
+            exclusivity="auto",
             visible=True,
+            type="top-level",
+            margin="0px 0px 0px -1px",
             **kwargs)
 
         self.small_toggles = Box(orientation='h',h_align="center",spacing=15,children=[WifiToggle(),BluetoothToggle(),ROGButton(),WallpaperChangeButton(),MicToggle()])
@@ -78,7 +80,7 @@ class ControlCenter(Window):
             size=(0, -1),
         )
         self.revealer.set_reveal_child(False)
-        self.content.add(self.all_corners)
+        #self.content.add(self.all_corners)
         self.content.add(self.control_center_content)
         self.revealer.add(self.content)
 

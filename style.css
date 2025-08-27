@@ -173,6 +173,15 @@ border-width:  0 0 3px 0 ;
   background-color: @background;
 }
 
+
+#screen-borders {
+  background-color: transparent;
+  border:solid;
+  border-radius: 40px;
+  border-width: 2px;
+  border-color: @color4;
+}
+
 #active-window {
   color: mix(@color4, @color5, 0.5);
 }

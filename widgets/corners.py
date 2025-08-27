@@ -14,10 +14,11 @@ class ScreenCorners(Window):
         size = [40,40]
         super().__init__(
             name="corners",
-            layer="top",
+            layer="overlay",
             anchor="top bottom left right",
-            exclusivity="none",
+            exclusivity="auto",
             pass_through=True,
+            type="top-level",
             visible=False,
             all_visible=False,
             **kwargs,
@@ -25,30 +26,30 @@ class ScreenCorners(Window):
 
         self.all_corners = Box(
             name="all-corners",
-            orientation="v",
+            orientation="h",
             h_expand=True,
             v_expand=True,
             h_align="fill",
             v_align="fill",
             children=[
                 Box(
-                    name="top-corners",
-                    orientation="h",
+                    name="left-corners",
+                    orientation="v",
                     h_align="fill",
                     children=[
                         SideCorner("top-left", size),
-                        Box(h_expand=True),
-                        SideCorner("top-right", size),
+                        Box(v_expand=True),
+                        SideCorner("bottom-left", size),
                     ],
                 ),
-                Box(v_expand=True,name="middle-area"),
+                Box(h_expand=True,name="middle-area"),
                 Box(
-                    name="bottom-corners",
-                    orientation="h",
+                    name="right-corners",
+                    orientation="v",
                     h_align="fill",
                     children=[
-                        SideCorner("bottom-left", size),
-                        Box(h_expand=True),
+                        SideCorner("top-right", size),
+                        Box(v_expand=True),
                         SideCorner("bottom-right", size),
                     ],
                 ),
