@@ -235,11 +235,11 @@ class Mpris(Box):
         parts = parts.strip().split("<spacer>", 3)
         if len(parts) != 4:
             return
-        print(parts)
+        #print(parts)
         art_url, title, artist ,song_length = parts
         self.album_art.set_visible(True)
         self.song_progress.set_visible(True)
-        print(song_length)
+        #print(song_length)
         self.song_length = int(song_length)
         self.title_label.set_label(_truncate(title.strip() or "—",max_len=20))
         self.song_title.set_label(_truncate(title.strip() or "—"))
