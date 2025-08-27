@@ -47,7 +47,7 @@ class BrightnessSlider(Box):
             h_expand=True,
             v_expand=True,
             has_origin = True,
-            increments=(0.1, 0.1)
+            increments=(0.3, 0.1)
         )
 
         self.label = Label(

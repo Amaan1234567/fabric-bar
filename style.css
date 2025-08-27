@@ -258,7 +258,7 @@ tooltip {
   background: alpha(@backgroundWaybar, 0.9);
   font-weight: 900;
   padding: 0px;
-  margin-top: 10px;
+  margin-top: 20px;
   border-radius: 15px;
   border: solid;
 }
@@ -292,6 +292,52 @@ tooltip {
 #repeat-button label {
   font-size: 25px;
 }
+
+#system-controls {
+  padding:0px;
+  background-color: alpha(@color5,0.7);
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding-right:9px;
+  padding-left: 9px;
+  border-width: 2px;
+  border-radius: 8px;
+}
+
+#audio-icon {
+  color: @background;
+  font-size: 18px;
+  font-weight: 600;
+  padding-top: 2px;
+}
+
+#audio-container {
+  padding:0px;
+}
+
+#audio-scale{
+  padding:0;
+  margin-bottom: -2px;
+}
+
+#audio-scale trough {
+  padding:0;
+  margin:0;
+  border:solid;
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: @background;
+}
+
+#audio-scale slider {
+  min-height: 10px;
+}
+
+#audio-scale highlight {
+  border-radius:3px;
+  background: @background;
+  
+}
 #notification-button {
   background-color: @color4;
   color: @background;
@@ -305,8 +351,8 @@ tooltip {
 }
 
 #network-icon {
-  color: @color4;
-  font-size: 17px;
+  color: @background;
+  font-size: 18px;
   margin-left: 2px;
 }
 
@@ -338,13 +384,13 @@ tooltip {
 #bluetooth-percentage {
   min-width: 0px;
   font-size: 14px;
-  color: @color4;
+  color: @background;
 }
 
 #bluetooth-icon {
-  font-size: 17px;
+  font-size: 18px;
   margin-right: 2px;
-  color: @color4;
+  color: @background;
 }
 
 #battery-glyph {
@@ -354,18 +400,6 @@ tooltip {
 
 #battery-percent {
   font-size: 14px;
-}
-
-#audio-icon {
-  color: @color6;
-  font-size: 18px;
-  font-weight: 600;
-  padding-top: 2px;
-}
-
-#audio-progress-bar {
-  color: white;
-  border-color: shade(@color4, 0.85);
 }
 
 

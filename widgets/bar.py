@@ -67,13 +67,14 @@ class StatusBar(Window):
             self.mpris,
             self.cava,
             self.clock,
-            Box(orientation='h',spacing=10,children=[self.volume,
+            Box(name="system-controls",orientation='h',spacing=10,children=[self.volume,
             self.network,
             self.bluetooth,
-            self.battery,]),
+            ]),
             ])
             
         right_box = Box(orientation="h", spacing=10, children=[
+            self.battery,
             self.right_module,
             self.logout_btn
         ])

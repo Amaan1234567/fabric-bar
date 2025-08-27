@@ -1,6 +1,6 @@
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
-from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
+from custom_widgets.animated_scale import AnimatedScale
 from fabric.widgets.label import Label
 from fabric.audio import Audio
 from fabric.utils import cooldown
@@ -20,38 +20,33 @@ class AudioWidget(Box):
         "bluetooth":   "󰂯",
     }
 
-    def __init__(self, step_size=5, show_label=False, show_tooltip=True, **kwargs):
+    def __init__(self,step_size=5,show_tooltip=True,**kwargs):
         # We only need to listen for nothing here; events go on the progress bar
-        super().__init__(on_scroll_event=self.on_scroll,**kwargs)
+        super().__init__(name="audio-container",spacing=5,show_label=False, **kwargs)
         
-        self.eventbox = EventBox(events=[],on_scroll_event = self.on_scroll)
         # 1) Create the AnimatedCircularProgressBar
-        self.progress = AnimatedCircularProgressBar(
-            name="audio-progress-bar",
+        self.scale = AnimatedScale(
+            name="audio-scale",
+            orientation="horizontal",
+            min=0,
+            max=100,
             value=float(subprocess.getoutput("wpctl status | grep '\\*' | head -1 | sed -E 's/.*\\[vol: ([0-9.]+)\\].*/\\1/'").strip()),
-            line_style="round",
-            line_width=4,
-            size=35,
-            start_angle=140,
-            end_angle=395,
-            invert=True,
+            draw_value=False,
+            h_expand=True,
+            v_expand=True,
+            has_origin = True,
+            increments=(0.1, 0.05),
+            size=[50,10]
         )
+        self.scale.connect("change-value",self.on_scroll)
 
-        # 2) Create the icon and pack it *inside* the progress bar
+
         self.icon = Label(name="audio-icon", label=self._ICONS["medium"])
-        self.progress.add(self.icon)
-        self.progress.show_all()
 
-        # 3) Optional percentage label (outside the ring)
-        self.show_label = show_label
-        if show_label:
-            self.pct = Label(name="audio-pct", label="0%")
-            self.add(self.pct)
 
-        # 4) Put the progress bar (with icon inside) into this EventBox
-        self.eventbox.add(self.progress)
-        self.eventbox.add_events("scroll")
-        self.add(self.eventbox)
+
+        self.add(self.icon)
+        self.add(self.scale)
         # 5) Audio service & config
         self.audio = Audio()
         self.step = step_size
@@ -62,9 +57,8 @@ class AudioWidget(Box):
 
         # 7) Hook scroll & hover on the progress widget
         # self.connect("scroll_event",       self.on_scroll)
-        # self.progress.connect("scroll_event",       self.on_scroll)
-        self.eventbox.connect("scroll_event",self.on_scroll)
-        self.icon.connect("state-flags-changed", self._on_hover)
+        # self.scale.connect("scroll_event",       self.on_scroll)
+        self.connect("state-flags-changed", self._on_hover)
 
         # 8) Initialize
         self._on_speaker_changed()
@@ -82,6 +76,7 @@ class AudioWidget(Box):
         speaker.connect("notify::muted",  self._update_ui)
         self._update_ui()
 
+    @cooldown(0.2)
     def _update_ui(self, *args):
         """Refresh progress, icon, label, and tooltip."""
 
@@ -91,18 +86,13 @@ class AudioWidget(Box):
 
         vol = round(spk.volume)
         muted = spk.muted
+        #print(muted)
         desc = (spk.description or "").lower()
         
-        #print(desc)
-        #print(spk.icon_name)
+        #print(self.scale.value)
+        self.scale.animate_value(vol/100)
+        self.scale.set_value(vol / 100)
 
-        # 1) Update the ring fill
-        self.progress.animate_value(vol/100)
-        self.progress.set_value(vol / 100)
-
-        # 2) Update the % label if enabled
-        if self.show_label:
-            self.pct.set_text(f"{vol}%")
 
         # 3) Pick the right icon
         if muted or vol == 0:
@@ -128,20 +118,18 @@ class AudioWidget(Box):
                 f"<b>Volume:</b> {vol}%\n"
                 f"<b>Muted:</b> {'Yes' if muted else 'No'}"
             )
-            self.progress.set_tooltip_markup(tip)
-    @cooldown(0.1)
-    def on_scroll(self, _ ,event):
+            self.set_tooltip_markup(tip)
+
+    def on_scroll(self, _ ,__,value):
         """Scroll on the ring to change volume."""
 
-        step = self.step
-        if event.direction == Gdk.ScrollDirection.UP:
-            self.audio.speaker.volume = min(self.audio.speaker.volume + step, 100)
-        elif event.direction == Gdk.ScrollDirection.DOWN:
-            self.audio.speaker.volume = max(self.audio.speaker.volume - step, 0)
+        self.scale.animate_value(value)
+        self.scale.set_value(value)
+        self.audio.speaker.volume = value * 100
 
     def _on_hover(self, widget, event):
         """Show tooltip immediately on hover, if enabled."""
         if self.show_tooltip:
             # re-set tooltip to update any values
             self._update_ui()
-            self.progress.show_tooltip()  # ensure it pops up now (GTK handles rest)
+            self.scale.show_tooltip()  # ensure it pops up now (GTK handles rest)
