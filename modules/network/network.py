@@ -291,7 +291,7 @@ class NetworkWidget(Box):
                     pass
                 return False
             
-            GLib.timeout_add(100, make_popup_focusable)
+            GLib.timeout_add(1000, make_popup_focusable)
 
     def _update_networks_list_async(self):
         """Update networks list asynchronously"""

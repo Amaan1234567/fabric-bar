@@ -28,7 +28,7 @@ class AudioWidget(Box):
         # 1) Create the AnimatedCircularProgressBar
         self.progress = AnimatedCircularProgressBar(
             name="audio-progress-bar",
-            value=0,
+            value=float(subprocess.getoutput("wpctl status | grep '\\*' | head -1 | sed -E 's/.*\\[vol: ([0-9.]+)\\].*/\\1/'").strip()),
             line_style="round",
             line_width=4,
             size=35,
@@ -97,6 +97,7 @@ class AudioWidget(Box):
         #print(spk.icon_name)
 
         # 1) Update the ring fill
+        self.progress.animate_value(vol/100)
         self.progress.set_value(vol / 100)
 
         # 2) Update the % label if enabled

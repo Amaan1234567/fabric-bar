@@ -11,12 +11,12 @@ class ScreenCorners(Window):
     def __init__(self,**kwargs):
         
 
-        size = 35
+        size = [40,40]
         super().__init__(
             name="corners",
             layer="top",
             anchor="top bottom left right",
-            exclusivity="auto",
+            exclusivity="none",
             pass_through=True,
             visible=False,
             all_visible=False,

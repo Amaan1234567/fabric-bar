@@ -43,6 +43,6 @@ class ROGButton(Button):
             subprocess.Popen([
                 "bash", "-c", "rog-control-center & disown"
             ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            print("ROG Control Center launched")
+            #print("ROG Control Center launched")
         except Exception as e:
             print(f"Failed to launch ROG Control Center: {e}")

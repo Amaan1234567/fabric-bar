@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import os
+import subprocess
 import tempfile
 import urllib.request
 from gi.repository import GdkPixbuf, GLib, Gdk
-
+from time import sleep
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.image import Image
@@ -13,10 +14,12 @@ from fabric.widgets.centerbox import CenterBox
 from fabric import Fabricator
 from fabric.widgets.wayland import WaylandWindow
 from fabric.widgets.revealer import Revealer
+
 from fabric.utils import cooldown
 
 from custom_widgets.popwindow import PopupWindow
 from custom_widgets.image_rounded import CustomImage
+from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
 
 def _truncate(text, max_len=30):
     return text if len(text) <= max_len else text[: max_len - 1] + "…"
@@ -28,28 +31,39 @@ class Mpris(Box):
         self.content = Box(orientation='h', spacing=10)
         self.content_event_box = EventBox()
         self.album_art = CustomImage(name="album-art")
-        self.album_art.set_size_request(20, 20)
+        self.album_art.set_size_request(30, 30)
 
         self.title_label = Label(name="song-title", label="")
         self.artist_label = Label(name="song-artist", label="")
         self.pause_icon = Label(label="", name="pause-icon")
-        self.pause_icon.set_visible(False)
+        self.song_progress = AnimatedCircularProgressBar(name="cpu-progress-bar",
+            child=self.pause_icon,
+            value=0,
+            line_style="round",
+            line_width=4,
+            size=35,
+            start_angle=140,
+            end_angle=395,
+            invert=True)
 
+        self.content.add(self.song_progress)
         self.content.add(self.album_art)
-        self.content.add(self.pause_icon)
         self.content.add(self.title_label)
         self.content_event_box.add(self.content)
         self.add(self.content_event_box)
 
         self.temp_art_path = None
         self.temp_url_cache = ""
+        self.song_length = 0
 
         Fabricator(
-            poll_from="playerctl metadata --format '{{mpris:artUrl}}|{{title}}|{{artist}}'",
+            poll_from=lambda e: self.metadata_poll(),
         ).connect("changed", self._on_metadata)
 
+        Fabricator(poll_from="playerctl position").connect("changed",self._update_progress)
+        
         Fabricator(
-            interval=500,
+            interval=1000,
             poll_from="playerctl status"
         ).connect("changed", self._on_status_change)
 
@@ -148,17 +162,32 @@ class Mpris(Box):
         self.content_event_box.connect("leave-notify-event", self.on_hover_leave)
         self.overlay.do_reposition("x")
 
+    def metadata_poll(self):
+        while True :
+            output = subprocess.getoutput("playerctl metadata --format '{{mpris:artUrl}}|{{title}}|{{artist}}|{{mpris:length}}'")
+            yield output
+            sleep(0.3)
+
+    def _update_progress(self,_ , value):
+        #print(value)
+        position = float(value.strip())
+        #print((position/self.song_length)*100)
+        if self.song_length!=0:
+            self.song_progress.animate_value((position/self.song_length))
+        self.song_progress.set_value(position)
+        
+
     def hover_trigger(self):
         self.delay = GLib.timeout_add(500,self.on_hover_enter)
     def on_hover_enter(self, *_):
-        print("triggered")
+        #print("triggered")
         if(len(self.title_label.get_label()) != 0):
             self._cancel_hide_timeout()
             self.overlay.set_visible(True)
             self.overlay_revealer.set_reveal_child(True)
 
     def on_hover_leave(self, *_):
-        print("triggered leave")
+        #print("triggered leave")
         self._schedule_overlay_hide()
         GLib.source_remove(self.delay)
 
@@ -196,20 +225,30 @@ class Mpris(Box):
         os.system(f"playerctl loop {new_mode}")
 
 
-    def _on_metadata(self, _, output: str):
-        parts = output.strip().split("|", 2)
-        if len(parts) != 3:
+    def _on_metadata(self, _, output):
+        parts = next(output)
+        if parts == "No players found":
+            #print(parts)
+            self.album_art.set_visible(False)
+            self.song_progress.set_visible(False)
             return
-        art_url, title, artist = parts
-        self.title_label.set_label(_truncate(title.strip() or "—"))
+        parts = parts.strip().split("|", 3)
+        if len(parts) != 4:
+            return
+        art_url, title, artist ,song_length = parts
+        self.album_art.set_visible(True)
+        self.song_progress.set_visible(True)
+        self.song_length = int(song_length)
+        self.title_label.set_label(_truncate(title.strip() or "—",max_len=20))
         self.song_title.set_label(_truncate(title.strip() or "—"))
         self.song_artist.set_label(_truncate(artist.strip() or "—"))
-        self.artist_label.set_label(_truncate(artist.strip() or "—"))
+        self.artist_label.set_label(_truncate(artist.strip() or "—",max_len=20))
+        self.song_length /= (10**6)
         self._load_art(art_url.strip())
 
     def _on_status_change(self, _, output: str):
         status = output.strip()
-        self.pause_icon.set_visible(status != "Playing")
+        self.pause_icon.set_label("" if status != "Playing" else "")
         self.play_button.set_label("" if status != "Playing" else "")
 
     def _on_shuffle_change(self, _, output: str):
@@ -284,7 +323,7 @@ class Mpris(Box):
                     self._cleanup_temp()
                     self.temp_art_path = path
             if not os.path.exists(path): return
-            pic1 = self.create_album_art(path=path,size=20)
+            pic1 = self.create_album_art(path=path,size=30)
             pic2 = self.create_album_art(path=path,size=200)
 
             self.album_art.set_from_pixbuf(pic1)

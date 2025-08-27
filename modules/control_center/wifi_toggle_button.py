@@ -34,6 +34,7 @@ class WifiToggle(Button):
         )
         # Poll every 5s to keep in sync
         GLib.timeout_add_seconds(5, self._refresh)
+        self.set_tooltip_text("Toggle Wifi")
 
     def _toggle_wifi(self, button):
         """Toggle WiFi on/off"""

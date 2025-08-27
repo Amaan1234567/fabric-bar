@@ -22,7 +22,7 @@ class CavaWidget(Box):
 
         self.children = self.cava_label
         self.update_service = Fabricator(
-            interval=100,
+            interval=1000,
             poll_from=f"{script_path} {self.bars}",
             stream=True,
         ).connect("changed",self.update_label)

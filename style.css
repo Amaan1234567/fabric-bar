@@ -1,13 +1,13 @@
 @import url("./colors.css");
-@import url('https://fonts.googleapis.com/css2?family=Open%20Sans:wght@400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Monoton&family=Pixelify+Sans:wght@400..700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Open%20Sans:wght@400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Monoton&family=Pixelify+Sans:wght@400..700&display=swap");
 
 * {
-    all:unset;
-    font-family: "JetBrainsMono Nerd Font Propo";
-    font-weight:900;
-    font-size: 15px;
-    background: transparent;
+  all: unset;
+  font-family: "JetBrainsMono Nerd Font Propo";
+  font-weight: 900;
+  font-size: 16px;
+  background: transparent;
 }
 
 /* @keyframes gradient-border {
@@ -34,14 +34,22 @@
   100% { border-image-source: linear-gradient(45deg, @color2, @color4, @color5, @color3, @color6); }
 } */
 
-
-
 @keyframes animated-gradient {
-    0%   { background-position: 50% 0%; }
-    25%  { background-position: 100% 50%; }
-    50%  { background-position: 50% 100%; }
-    75%  { background-position: 0% 50%; }
-    100% { background-position: 50% 0%; }
+  0% {
+    background-position: 50% 0%;
+  }
+  25% {
+    background-position: 100% 50%;
+  }
+  50% {
+    background-position: 50% 100%;
+  }
+  75% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 50% 0%;
+  }
 }
 
 /* #bar {
@@ -66,25 +74,27 @@ border-width:  0 0 3px 0 ;
 } */
 
 #bar {
-    background-color: @background;
+  background-color: @background;
 }
 
+.sep {
+  padding: 10px;
+}
 
 #logout {
-    margin-right:15px;
-    color: white;
+  margin-right: 15px;
+  color: white;
 }
 
 #clock label {
-    background: transparent;
-    color: @color4;
-    margin: 3px;
-   
+  background: transparent;
+  color: @color4;
+  margin: 3px;
 }
 
 #cpu {
-    margin-left: 10px;
-    margin-right: 0px;
+  margin-left: 10px;
+  margin-right: 0px;
 }
 
 /* #cpu-label {
@@ -94,36 +104,34 @@ border-width:  0 0 3px 0 ;
     padding:10px;
 } */
 
-#cpu-progress-bar{
-    color: white;
-    border-color: shade(@color4,0.85);
+#cpu-progress-bar {
+  color: white;
+  border-color: shade(@color4, 0.85);
 }
 
-
 #memory {
-    margin-left: -10px;
+  margin-left: -10px;
 }
 
 #memory-label {
-    color: @color6;
-    font-size: 15px;
-    font-weight: 600;
-    padding:10px;
+  color: @color6;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px;
 }
 
-#memory-progress-bar{
-    color: white;
-    border-color: shade(@color4,0.85);
+#memory-progress-bar {
+  color: white;
+  border-color: shade(@color4, 0.85);
 }
 
 #workspaces {
   background-color: transparent;
 }
 
-
 .workspace-button {
-    padding:0;
-    background-color: transparent;
+  padding: 0;
+  background-color: transparent;
   border-radius: 2px;
   margin-top: 10px;
   margin-bottom: 10px;
@@ -132,65 +140,75 @@ border-width:  0 0 3px 0 ;
   font-weight: 500;
   color: lighter(@color4);
   animation: ws_hover 60s ease-in-out 1;
-  transition: all 0.3s cubic-bezier(.55, -0.68, .48, 1.682);
+  transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.682);
 }
 
-.workspace-button.active , .workspace-button.active:hover{
+.workspace-button.active,
+.workspace-button.active:hover {
   background: radial-gradient(@color4, @color5, @color6);
   color: @background;
   font-weight: 900;
   animation: ws_active 10s ease-in-out 1;
   background-size: 1000% 1000%;
   animation: animated-gradient 25s ease infinite;
-  transition: all 0.4s cubic-bezier(.55, -0.68, .48, 1.682);
-  padding-left:20px;
-  padding-right:20px;
+  transition: all 0.4s cubic-bezier(0.55, -0.68, 0.48, 1.682);
+  padding-left: 20px;
+  padding-right: 20px;
   border-radius: 40px;
 }
 
-
-
 .workspace-button:hover {
-  background: alpha(@color6,0.4);
+  background: alpha(@color6, 0.4);
   color: @background;
   background-size: 1000% 1000%;
   animation: ws_active 20s ease-in-out 1;
   animation: animated-gradient 5s ease infinite;
-  transition: all 0.4s cubic-bezier(.55, 0.68, .48, 1.682);
-  padding-left:20px;
-  padding-right:20px;
+  transition: all 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682);
+  padding-left: 20px;
+  padding-right: 20px;
   border-radius: 40px;
 }
 
 #corner {
-background-color:@background;
+  background-color: @background;
 }
 
 #active-window {
-    color: mix(@color4,@color5,0.5);
+  color: mix(@color4, @color5, 0.5);
 }
 
+#cava > label {
+  font-size: 15px;
+}
 .cava-active {
-    padding:0;
-    background: linear-gradient(45deg,@color2,@color3,@color4, @color5, @color6,@color7,@color8);
-    background-size: 500% 500%;
-    color: @background;
-    margin-top: 8px;
-    margin-bottom: 8px;
-    padding-right: 7px;
-    padding-left: 7px;
-    border-radius: 5px;
-    animation: animated-gradient 25s ease-in-out infinite;
+  padding: 0;
+  background: linear-gradient(
+    45deg,
+    @color2,
+    @color3,
+    @color4,
+    @color5,
+    @color6,
+    @color7,
+    @color8
+  );
+  background-size: 500% 500%;
+  color: @background;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding-right: 7px;
+  padding-left: 7px;
+  border-radius: 5px;
+  animation: animated-gradient 25s ease-in-out infinite;
 }
 
 .cava-silent {
-    all:unset;
+  all: unset;
 }
-
 
 tooltip {
   background-color: @background;
-  color: mix(@color5,white,0.4);
+  color: mix(@color5, white, 0.4);
   border-radius: 7px;
   padding: 4px 8px;
   font-size: 15px;
@@ -198,203 +216,303 @@ tooltip {
 }
 
 #song-title {
-    color: lighter(@color4);
+  color: lighter(@color4);
 }
 
 #pause-icon {
-    color: lighter(@color4);
+  font-size: 18px;
+  padding-left: 2px;
+  color: lighter(@color4);
+}
+
+#album-art > * {
+  padding: 0;
 }
 
 #album-art {
-    border:solid;
-    border-radius: 10px;
-
+  border: solid;
+  border-radius: 4px;
+  border-width: 1px;
+  border-color: @color4;
+  padding: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 #mpris-overlay-window {
-    background-color: transparent;
-}
-
-
-#mpris-overlay {
-    background: alpha(@backgroundWaybar,0.9);
-    font-weight: 900;
-    padding:0px;
-    margin-top:10px;
-    border-radius: 15px;
-    border:solid;
+  background-color: transparent;
 }
 
 #mpris-overlay {
-    transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1.0); /* Example cubic-bezier values */
+  background: alpha(@backgroundWaybar, 0.9);
+  font-weight: 900;
+  padding: 0px;
+  margin-top: 10px;
+  border-radius: 15px;
+  border: solid;
+}
+
+#mpris-overlay {
+  transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Example cubic-bezier values */
 }
 
 #song-title-overlay {
-    font-size: 20px;
-    color: @color4;
+  font-size: 20px;
+  color: @color4;
 }
 
 #song-artist-overlay {
-    font-size: 16px;
+  font-size: 16px;
 }
 
-#album-art-overlay{
-    border:solid;
-    border-radius: 15px;
-    
+#album-art-overlay {
+  border: solid;
+  border-radius: 15px;
 }
 
 #right-column {
-    padding:15px;
+  padding: 15px;
 }
 
-#prev-button label,#play-button label,#next-button label, #shuffle-button label,#repeat-button label{
-    font-size: 25px;
+#prev-button label,
+#play-button label,
+#next-button label,
+#shuffle-button label,
+#repeat-button label {
+  font-size: 25px;
 }
 #notification-button {
-    background-color: @color4;
-    color: @background;
-    border-radius: 7px;
-    margin-top:8px;
-    margin-bottom:8px;
-    padding-top:0px;
-    padding-bottom: 0px;
-    padding-right: 8px;
-    padding-left: 8px;
+  background-color: @color4;
+  color: @background;
+  border-radius: 7px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-right: 8px;
+  padding-left: 8px;
 }
 
 #network-icon {
-    color:@color4;
-    font-size: 17px;
-    margin-left: 2px;
+  color: @color4;
+  font-size: 17px;
+  margin-left: 2px;
 }
 
 #network-overlay-window {
-    background-color: transparent;
+  background-color: transparent;
 }
 
-
 #wifi-networks-box {
-    background: alpha(@backgroundWaybar,0.9);
-    font-weight: 900;
-    padding:10px;
-    margin-top:10px;
-    border-radius: 15px;
-    border:solid;
+  background: alpha(@backgroundWaybar, 0.9);
+  font-weight: 900;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 15px;
+  border: solid;
 }
 
 #wifi-networks-box button {
-    color: mix(@color5,white,0.4);
-    padding: 5px;
+  color: mix(@color5, white, 0.4);
+  padding: 5px;
 }
 
 #wifi-password-entry {
-    background-color: @color5;
-    padding: 4px;
-    margin-left: 14px;
-    border-radius: 5px;
+  background-color: @color5;
+  padding: 4px;
+  margin-left: 14px;
+  border-radius: 5px;
 }
 
 #bluetooth-percentage {
-    min-width:0px;
-    font-size: 14px;
-    color:@color4;
+  min-width: 0px;
+  font-size: 14px;
+  color: @color4;
 }
 
 #bluetooth-icon {
-    font-size: 17px;
-    margin-right: 2px;
-    color:@color4;
+  font-size: 17px;
+  margin-right: 2px;
+  color: @color4;
 }
 
-
-
 #battery-glyph {
-    font-size: 15px;
-    margin-right: 2px;
+  font-size: 15px;
+  margin-right: 2px;
 }
 
 #battery-percent {
-    font-size:14px;
+  font-size: 14px;
 }
 
 #audio-icon {
-    color: @color6;
-    font-size: 18px;
-    font-weight: 600;
-    padding-top:2px;
+  color: @color6;
+  font-size: 18px;
+  font-weight: 600;
+  padding-top: 2px;
 }
 
-#audio-progress-bar{
-    color: white;
-    border-color: shade(@color4,0.85);
+#audio-progress-bar {
+  color: white;
+  border-color: shade(@color4, 0.85);
 }
+
 
 #control-center {
-    background-color: @background;
-    padding:20px;
-    transition: all 0.3s cubic-bezier(.55, -0.68, .48, 1.682);
-    margin-right: -4px;
+  background-color: @background;
+  padding: 20px;
+  /* margin-right: -4px; */
+  margin-left: -2px;
 }
 
-#bluetooth-toggle{
-    padding-left: 17px;
-    padding-right: 17px;
-    border-radius: 10px;
-    border-width: 2px;
-    border-color: @color4;
+#bluetooth-toggle {
+  padding-left: 17px;
+  padding-right: 17px;
+  border-radius: 10px;
+  border-width: 2px;
+  border-color: @color4;
 }
 
 #bluetooth-toggle label {
-    font-size: 25px;
+  font-size: 25px;
 }
 
 .bluetooth-off {
-    color:@color4;
-    border:solid;
-    background-color: transparent;
-    border-width:1px;
-    border-color: @color4;
+  color: @color4;
+  border: solid;
+  background-color: transparent;
+  border-width: 1px;
+  border-color: @color4;
 }
 
 /* highlighted background when on */
 .bluetooth-on {
-    background-color: @color4; /* or any colour you want */
-    color: @background;
+  background-color: @color4; /* or any colour you want */
+  color: @background;
 }
 
-
 #wifi-toggle {
-    padding-left: 15px;
-    padding-right: 15px;
-    border-radius: 10px;
-    
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 10px;
 }
 
 #wifi-toggle label {
-    font-size: 20px;
+  font-size: 20px;
 }
 
 .wifi-off {
-    color:@color4;
-    border:solid;
-    background-color: transparent;
-    border-width:1px;
-    border-color: @color4;
+  color: @color4;
+  border: solid;
+  background-color: transparent;
+  border-width: 2px;
+  border-color: @color4;
 }
 
 .wifi-on {
-    background-color: @color4;
-    color: @background;
+  background-color: @color4;
+  color: @background;
 }
 
 #rog-button {
-    padding-left: 10px;
-    padding-right: 6px;
-    border-radius: 10px;
-    background-color: @color4;
-    color: @color2;
-    
+  padding-left: 10px;
+  padding-right: 6px;
+  border-radius: 10px;
+  background-color: @color4;
+  color: @color2;
 }
 
+#wallpaper-change-button {
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 10px;
+  background-color: @color4;
+}
 
+#mic-toggle {
+  padding-left: 16px;
+  padding-right: 16px;
+  border-radius: 10px;
+}
+
+#mic-toggle.mic-active {
+  background-color: @color4;
+  color: @background;
+}
+
+#mic-icon {
+  font-size: 24px;
+}
+
+#mic-toggle.mic-muted {
+  color: @color4;
+  border: solid;
+  background-color: transparent;
+  border-width: 1px;
+  border-color: @color4;
+  padding-left: 13px;
+  padding-right: 13px;
+  /* padding-top:2px;
+    padding-bottom:2px; */
+}
+
+#performance-toggle {
+  padding: 5px;
+  border-radius: 10px;
+  background-color: @color4;
+  color: @background;
+}
+
+#status-label {
+  font-size: 17px;
+}
+
+#brightness-container,
+#brightness-container overlay {
+  padding: 0px;
+  margin: 0px;
+  border-width: 2px;
+  border: solid;
+  border-color: @color4;
+}
+
+#brightness-eventbox {
+  border: solid;
+  border-width: 2px;
+  border-color: @color4;
+  border-radius: 10px;
+}
+
+#brightness-scale slider {
+  all: initial;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  min-height: 20px;
+  border-radius: 10px;
+  border-width: 2px;
+  border: solid;
+  background-color: @background;
+  box-shadow: inset 0 1px 2px alpha(@color1, 0.15);
+}
+
+#brightness-scale highlight {
+  border-radius: 10px;
+  background: @color4;
+}
+
+/* overlay label */
+#brightness-label {
+  color: @background;
+  font-size: 20px;
+  padding-left: 5px;
+  font-weight: 900;
+  border-width: 2px;
+  border: solid;
+  border-color: @color4;
+}
+
+#brightness-label.brightness-icon-low {
+  color: @color4;
+}

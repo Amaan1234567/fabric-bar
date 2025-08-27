@@ -27,7 +27,7 @@ from modules.system_tray.system_tray import barSystemTray
 class StatusBar(Window):
     def __init__(self, **kwargs):
         super().__init__(
-            layer="top",
+            layer="top",name="bar-window",
             anchor="left top right",
             exclusivity="auto",
             type="top-level",
@@ -45,7 +45,7 @@ class StatusBar(Window):
             on_clicked=lambda *a: subprocess.run(["wlogout","--protocol","layer-shell"]),
             name="logout"
         )
-        self.seperator = Separator(orientation='h')
+        self.seperator = Separator(orientation='h',h_expand=True,h_align="fill",style_classes="sep")
         self.active_window = WindowName()
         self.cava = CavaWidget()
         self.right_module = NotificationButton()
@@ -53,6 +53,7 @@ class StatusBar(Window):
             self.cpu,
             self.memory,
             self.workspaces,
+            self.active_window,
 
         ])
 
@@ -62,14 +63,18 @@ class StatusBar(Window):
         self.network = NetworkWidget(self,interval=1)
         self.bluetooth = BluetoothWidget(interval=1)
         #self.system_tray = barSystemTray()
-        center_box = Box(orientation="h", spacing=10,h_align="center",children=[self.clock,self.cava,self.active_window,])
-        right_box = Box(orientation="h", spacing=10, children=[
+        center_box = Box(orientation="h", spacing=60,h_align="center",children=[
             self.mpris,
-            self.volume,
+            self.cava,
+            self.clock,
+            Box(orientation='h',spacing=10,children=[self.volume,
             self.network,
             self.bluetooth,
+            self.battery,]),
+            ])
+            
+        right_box = Box(orientation="h", spacing=10, children=[
             self.right_module,
-            self.battery,
             self.logout_btn
         ])
 

@@ -12,7 +12,7 @@ from time import sleep
 class Cpu(Box):
     def __init__(self) -> None:
         # 1px spacing, horizontal orientation
-        super().__init__(orientation="h", spacing=1, name="cpu")
+        super().__init__(orientation="h", name="cpu")
 
         # Create and pack the SVG icon
         self.icon = Svg(
@@ -44,7 +44,7 @@ class Cpu(Box):
             default_value=0,
             poll_from=lambda svc: self.get_cpu_usage(),
             stream=True,
-            interval=100,
+            interval=1000,
         ).connect("changed", self.update_label)
 
     def _get_color6_from_css(self):

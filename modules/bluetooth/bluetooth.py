@@ -54,11 +54,19 @@ class BluetoothWidget(Box):
         
         # Initial refresh
         self._refresh()
+        GLib.timeout_add_seconds(5,self.refresh_bluetooth_client)
+
+    def refresh_bluetooth_client(self):
+        try:
+            self.bluetooth_client = BluetoothClient()
+        except AttributeError as e :
+            #print(e)
+            pass
 
     @cooldown(1)
     def on_left_click(self, _, event):
         if event.button == Gdk.BUTTON_PRIMARY:
-            subprocess.run("blueman-manager", shell=True)
+            subprocess.run("blueman-manager & disown",shell=True)
             
     def on_hover(self):
         self._refresh()
@@ -111,6 +119,7 @@ class BluetoothWidget(Box):
             
             # Get connected devices
             connected_devices = self.bluetooth_client.connected_devices
+            #print(connected_devices)
             
             if connected_devices:
                 device_info = []
@@ -124,6 +133,7 @@ class BluetoothWidget(Box):
                     try:
                         if hasattr(device, 'battery_percentage') and device.battery_percentage is not None:
                             battery_level = int(device.battery_percentage)
+                            #print(battery_level)
                         elif hasattr(device, 'battery_level') and device.battery_level is not None:
                             battery_level = int(device.battery_level)
                     except (ValueError, TypeError):

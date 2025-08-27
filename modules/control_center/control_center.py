@@ -10,6 +10,12 @@ from gi.repository import GLib
 from .bluetooth_toggle import BluetoothToggle
 from .wifi_toggle_button import WifiToggle
 from .rog_control_center_toggle import ROGButton
+from .wallpaper_change_button import WallpaperChangeButton
+from .mic_toggle_button import MicToggle
+from .performance_toggle import PerformanceToggle
+from .brightness_slider import BrightnessSlider
+
+from custom_widgets.side_corner import SideCorner
 # notify_child_revealed=lambda revealer, _: [
 #                 revealer.hide(),
 #                 self.set_visible(False),
@@ -27,24 +33,58 @@ class ControlCenter(Window):
         super().__init__(layer="top",
                          title="control_center",
             anchor="right top bottom",
-            exclusivity="auto",
-            visible=False,
+            exclusivity="none",
+            visible=True,
             **kwargs)
 
-        self.toggles = Box(orientation='h',h_align="center",spacing=15,children=[WifiToggle(),BluetoothToggle(),ROGButton()])
-        self.content = Box(name="control-center",orientation='v',h_align="center")
-        self.content.add(self.toggles)
+        self.small_toggles = Box(orientation='h',h_align="center",spacing=15,children=[WifiToggle(),BluetoothToggle(),ROGButton(),WallpaperChangeButton(),MicToggle()])
+        self.med_toggles = Box(orientation='h',h_align="center",spacing=10,children=[PerformanceToggle(),BrightnessSlider()],h_expand=True)
+        self.control_center_content = Box(name="control-center",orientation='v',h_align="center",spacing=20)
+        self.control_center_content.add(self.small_toggles)
+        self.control_center_content.add(self.med_toggles)
+        self.all_corners = Box(
+            name="all-corners",
+            orientation="v",
+            h_expand=True,
+            v_expand=True,
+            h_align="fill",
+            v_align="fill",
+            children=[
+                Box(
+                    name="top-corners",
+                    orientation="h",
+                    h_align="fill",
+                    children=[
+                        SideCorner("top-right", [40,40]),
+                    ],
+                ),
+                Box(v_expand=True,name="middle-area"),
+                Box(
+                    name="bottom-corners",
+                    orientation="h",
+                    h_align="fill",
+                    children=[
+                        SideCorner("bottom-right", [40,40]),
+                    ],
+                ),
+            ],
+        )
+        self.content = Box(orientation='h',v_expand=True)
         self.revealer: Revealer = Revealer(
-            visible=True,
             name="control-center-revealer",
             transition_type='slide-left',
-            transition_duration=400,
+            transition_duration=300,
             child_revealed=False,
-            
+            size=(0, -1),
         )
         self.revealer.set_reveal_child(False)
+        self.content.add(self.all_corners)
+        self.content.add(self.control_center_content)
         self.revealer.add(self.content)
+
+
         self.add(self.revealer)
+        self.show()
 
        
 
@@ -54,9 +94,11 @@ class ControlCenter(Window):
         self.revealer.set_reveal_child(is_opening)
         if is_opening:
             # Make window visible immediately when opening
-            self.set_visible(True)
+            #self.set_visible(True)
+            #self.revealer.set_visible(True)
             self.revealer.set_reveal_child(is_opening)
         else:
             # Delay hiding window until animation finishes (~500ms)
             self.revealer.set_reveal_child(is_opening)
-            GLib.timeout_add(250, self.set_visible, False)  # milliseconds
+            #GLib.timeout_add(400, self.set_visible, False)  # milliseconds
+            #GLib.timeout_add(400, self.revealer.set_visible,False)

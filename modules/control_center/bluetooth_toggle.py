@@ -34,6 +34,7 @@ class BluetoothToggle(Button):
         )
         # Poll every 6s to keep in sync
         GLib.timeout_add_seconds(6, self._refresh)
+        self.set_tooltip_text("Toggle Bluetooth")
 
     @staticmethod
     def _bluetooth_is_on() -> bool:
