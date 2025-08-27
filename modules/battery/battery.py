@@ -4,6 +4,7 @@ from fabric import Fabricator
 from gi.repository import GLib
 import psutil
 import re
+import subprocess
 
 class BatteryWidget(Box):
     def __init__(self, interval=1, **kwargs):
@@ -18,10 +19,7 @@ class BatteryWidget(Box):
         self.battery_health = "Unknown"
         self.interval = interval
 
-        self.fabricator = Fabricator(
-            poll_from="upower -i /org/freedesktop/UPower/devices/battery_BAT0"
-        )
-        self.fabricator.connect("changed", self._on_upower_data)
+        self._on_upower_data(subprocess.getoutput("upower -i /org/freedesktop/UPower/devices/battery_BAT0"))
         self._refresh()
         GLib.timeout_add_seconds(self.interval, self._refresh)
 
@@ -56,27 +54,31 @@ class BatteryWidget(Box):
         self.percent_label.set_tooltip_markup(tooltip)
         return True
 
-    def _on_upower_data(self, fabricator, output):
+    def _on_upower_data(self, output):
         line = output.strip()
+        #print("starting: \n",line,"\nending...\n")
         self._full_now = None
         self._full_design = None
-        if line.startswith("energy-full:"):
+        if "energy-full:" in line:
             # split off everything after the colon,
             # strip spaces, then take the first token (the number)
             try:
                 val_str = line.split("energy-full:", 1)[1].strip().split()[0]
                 self._full_now = float(val_str)
+                #print(self._full_now,self._full_design)
             except Exception as e:
                 print("⚠️ could not parse energy-full:", e)
 
-        if line.startswith("energy-full-design:"):
+        if "energy-full-design:" in line:
             try:
                 val_str = line.split("energy-full-design:", 1)[1].strip().split()[0]
                 self._full_design = float(val_str)
+                #print(self._full_now,self._full_design)
             except Exception as e:
                 print("⚠️ could not parse energy-full-design:", e)
 
         # 2) When we have both values, compute health
+        # print(self._full_now,self._full_design)
         if self._full_now is not None and self._full_design is not None:
             health_pct = (self._full_now / self._full_design) * 100
             self.battery_health = f"{health_pct:.1f}%"

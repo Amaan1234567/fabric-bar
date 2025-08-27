@@ -363,8 +363,6 @@ tooltip {
 #control-center {
   background-color: @background;
   padding: 20px;
-  /* margin-right: -4px; */
-  margin-left: -2px;
 }
 
 #bluetooth-toggle {
