@@ -164,7 +164,7 @@ class Mpris(Box):
 
     def metadata_poll(self):
         while True :
-            output = subprocess.getoutput("playerctl metadata --format '{{mpris:artUrl}}|{{title}}|{{artist}}|{{mpris:length}}'")
+            output = subprocess.getoutput("playerctl metadata --format '{{mpris:artUrl}}<spacer>{{title}}<spacer>{{artist}}<spacer>{{mpris:length}}'")
             yield output
             sleep(0.3)
 
@@ -232,12 +232,14 @@ class Mpris(Box):
             self.album_art.set_visible(False)
             self.song_progress.set_visible(False)
             return
-        parts = parts.strip().split("|", 3)
+        parts = parts.strip().split("<spacer>", 3)
         if len(parts) != 4:
             return
+        print(parts)
         art_url, title, artist ,song_length = parts
         self.album_art.set_visible(True)
         self.song_progress.set_visible(True)
+        print(song_length)
         self.song_length = int(song_length)
         self.title_label.set_label(_truncate(title.strip() or "—",max_len=20))
         self.song_title.set_label(_truncate(title.strip() or "—"))
