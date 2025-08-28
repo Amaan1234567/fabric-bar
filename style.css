@@ -295,7 +295,7 @@ tooltip {
 
 #system-controls {
   padding:0px;
-  background-color: alpha(@color5,0.7);
+  background-color: @color4;
   margin-top: 8px;
   margin-bottom: 8px;
   padding-right:9px;

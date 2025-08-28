@@ -14,7 +14,7 @@ class ScreenCorners(Window):
         size = [40,40]
         super().__init__(
             name="corners",
-            layer="overlay",
+            layer="top",
             anchor="top bottom left right",
             exclusivity="auto",
             pass_through=True,

@@ -5,7 +5,7 @@ from fabric.widgets.label import Label
 class ScreenBorders(WaylandWindow): 
     def __init__(self,**kwargs):
         super().__init__(
-            layer="overlay",
+            layer="top",
             name="borders-window",
             anchor="top bottom left right",
             exclusivity="auto",
