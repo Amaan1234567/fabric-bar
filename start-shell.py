@@ -4,6 +4,7 @@ from widgets.borders import ScreenBorders
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
 from modules.right_module.right_module import control_center
+from modules.notification.notification_popup import NotificationPopupWindow
 import loguru
 
 if __name__ == "__main__":
@@ -11,7 +12,8 @@ if __name__ == "__main__":
     bar = StatusBar()
     corners = ScreenCorners()
     borders = ScreenBorders()
-    app = Application("hypr-fabric-bar", windows=[bar,corners,borders,control_center])
+    notifications = NotificationPopupWindow()
+    app = Application("hypr-fabric-bar", windows=[bar,corners,borders,control_center,notifications])
 
     style_path = get_relative_path("./style.css")
     if style_path:
