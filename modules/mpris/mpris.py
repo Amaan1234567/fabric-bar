@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-import os
-import subprocess
-import tempfile
-import urllib.request
-from gi.repository import GdkPixbuf, GLib, Gdk
+
+from gi.repository import GdkPixbuf, GLib, Gio
 from time import sleep
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
@@ -14,70 +11,30 @@ from fabric.widgets.centerbox import CenterBox
 from fabric import Fabricator
 from fabric.widgets.wayland import WaylandWindow
 from fabric.widgets.revealer import Revealer
-
+from fabric.utils import invoke_repeater
 from fabric.utils import cooldown
 
 from custom_widgets.popwindow import PopupWindow
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
-
+from services.playerctlservice import SimplePlayerctlService
 def _truncate(text, max_len=30):
     return text if len(text) <= max_len else text[: max_len - 1] + "…"
 
-class Mpris(Box):
-    def __init__(self, window, **kwargs):
-        super().__init__(orientation="horizontal", spacing=6, **kwargs)
 
-        self.content = Box(orientation='h', spacing=10)
-        self.content_event_box = EventBox()
-        self.album_art = CustomImage(name="album-art")
-        self.album_art.set_size_request(30, 30)
-
-        self.title_label = Label(name="song-title", label="")
-        self.artist_label = Label(name="song-artist", label="")
-        self.pause_icon = Label(label="", name="pause-icon")
-        self.song_progress = AnimatedCircularProgressBar(name="cpu-progress-bar",
-            child=self.pause_icon,
-            value=0,
-            line_style="round",
-            line_width=4,
-            size=35,
-            start_angle=140,
-            end_angle=395,
-            invert=True)
-
-        self.content.add(self.song_progress)
-        self.content.add(self.album_art)
-        self.content.add(self.title_label)
-        self.content_event_box.add(self.content)
-        self.add(self.content_event_box)
-
-        self.temp_art_path = None
-        self.temp_url_cache = ""
-        self.song_length = 0
-
-        Fabricator(
-            poll_from=lambda e: self.metadata_poll(),
-        ).connect("changed", self._on_metadata)
-
-        Fabricator(poll_from="playerctl position").connect("changed",self._update_progress)
+class MprisPopup(PopupWindow):
+    def __init__(self,parent,pointing_to,name="mpris-overlay-window",**kwargs):
+        super().__init__(parent=parent,pointing_to=pointing_to,layer="top",
+            type="popup",
+            anchor="top right",
+            visible=False,
+            v_expand=False,
+            h_expand=False,**kwargs)
         
-        Fabricator(
-            interval=1000,
-            poll_from="playerctl status"
-        ).connect("changed", self._on_status_change)
+        self.temp_art_pixbuf_cache = None
+        self.temp_url_cache = ""
 
-        Fabricator(
-            interval=1000,
-            poll_from="playerctl shuffle"
-        ).connect("changed", self._on_shuffle_change)
-
-        Fabricator(
-            interval=1000,
-            poll_from="playerctl loop"
-        ).connect("changed", self._on_repeat_change)
-
-        # Overlay elements
+        self.service = SimplePlayerctlService()
         self.album_art_overlay = CustomImage(name="album-art-overlay")
         self.album_art_overlay.set_size_request(100, 100)
         
@@ -143,18 +100,95 @@ class Mpris(Box):
         )
         
         self.overlay_revealer = Revealer(name="mpris-revealer",child=self.column,transition_type="slide-down",transition_duration=250)
+        self.add(self.overlay_revealer)
 
-        self.overlay = PopupWindow(parent=window,pointing_to=self,
-            name="mpris-overlay-window",
-            layer="top",
-            type="popup",
-            anchor="top right",
-            visible=False,
-            child=self.overlay_revealer,
-            v_expand=False,
-            h_expand=False
-        )
-  
+        invoke_repeater(500,self.update)
+        
+    
+    def prev_track(self, *_): self.service.previous_track()
+    def next_track(self, *_): self.service.next_track()
+    def toggle_play(self, *_): 
+        self.service.play_pause()
+        self._on_status_change()
+    def toggle_shuffle(self, *_): 
+        self.service.toggle_shuffle()
+        self._on_shuffle_change()
+    def toggle_repeat(self, *_): 
+        self.service.cycle_loop()
+        self._on_repeat_change()
+    def _on_status_change(self):
+        status = self.service.get_status()
+        self.play_button.set_label("" if status != "Playing" else "")
+
+    def _on_shuffle_change(self):
+        state = self.service.get_shuffle()
+        self.shuffle_button.set_label("󰒟" if state == "On" else "󰒞")
+
+    def _on_repeat_change(self):
+        state = self.service.get_loop()
+        if state == "none":
+            self.repeat_button.set_label("󰑗")  # custom icon for 'off'
+        elif state == "playlist":
+            self.repeat_button.set_label("󰕇")
+        elif state == "track":
+            self.repeat_button.set_label("󰑘")
+
+    def art_update(self,f,res):
+        pix = GdkPixbuf.Pixbuf.new_from_stream(f.read_finish(res))
+        
+        if pixbuf := pix:
+                self.album_art_overlay.set_from_pixbuf(self.service.create_album_art(pixbuf))
+                self.temp_art_pixbuf_cache = pixbuf
+
+    def update(self):
+        data = self.service.get_metadata()
+        if data: 
+            art_url, title, artist ,song_length = data['art_url'] , data['title'], data['artist'], data['length']
+            self.song_title.set_label(_truncate(title.strip() or "—",max_len=20))
+            self.song_artist.set_label(_truncate(artist.strip() or "—",max_len=20))
+            #print(art_url)
+            if self.temp_url_cache != art_url:
+                Gio.File.new_for_uri(art_url).read_async(0, None, self.art_update)
+                self.temp_url_cache = art_url
+            
+        return True
+
+class Mpris(Box):
+    def __init__(self, window, **kwargs):
+        super().__init__(orientation="horizontal", spacing=6, **kwargs)
+
+        self.temp_art_pixbuf_cache = None
+        self.temp_url_cache = ""
+
+        self.content = Box(orientation='h', spacing=10)
+        self.content_event_box = EventBox()
+        self.album_art = CustomImage(name="album-art")
+        self.album_art.set_size_request(30, 30)
+
+        self.title_label = Label(name="song-title", label="")
+        self.artist_label = Label(name="song-artist", label="")
+        self.pause_icon = Label(label="", name="pause-icon")
+        self.song_progress = AnimatedCircularProgressBar(name="cpu-progress-bar",
+            child=self.pause_icon,
+            value=0,
+            line_style="round",
+            line_width=4,
+            size=35,
+            start_angle=140,
+            end_angle=395,
+            invert=True)
+
+        self.content.add(self.song_progress)
+        self.content.add(self.album_art)
+        self.content.add(self.title_label)
+        self.content_event_box.add(self.content)
+        self.add(self.content_event_box)
+
+        self.song_length = 0
+        self.service = SimplePlayerctlService()
+
+        self.overlay = MprisPopup(parent=window,pointing_to=self)
+
         self.overlay_hide_timeout_id = None
         self.overlay.connect("enter-notify-event", self.on_overlay_enter)
         self.overlay.connect("leave-notify-event", self.on_overlay_leave)
@@ -162,20 +196,15 @@ class Mpris(Box):
         self.content_event_box.connect("leave-notify-event", self.on_hover_leave)
         self.overlay.do_reposition("x")
 
-    def metadata_poll(self):
-        while True :
-            output = subprocess.getoutput("playerctl metadata --format '{{mpris:artUrl}}<spacer>{{title}}<spacer>{{artist}}<spacer>{{mpris:length}}'")
-            yield output
-            sleep(0.3)
+        invoke_repeater(500,self.update)
 
-    def _update_progress(self,_ , value):
-        #print(value)
-        position = float(value.strip())
-        #print((position/self.song_length)*100)
+    def _update_progress(self):
+        position = self.service.get_position()
+        #print(self.song_length)
         if self.song_length!=0:
+            #print(position)
             self.song_progress.animate_value((position/self.song_length))
-        self.song_progress.set_value(position)
-        
+            self.song_progress.set_value(position/self.song_length)
 
     def hover_trigger(self):
         self.delay = GLib.timeout_add(500,self.on_hover_enter)
@@ -184,7 +213,7 @@ class Mpris(Box):
         if(len(self.title_label.get_label()) != 0):
             self._cancel_hide_timeout()
             self.overlay.set_visible(True)
-            self.overlay_revealer.set_reveal_child(True)
+            self.overlay.overlay_revealer.set_reveal_child(True)
 
     def on_hover_leave(self, *_):
         #print("triggered leave")
@@ -207,136 +236,42 @@ class Mpris(Box):
             self.overlay_hide_timeout_id = None
 
     def _hide_overlay(self):
-        self.overlay_revealer.set_reveal_child(False)
+        self.overlay.overlay_revealer.set_reveal_child(False)
         GLib.timeout_add(250, self.overlay.set_visible, False)
         self.overlay_hide_timeout_id = None
         return False  # don't repeat timeout
 
-
-    def prev_track(self, *_): os.system("playerctl previous")
-    def next_track(self, *_): os.system("playerctl next")
-    def toggle_play(self, *_): os.system("playerctl play-pause")
-    def toggle_shuffle(self, *_): os.system("playerctl shuffle Toggle")
-
-    def toggle_repeat(self, *_):
-        # Cycle: None -> All -> One
-        current = os.popen("playerctl loop").read().strip()
-        new_mode = "None" if current == "Playlist" else "Track" if current == "None" else "Playlist"
-        os.system(f"playerctl loop {new_mode}")
-
-
-    def _on_metadata(self, _, output):
-        parts = next(output)
-        if parts == "No players found":
-            #print(parts)
+    def art_update(self,f,res):
+        pix = GdkPixbuf.Pixbuf.new_from_stream(f.read_finish(res))
+        
+        if pixbuf := pix:
+                
+                self.album_art.set_from_pixbuf(self.service.create_album_art(pixbuf,30))
+                self.temp_art_pixbuf_cache = pixbuf
+                
+    def update(self):
+        if data := self.service.get_metadata():
+            #print("updating")
+            art_url, title, artist ,song_length = data['art_url'] , data['title'], data['artist'], data['length']
+            self.album_art.set_visible(True)
+            self.song_progress.set_visible(True)
+            #print(song_length)
+            self.song_length=song_length
+            
+            self.title_label.set_label(_truncate(title.strip() or "—"))
+            self.artist_label.set_label(_truncate(artist.strip() or "—"))
+            if self.temp_url_cache != art_url:
+                Gio.File.new_for_uri(art_url).read_async(0, None, self.art_update)
+                self.temp_url_cache = art_url
+            self._update_progress()
+            self._on_status_change()
+        else:
             self.album_art.set_visible(False)
             self.song_progress.set_visible(False)
-            return
-        parts = parts.strip().split("<spacer>", 3)
-        if len(parts) != 4:
-            return
-        #print(parts)
-        art_url, title, artist ,song_length = parts
-        self.album_art.set_visible(True)
-        self.song_progress.set_visible(True)
-        #print(song_length)
-        if song_length != '':
-            self.song_length = int(song_length)
-        self.title_label.set_label(_truncate(title.strip() or "—",max_len=20))
-        self.song_title.set_label(_truncate(title.strip() or "—"))
-        self.song_artist.set_label(_truncate(artist.strip() or "—"))
-        self.artist_label.set_label(_truncate(artist.strip() or "—",max_len=20))
-        self.song_length /= (10**6)
-        self._load_art(art_url.strip())
+        return True
 
-    def _on_status_change(self, _, output: str):
-        status = output.strip()
-        self.pause_icon.set_label("" if status != "Playing" else "")
-        self.play_button.set_label("" if status != "Playing" else "")
+    def _on_status_change(self):
+        status = self.service.get_status()
+        self.pause_icon.set_label("" if status != "playing" else "")
 
-    def _on_shuffle_change(self, _, output: str):
-        state = output.strip()
-        self.shuffle_button.set_label("󰒟" if state == "On" else "󰒞")
-
-    def _on_repeat_change(self, _, output: str):
-        state = output.strip()
-        if state == "None":
-            self.repeat_button.set_label("󰑗")  # custom icon for 'off'
-        elif state == "Playlist":
-            self.repeat_button.set_label("󰕇")
-        elif state == "Track":
-            self.repeat_button.set_label("󰑘")
-
-    def create_album_art(self,path, size=200):
-        try:
-            # Load the original image
-            original_pixbuf = GdkPixbuf.Pixbuf.new_from_file(path)
-            
-            # Get original dimensions
-            original_width = original_pixbuf.get_width()
-            original_height = original_pixbuf.get_height()
-            
-            # Check if aspect ratio is 1:1
-            if original_width == original_height:
-                # Square image - just scale it
-                pic2 = original_pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.BILINEAR)
-            else:
-                # Non-square image - center crop first, then scale
-                crop_size = min(original_width, original_height)
-                crop_x = (original_width - crop_size) // 2
-                crop_y = (original_height - crop_size) // 2
-                
-                # Create cropped pixbuf
-                cropped_pixbuf = GdkPixbuf.Pixbuf.new(
-                    GdkPixbuf.Colorspace.RGB,
-                    original_pixbuf.get_has_alpha(),
-                    original_pixbuf.get_bits_per_sample(),
-                    crop_size,
-                    crop_size
-                )
-                
-                # Copy the center square
-                original_pixbuf.copy_area(
-                    crop_x, crop_y,
-                    crop_size, crop_size,
-                    cropped_pixbuf,
-                    0, 0
-                )
-                
-                # Scale the cropped square
-                pic2 = cropped_pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.BILINEAR)
-            
-            return pic2
-            
-        except Exception as e:
-            print(f"Error processing image: {e}")
-            return None
-
-    def _load_art(self, art_url: str):
-        try:
-            path = ""
-            if art_url.startswith("file://"):
-                path = art_url[7:]
-            elif art_url.startswith("http://") or art_url.startswith("https://"):
-                if self.temp_url_cache != art_url:
-                    self.temp_url_cache = art_url
-                    fd, path = tempfile.mkstemp(suffix=".png")
-                    os.close(fd)
-                    urllib.request.urlretrieve(art_url, path)
-                    self._cleanup_temp()
-                    self.temp_art_path = path
-            if not os.path.exists(path): return
-            pic1 = self.create_album_art(path=path,size=30)
-            pic2 = self.create_album_art(path=path,size=200)
-
-            self.album_art.set_from_pixbuf(pic1)
-            self.album_art_overlay.set_from_pixbuf(pic2)
-        except Exception as e:
-            print(f"[MPRIS] failed loading album art: {e}")
-            self.album_art.clear()
-
-    def _cleanup_temp(self):
-        if self.temp_art_path and os.path.isfile(self.temp_art_path):
-            try: os.remove(self.temp_art_path)
-            except: pass
-        self.temp_art_path = None
+    

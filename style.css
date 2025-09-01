@@ -561,7 +561,7 @@ tooltip {
     min-width: 360px;
     padding:0;
     border-radius: 1rem;
-    background-color: alpha(@backgroundWaybar, 0.5);
+    background-color: alpha(@backgroundWaybar, 0.7);
 }
 
 #notification-info {
@@ -596,7 +596,7 @@ tooltip {
 }
 
 #notification-title {
-  color: @color4;
+  color: lighter(@color4);
   font-size: 20px;
 }
 

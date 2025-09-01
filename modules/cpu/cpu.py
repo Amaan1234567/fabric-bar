@@ -1,6 +1,7 @@
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.svg import Svg
+from gi.repository import GLib
 from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
 from fabric import Fabricator
 import psutil
@@ -39,13 +40,10 @@ class Cpu(Box):
         # Get color6 from CSS
         self.color6 = self._get_color6_from_css()
         
+        self.update_label()
         # Set up a Fabricator service to poll CPU% every 500ms
-        self.update_service = Fabricator(
-            default_value=0,
-            poll_from=lambda svc: self.get_cpu_usage(),
-            stream=True,
-            interval=1000,
-        ).connect("changed", self.update_label)
+        GLib.timeout_add_seconds(1,self.update_label)
+        
 
     def _get_color6_from_css(self):
         """Get color6 value from colors.css file"""
@@ -88,13 +86,12 @@ class Cpu(Box):
 
     def get_cpu_usage(self):
         """Return the latest CPU utilization percentage."""
-        while True:
-            yield psutil.cpu_percent()
-            sleep(1)
+        return psutil.cpu_percent()
 
-    def update_label(self, _, value) -> bool:
+    def update_label(self,) -> bool:
         """Called by Fabricator whenever get_cpu_usage returns a new value."""
         # Update progress bar
+        value = self.get_cpu_usage()
         self.progress_bar.animate_value(value / 100.0)
         
         # Update SVG color to color6 every update
