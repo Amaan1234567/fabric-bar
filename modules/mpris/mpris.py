@@ -166,7 +166,6 @@ class Mpris(Box):
         self.album_art.set_size_request(30, 30)
 
         self.title_label = Label(name="song-title", label="")
-        self.artist_label = Label(name="song-artist", label="")
         self.pause_icon = Label(label="", name="pause-icon")
         self.song_progress = AnimatedCircularProgressBar(name="cpu-progress-bar",
             child=self.pause_icon,
@@ -255,11 +254,11 @@ class Mpris(Box):
             art_url, title, artist ,song_length = data['art_url'] , data['title'], data['artist'], data['length']
             self.album_art.set_visible(True)
             self.song_progress.set_visible(True)
+            self.title_label.set_visible(True)
             #print(song_length)
             self.song_length=song_length
             
             self.title_label.set_label(_truncate(title.strip() or "—"))
-            self.artist_label.set_label(_truncate(artist.strip() or "—"))
             if self.temp_url_cache != art_url:
                 Gio.File.new_for_uri(art_url).read_async(0, None, self.art_update)
                 self.temp_url_cache = art_url
@@ -268,6 +267,7 @@ class Mpris(Box):
         else:
             self.album_art.set_visible(False)
             self.song_progress.set_visible(False)
+            self.title_label.set_visible(False)
         return True
 
     def _on_status_change(self):
