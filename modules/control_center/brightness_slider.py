@@ -42,7 +42,7 @@ class BrightnessSlider(Box):
             orientation="horizontal",
             min=MIN_BRIGHT,
             max=100,
-            value=_read_brightness(),
+            value=_read_brightness()/100,
             draw_value=False,
             h_expand=True,
             v_expand=True,
