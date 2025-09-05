@@ -211,6 +211,7 @@ class NotificationPopup(Box):
 class NotificationPopupWindow(WaylandWindow):
     def __init__(self, **kwargs):
         super().__init__(
+            title="fabric-notifications",
             name="notifications-popup",
             type="popup",
             margin="12px 12px 12px 12px",

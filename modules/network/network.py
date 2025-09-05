@@ -15,7 +15,7 @@ class NetworkWidget(Box):
     A Fabric widget displaying network type & strength using JetBrainsMono Nerd Font glyphs.
     Polls ActiveConnections via NetworkManager for both Wi-Fi and Ethernet.
     """
-    def __init__(self, window, interval=5, **kwargs):
+    def __init__(self, window, interval=1, **kwargs):
         super().__init__(**kwargs)
         self.interval = interval
         self.window = window
@@ -70,7 +70,9 @@ class NetworkWidget(Box):
         self.networks_popup = PopupWindow(
             parent=self.window,
             pointing_to=self,
+            title = "fabric-networks-popup",
             name="networks-overlay-window",
+            margin="20px 0px 0px 0px",
             layer="top",
             type="popup",
             anchor="top right",

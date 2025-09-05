@@ -17,6 +17,7 @@ from fabric.utils import cooldown
 from custom_widgets.popwindow import PopupWindow
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
+from custom_widgets.animated_scale import AnimatedScale
 from services.playerctlservice import SimplePlayerctlService
 def _truncate(text, max_len=30):
     return text if len(text) <= max_len else text[: max_len - 1] + "…"
@@ -27,14 +28,19 @@ class MprisPopup(PopupWindow):
         super().__init__(parent=parent,pointing_to=pointing_to,layer="top",
             type="popup",
             anchor="top right",
+            title="fabric-mpris-popup",
+            margin="20px 0px 0px 0px",
             visible=False,
             v_expand=False,
             h_expand=False,**kwargs)
         
         self.temp_art_pixbuf_cache = None
         self.temp_url_cache = ""
+        self.song_length = 0
 
         self.service = SimplePlayerctlService()
+        self.service.connect("track_change",self.update)
+        self.service.connect('track-status-change',self._on_status_change)
         self.album_art_overlay = CustomImage(name="album-art-overlay")
         self.album_art_overlay.set_size_request(100, 100)
         
@@ -55,7 +61,17 @@ class MprisPopup(PopupWindow):
 
         self.repeat_button = Button(label="󰑗", name="repeat-button")
         self.repeat_button.connect("clicked", self.toggle_repeat)
-
+        self.scale = AnimatedScale(
+            name="mpris-popup-scale",
+            orientation="horizontal",
+            value=0,
+            draw_value=False,
+            h_expand=True,
+            v_expand=True,
+            has_origin = True,
+            increments=(0.3, 0.1)
+        )
+        self.scale.connect("change-value",self._on_scroll)
         self.control_row = Box(
             name="controls",
             orientation="horizontal",
@@ -83,7 +99,8 @@ class MprisPopup(PopupWindow):
             h_align="fill",
             children=[
                 self.song_details_box,
-                self.control_row
+                self.control_row,
+                self.scale
             ]
         )
 
@@ -101,8 +118,9 @@ class MprisPopup(PopupWindow):
         
         self.overlay_revealer = Revealer(name="mpris-revealer",child=self.column,transition_type="slide-down",transition_duration=250)
         self.add(self.overlay_revealer)
-
-        invoke_repeater(500,self.update)
+        self.update()
+        self._on_status_change()
+        invoke_repeater(500,self._update_progress)
         
     
     def prev_track(self, *_): self.service.previous_track()
@@ -116,9 +134,10 @@ class MprisPopup(PopupWindow):
     def toggle_repeat(self, *_): 
         self.service.cycle_loop()
         self._on_repeat_change()
+
     def _on_status_change(self):
         status = self.service.get_status()
-        self.play_button.set_label("" if status != "Playing" else "")
+        self.play_button.set_label("" if status != "playing" else "")
 
     def _on_shuffle_change(self):
         state = self.service.get_shuffle()
@@ -140,7 +159,47 @@ class MprisPopup(PopupWindow):
                 self.album_art_overlay.set_from_pixbuf(self.service.create_album_art(pixbuf))
                 self.temp_art_pixbuf_cache = pixbuf
 
+    def _update_progress(self):
+        position = self.service.get_position()
+        #print(self.song_length)
+        if self.song_length!=0:
+            #print(position)
+            if position/self.song_length > 0.1:
+                self.scale.animate_value(position/self.song_length)
+            self.scale.set_value(position/self.song_length)
+        return True
+    
+    @cooldown(0.1)                           
+    def _on_scroll(self, source, event,value):
+        self.value_changing = True
+        """Mouse wheel sends ±STEP % *relative* increments."""
+        # print("detecting")
+        # print(f"event: {event}")
+        # print(f"source: {source}")
+        
+
+        #print(f"value: {value}")
+        # print(f"delta: {delta}")
+        print(value,value*self.song_length)
+        self.service.set_position(value*self.song_length)
+
+        self.scale.animate_value(value)
+        self.scale.set_value(value)
+
+
     def update(self):
+        data = self.service.get_metadata()
+        if data: 
+            art_url, title, artist ,self.song_length = data['art_url'] , data['title'], data['artist'], data['length']
+            self.song_title.set_label(_truncate(title.strip() or "—",max_len=20))
+            self.song_artist.set_label(_truncate(artist.strip() or "—",max_len=20))
+            #print(art_url)
+            if self.temp_url_cache != art_url:
+                Gio.File.new_for_uri(art_url).read_async(0, None, self.art_update)
+                self.temp_url_cache = art_url
+            
+        return True
+    def update_from_signal(self):
         data = self.service.get_metadata()
         if data: 
             art_url, title, artist ,song_length = data['art_url'] , data['title'], data['artist'], data['length']
@@ -185,6 +244,9 @@ class Mpris(Box):
 
         self.song_length = 0
         self.service = SimplePlayerctlService()
+        self.update()
+        self.service.connect('track-change',self.update)
+        self.service.connect('track-status-change',self._on_status_change)
 
         self.overlay = MprisPopup(parent=window,pointing_to=self)
 
@@ -195,15 +257,19 @@ class Mpris(Box):
         self.content_event_box.connect("leave-notify-event", self.on_hover_leave)
         self.overlay.do_reposition("x")
 
-        invoke_repeater(500,self.update)
+        invoke_repeater(500,self._update_progress)
+        self.update()
+        self._on_status_change()
 
     def _update_progress(self):
         position = self.service.get_position()
         #print(self.song_length)
         if self.song_length!=0:
             #print(position)
-            self.song_progress.animate_value((position/self.song_length))
+            if position/self.song_length > 0.1:
+                self.song_progress.animate_value(position/self.song_length)
             self.song_progress.set_value(position/self.song_length)
+        return True
 
     def hover_trigger(self):
         self.delay = GLib.timeout_add(500,self.on_hover_enter)
@@ -262,8 +328,6 @@ class Mpris(Box):
             if self.temp_url_cache != art_url:
                 Gio.File.new_for_uri(art_url).read_async(0, None, self.art_update)
                 self.temp_url_cache = art_url
-            self._update_progress()
-            self._on_status_change()
         else:
             self.album_art.set_visible(False)
             self.song_progress.set_visible(False)
@@ -273,5 +337,4 @@ class Mpris(Box):
     def _on_status_change(self):
         status = self.service.get_status()
         self.pause_icon.set_label("" if status != "playing" else "")
-
     

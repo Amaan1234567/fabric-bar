@@ -3,12 +3,14 @@
 import os
 import tempfile
 import urllib.request
-from gi.repository import GdkPixbuf, Playerctl,Gio
+from gi.repository import GdkPixbuf, Playerctl,Gio, GLib
 import asyncio
-class SimplePlayerctlService:
+from fabric.core.service import Property, Service, Signal
+class SimplePlayerctlService(Service):
     """Simple, lightweight service for MPRIS players"""
     
-    def __init__(self):
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
         self.manager = Playerctl.PlayerManager()
         self.players = {}  # player_name -> Playerctl.Player
         
@@ -25,20 +27,46 @@ class SimplePlayerctlService:
             
             if name.name not in self.players:
                 try:
-                    self.players[name.name] = Playerctl.Player.new_from_name(name)
+                    player = Playerctl.Player.new_from_name(name)
+                    #player.connect("metadata",lambda _: self.emit_update())
+                    self._connect_player_signals_with_emits(player)
+                    self.players[name.name] = player
                 except:
                     pass
     
+    def _connect_player_signals_with_emits(self,player) -> Playerctl.Player:
+        signals = ["metadata","loop-status","seeked","shuffle"]
+        for signal in signals:
+            player.connect(signal,lambda _: (self.emit_update(),False))
+        for signal in ["playback-status::playing","playback-status::paused"]:
+            player.connect(signal,lambda _: (self.emit_track_status(),False))
+
     def _on_player_appeared(self, manager, name):
         """Handle new player"""
         print(f"add_player {name.name}")
     
         if name.name not in self.players:
             try:
-                self.players[name.name] = Playerctl.Player.new_from_name(name)
+                player = Playerctl.Player.new_from_name(name)
+                self._connect_player_signals_with_emits(player)
+                
+                self.players[name.name] = player
             except:
                 pass
-    
+
+    @Signal
+    def track_change(self) -> None: ...
+    @Signal
+    def track_status_change(self) -> None: ...
+
+    def emit_track_status(self):
+        self.emit("track-status-change")
+    def emit_update(self):
+        #print("emitting after recieving metadata signal")
+        self.notify("changed")
+        self.emit("track-change")
+        return False
+
     def _on_player_vanished(self, manager, player):
         """Handle player disappearing"""
         print(f"player {player.name} vanished")
@@ -107,7 +135,23 @@ class SimplePlayerctlService:
             return position / 1000000 if position > 0 else 0  # Convert to seconds
         except:
             return 0
-    
+    def set_position(self,position,player_name=None):
+        if not self.players:
+            return 0
+            
+        if player_name is None:
+            player_name = list(self.players.keys())[0]
+            
+        if player_name not in self.players:
+            return 0
+            
+        try:
+            player : Playerctl.Player = self.players[player_name]
+            print("position: ",int(position * 10e6))
+            player.set_position(int(position * 10e6))
+        except Exception as e:
+            print(e)
+            
     def get_status(self, player_name=None):
         """Get playback status"""
         if not self.players:

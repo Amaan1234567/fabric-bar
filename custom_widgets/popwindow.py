@@ -17,6 +17,7 @@ class PopupWindow(WaylandWindow):
         self._pointing_widget = pointing_to
         self._base_margin = self.extract_margin(margin)
         self.margin = self._base_margin.values()
+        self.title = "fabric-popup"
 
         self.connect("notify::visible", self.do_update_handlers)
 
