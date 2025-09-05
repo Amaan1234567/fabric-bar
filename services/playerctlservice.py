@@ -147,8 +147,7 @@ class SimplePlayerctlService(Service):
             
         try:
             player : Playerctl.Player = self.players[player_name]
-            print("position: ",int(position * 10e6))
-            player.set_position(int(position * 10e6))
+            player.set_position(int(position*1e6))
         except Exception as e:
             print(e)
             

@@ -53,7 +53,7 @@ class BrightnessSlider(Box):
         self.label = Label(
             label="󰃠",
             name="brightness-label",
-            justification=Gtk.Justification.LEFT,
+            justification="left",
             v_align="center",
             h_align="start",
             h_expand=False,
@@ -66,7 +66,7 @@ class BrightnessSlider(Box):
         # self.add(self.scale)
         # self.add(self.label)
         self.value_changing = True 
-        Fabricator(poll_from=lambda E: self.get_brightness(),interval=400).connect("changed",self._refresh)
+        Fabricator(poll_from=lambda E: self.get_brightness(),interval=100).connect("changed",self._refresh)
 
     def get_brightness(self):
         """Return the latest brightness"""
@@ -89,7 +89,8 @@ class BrightnessSlider(Box):
         self.scale.animate_value(value)
         if value*100 >MIN_BRIGHT:
             self.scale.set_value(value)
-            self.value_changing = False
+        
+        self.value_changing = False
 
     def _refresh(self,_,value):
         #print("refreshing")
@@ -97,3 +98,7 @@ class BrightnessSlider(Box):
         if value != round(self.scale.value*100) and not self.value_changing:
             self.scale.animate_value(_read_brightness()/100)
             self.scale.set_value(value/100)
+            if value < 15:
+                self.label.add_style_class("brightness-icon-low")
+            else:
+                self.label.remove_style_class("brightness-icon-low")

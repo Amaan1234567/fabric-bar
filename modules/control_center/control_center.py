@@ -42,3 +42,10 @@ class ControlCenter(Window):
 
     def toggle_control_center(self):
         self.set_visible(not self.get_visible())
+
+# if self.revealer.get_reveal_child():
+#     GLib.timeout_add(300,self.set_visible,not self.get_visible())
+#     self.revealer.set_reveal_child(False)
+# else:
+#     self.set_visible(True)
+#     self.revealer.set_reveal_child(True)

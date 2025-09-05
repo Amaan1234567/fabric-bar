@@ -29,7 +29,6 @@ class MprisPopup(PopupWindow):
             type="popup",
             anchor="top right",
             title="fabric-mpris-popup",
-            margin="20px 0px 0px 0px",
             visible=False,
             v_expand=False,
             h_expand=False,**kwargs)
@@ -91,14 +90,17 @@ class MprisPopup(PopupWindow):
                 self.song_artist,
             ]
         )
+        self.padding_box = Box(v_expand=True,h_expand=True)
         self.right_column = Box(
             name="right-column",
             orientation="vertical",
-            spacing=30,
-            v_align="center",
+            spacing=0,
+            v_align="fill",
             h_align="fill",
+            v_expand=True,
             children=[
                 self.song_details_box,
+                self.padding_box,
                 self.control_row,
                 self.scale
             ]
@@ -169,7 +171,7 @@ class MprisPopup(PopupWindow):
             self.scale.set_value(position/self.song_length)
         return True
     
-    @cooldown(0.1)                           
+    @cooldown(0.4)                           
     def _on_scroll(self, source, event,value):
         self.value_changing = True
         """Mouse wheel sends ±STEP % *relative* increments."""
@@ -191,18 +193,6 @@ class MprisPopup(PopupWindow):
         data = self.service.get_metadata()
         if data: 
             art_url, title, artist ,self.song_length = data['art_url'] , data['title'], data['artist'], data['length']
-            self.song_title.set_label(_truncate(title.strip() or "—",max_len=20))
-            self.song_artist.set_label(_truncate(artist.strip() or "—",max_len=20))
-            #print(art_url)
-            if self.temp_url_cache != art_url:
-                Gio.File.new_for_uri(art_url).read_async(0, None, self.art_update)
-                self.temp_url_cache = art_url
-            
-        return True
-    def update_from_signal(self):
-        data = self.service.get_metadata()
-        if data: 
-            art_url, title, artist ,song_length = data['art_url'] , data['title'], data['artist'], data['length']
             self.song_title.set_label(_truncate(title.strip() or "—",max_len=20))
             self.song_artist.set_label(_truncate(artist.strip() or "—",max_len=20))
             #print(art_url)

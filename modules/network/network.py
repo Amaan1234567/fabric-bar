@@ -72,7 +72,6 @@ class NetworkWidget(Box):
             pointing_to=self,
             title = "fabric-networks-popup",
             name="networks-overlay-window",
-            margin="20px 0px 0px 0px",
             layer="top",
             type="popup",
             anchor="top right",
