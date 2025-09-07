@@ -93,7 +93,7 @@ border-width:  0 0 3px 0 ;
   border-radius: 42px;
   /* border-width: 1px;
   border-color: @color5; */
-  box-shadow: @color1 0px 0px 10px 6px;
+  box-shadow: @color1 0px 0px 7px 10px;
 }
 
 #screen-padding-left,#screen-padding-right{
