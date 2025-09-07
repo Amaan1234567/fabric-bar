@@ -19,6 +19,7 @@ from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
 from custom_widgets.animated_scale import AnimatedScale
 from services.playerctlservice import SimplePlayerctlService
+from helpers.helper_functions import create_album_art
 def _truncate(text, max_len=30):
     return text if len(text) <= max_len else text[: max_len - 1] + "…"
 
@@ -162,7 +163,7 @@ class MprisPopup(PopupWindow):
             pix = GdkPixbuf.Pixbuf.new_from_stream(stream,None)
             
             if pixbuf := pix:
-                    self.album_art_overlay.set_from_pixbuf(self.service.create_album_art(pixbuf))
+                    self.album_art_overlay.set_from_pixbuf(create_album_art(pixbuf))
                     self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:
             print("encountered error:",e)
@@ -308,7 +309,7 @@ class Mpris(Box):
             
             if pixbuf := pix:
                     
-                    self.album_art.set_from_pixbuf(self.service.create_album_art(pixbuf,30))
+                    self.album_art.set_from_pixbuf(create_album_art(pixbuf,30))
                     self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:
             print("encountered_error: ",e)
