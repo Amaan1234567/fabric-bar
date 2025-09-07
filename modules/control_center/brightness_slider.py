@@ -1,5 +1,6 @@
 from gi.repository import Gtk
 import subprocess
+
 from fabric import Fabricator
 from fabric.widgets.box      import Box
 from fabric.widgets.label    import Label
@@ -12,6 +13,23 @@ from custom_widgets.animated_scale import AnimatedScale
 # ---------------------------------------------------------------- helpers
 MIN_BRIGHT = 5       # avoid a black screen
 STEP       = 5       # percentage per scroll “tick”
+from fabric.utils import monitor_file
+
+def get_brightness(actual_brightness_file: str, max_brightness_file: str):
+  with open(max_brightness_file, 'r', encoding='utf8') as max_brightness:
+    max_brightness = int(max_brightness.read())
+
+    def compute_brightness(*_):
+      with open(actual_brightness_file, 'r', encoding='utf8') as actual_brightness:
+        actual_brightness = int(actual_brightness.read())
+        current_brightness = round((actual_brightness / max_brightness) * 100)
+        print(current_brightness)
+
+    compute_brightness()
+
+    monitor_file(actual_brightness_file, compute_brightness)
+
+
 
 def _read_brightness() -> int:
     """
@@ -36,6 +54,8 @@ class BrightnessSlider(Box):
 
     def __init__(self, *, step: int = STEP, name="brightness-container"):
         super().__init__(orientation="vertical", spacing=0,size=[145,30], name=name,v_expand=True,h_expand=True)
+        path = '/sys/class/backlight/intel_backlight/device/intel_backlight'
+        get_brightness(f'{path}/actual_brightness', f'{path}/max_brightness')
         self._step=step
         self.scale = AnimatedScale(
             name="brightness-scale",

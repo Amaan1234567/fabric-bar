@@ -9,7 +9,7 @@ class ScreenBorders(WaylandWindow):
             name="borders-window",
             anchor="top bottom left right",
             exclusivity="auto",
-            type="top-level",
+            
             pass_through=True,
             visible=True,
             all_visible=True,**kwargs)

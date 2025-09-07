@@ -36,6 +36,7 @@ class MprisPopup(PopupWindow):
         self.temp_art_pixbuf_cache = None
         self.temp_url_cache = ""
         self.song_length = 0
+        self.art_url = ""
 
         self.service = SimplePlayerctlService()
         self.service.connect("track_change",self.update)
@@ -155,18 +156,23 @@ class MprisPopup(PopupWindow):
             self.repeat_button.set_label("󰑘")
 
     def art_update(self,f,res):
-        pix = GdkPixbuf.Pixbuf.new_from_stream(f.read_finish(res))
-        
-        if pixbuf := pix:
-                self.album_art_overlay.set_from_pixbuf(self.service.create_album_art(pixbuf))
-                self.temp_art_pixbuf_cache = pixbuf
+        try: 
+            print(res)
+            stream = f.read_finish(res)
+            pix = GdkPixbuf.Pixbuf.new_from_stream(stream,None)
+            
+            if pixbuf := pix:
+                    self.album_art_overlay.set_from_pixbuf(self.service.create_album_art(pixbuf))
+                    self.temp_art_pixbuf_cache = pixbuf
+        except Exception as e:
+            print("encountered error:",e)
 
     def _update_progress(self):
         position = self.service.get_position()
         #print(self.song_length)
         if self.song_length!=0:
             #print(position)
-            if position/self.song_length > 0.1:
+            if (position - self.scale.value)/self.song_length > 0.1:
                 self.scale.animate_value(position/self.song_length)
             self.scale.set_value(position/self.song_length)
         return True
@@ -196,7 +202,7 @@ class MprisPopup(PopupWindow):
             self.song_title.set_label(_truncate(title.strip() or "—",max_len=20))
             self.song_artist.set_label(_truncate(artist.strip() or "—",max_len=20))
             #print(art_url)
-            if self.temp_url_cache != art_url:
+            if self.temp_url_cache != art_url and art_url!="":
                 Gio.File.new_for_uri(art_url).read_async(0, None, self.art_update)
                 self.temp_url_cache = art_url
             
@@ -208,7 +214,6 @@ class Mpris(Box):
 
         self.temp_art_pixbuf_cache = None
         self.temp_url_cache = ""
-
         self.content = Box(orientation='h', spacing=10)
         self.content_event_box = EventBox()
         self.album_art = CustomImage(name="album-art")
@@ -297,12 +302,16 @@ class Mpris(Box):
         return False  # don't repeat timeout
 
     def art_update(self,f,res):
-        pix = GdkPixbuf.Pixbuf.new_from_stream(f.read_finish(res))
-        
-        if pixbuf := pix:
-                
-                self.album_art.set_from_pixbuf(self.service.create_album_art(pixbuf,30))
-                self.temp_art_pixbuf_cache = pixbuf
+        try:
+            
+            pix = GdkPixbuf.Pixbuf.new_from_stream(f.read_finish(res),None)
+            
+            if pixbuf := pix:
+                    
+                    self.album_art.set_from_pixbuf(self.service.create_album_art(pixbuf,30))
+                    self.temp_art_pixbuf_cache = pixbuf
+        except Exception as e:
+            print("encountered_error: ",e)
                 
     def update(self):
         if data := self.service.get_metadata():
@@ -315,7 +324,7 @@ class Mpris(Box):
             self.song_length=song_length
             
             self.title_label.set_label(_truncate(title.strip() or "—"))
-            if self.temp_url_cache != art_url:
+            if self.temp_url_cache != art_url and art_url!="":
                 Gio.File.new_for_uri(art_url).read_async(0, None, self.art_update)
                 self.temp_url_cache = art_url
         else:

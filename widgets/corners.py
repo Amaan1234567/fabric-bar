@@ -8,10 +8,9 @@ from custom_widgets.side_corner import SideCorner
 class ScreenCorners(Window):
     """A window that displays all four corners."""
 
-    def __init__(self,**kwargs):
-        
+    def __init__(self, **kwargs):
 
-        size = [40,40]
+        size = [40, 40]
         super().__init__(
             name="corners",
             layer="top",
@@ -25,34 +24,53 @@ class ScreenCorners(Window):
         )
 
         self.all_corners = Box(
-            name="all-corners",
-            orientation="h",
-            h_expand=True,
-            v_expand=True,
-            h_align="fill",
-            v_align="fill",
+            orientation="v",
             children=[
+                Box(name="screen-padding-top",size=[-1,1]),
                 Box(
-                    name="left-corners",
-                    orientation="v",
+                    name="all-corners",
+                    orientation="h",
+                    h_expand=True,
+                    v_expand=True,
                     h_align="fill",
+                    v_align="fill",
                     children=[
-                        SideCorner("top-left", size),
-                        Box(v_expand=True),
-                        SideCorner("bottom-left", size),
+                        Box(
+                            orientation="h",
+                            children=[
+                                Box(name="screen-padding-left",size=[1, -1]),
+                                Box(
+                                    name="left-corners",
+                                    orientation="v",
+                                    h_align="fill",
+                                    children=[
+                                        SideCorner("top-left", size),
+                                        Box(v_expand=True),
+                                        SideCorner("bottom-left", size),
+                                    ],
+                                ),
+                            ],
+                        ),
+                        Box(h_expand=True, name="middle-area"),
+                        Box(
+                            orientation="h",
+                            children=[
+                                Box(
+                                    name="right-corners",
+                                    orientation="v",
+                                    h_align="fill",
+                                    children=[
+                                        SideCorner("top-right", size),
+                                        Box(v_expand=True),
+                                        SideCorner("bottom-right", size),
+                                    ],
+                                ),
+                                Box(name="screen-padding-right",size=[1, -1])
+                            ],
+                        ),
                     ],
                 ),
-                Box(h_expand=True,name="middle-area"),
-                Box(
-                    name="right-corners",
-                    orientation="v",
-                    h_align="fill",
-                    children=[
-                        SideCorner("top-right", size),
-                        Box(v_expand=True),
-                        SideCorner("bottom-right", size),
-                    ],
-                ),
+                Box(name="screen-padding-bottom",size=[-1,1]),
             ],
         )
 

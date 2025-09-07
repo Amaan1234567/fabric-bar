@@ -38,7 +38,7 @@ class SimplePlayerctlService(Service):
         signals = ["metadata","loop-status","seeked","shuffle"]
         for signal in signals:
             player.connect(signal,lambda _: (self.emit_update(),False))
-        for signal in ["playback-status::playing","playback-status::paused"]:
+        for signal in ["playback-status::playing","playback-status::paused","playback-status::ended"]:
             player.connect(signal,lambda _: (self.emit_track_status(),False))
 
     def _on_player_appeared(self, manager, name):
@@ -70,9 +70,11 @@ class SimplePlayerctlService(Service):
     def _on_player_vanished(self, manager, player):
         """Handle player disappearing"""
         print(f"player {player.name} vanished")
+        
         player_name = player.name
         if player_name in self.players:
             del self.players[player_name]
+        self.emit("track-change")
     
     def get_players(self):
         """Get list of all player names"""
@@ -131,7 +133,7 @@ class SimplePlayerctlService(Service):
             
         try:
             position = self.players[player_name].props.position
-            # print("position: ",position)
+            #print("position: ",position)
             return position / 1000000 if position > 0 else 0  # Convert to seconds
         except:
             return 0
@@ -342,7 +344,7 @@ class SimplePlayerctlService(Service):
                     )
                     
                     # Scale the cropped square
-                    pic = cropped_pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.BILINEAR)
+                    pic = cropped_pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.HYPER)
                 
                 return pic
         except Exception as e:

@@ -58,7 +58,8 @@ class BluetoothWidget(Box):
 
     def refresh_bluetooth_client(self):
         try:
-            self.bluetooth_client = BluetoothClient()
+            #self.bluetooth_client = BluetoothClient()
+            pass
         except AttributeError as e :
             #print(e)
             pass

@@ -73,6 +73,43 @@ border-width:  0 0 3px 0 ;
 
 #bar {
   background-color: @background;
+  /* padding-left:26px;
+  padding-right:26px; */
+}
+
+#corner {
+  background-color: @background;
+  
+}
+
+
+#screen-borders {
+  margin-top: 12px;
+  margin-bottom: 23px;
+  margin-left: 16px;
+  margin-right: 16px;
+  background-color: transparent;
+  border:solid;
+  border-radius: 42px;
+  /* border-width: 1px;
+  border-color: @color5; */
+  box-shadow: @color1 0px 0px 10px 6px;
+}
+
+#screen-padding-left,#screen-padding-right{
+  background-color: @background;
+  padding:8px;
+}
+
+#screen-padding-bottom{
+  background-color: @background;
+  padding:12px;
+}
+
+
+#screen-padding-top{
+  background-color: @background;
+  padding:6px;
 }
 
 .sep {
@@ -85,9 +122,11 @@ border-width:  0 0 3px 0 ;
 }
 
 #clock label {
+  font-size: 18px;
   background: transparent;
   color: @color4;
   margin: 3px;
+  
 }
 
 #cpu {
@@ -105,6 +144,7 @@ border-width:  0 0 3px 0 ;
 #cpu-progress-bar {
   color: white;
   border-color: shade(@color4, 0.85);
+  
 }
 
 #memory {
@@ -125,6 +165,8 @@ border-width:  0 0 3px 0 ;
 
 #workspaces {
   background-color: transparent;
+  padding-right:10px;
+  padding-left: 10px;
 }
 
 .workspace-button {
@@ -167,21 +209,10 @@ border-width:  0 0 3px 0 ;
   border-radius: 40px;
 }
 
-#corner {
-  background-color: @background;
-}
-
-
-#screen-borders {
-  background-color: transparent;
-  border:solid;
-  border-radius: 40px;
-  border-width: 2px;
-  border-color: @color4;
-}
 
 #active-window {
   color: mix(@color4, @color5, 0.5);
+  
 }
 
 #cava > label {
@@ -207,6 +238,7 @@ border-width:  0 0 3px 0 ;
   padding-left: 7px;
   border-radius: 5px;
   animation: animated-gradient 25s ease-in-out infinite;
+  box-shadow: @color6 0px 0px 6px 2px;
 }
 
 .cava-silent {
@@ -237,14 +269,15 @@ tooltip {
 
 #album-art {
   border: solid;
-  border-radius: 4px;
+  border-radius: 3px;
   border-width: 1px;
   border-color: @color4;
   padding: 0px;
   padding-top: 0px;
   padding-bottom: 0px;
-  margin-top: 4px;
-  margin-bottom: 4px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  
 }
 
 #mpris-overlay-window {
@@ -277,8 +310,8 @@ tooltip {
 
 
 #mpris-popup-scale slider {
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding-top: 3px;
+  padding-bottom: 3px;
   margin:0px;
   border-radius: 10px;
   border-width: 10px;
@@ -358,6 +391,7 @@ tooltip {
 
 #audio-scale slider {
   min-height: 10px;
+  min-width: 50px;
 }
 
 #audio-scale highlight {
@@ -564,7 +598,7 @@ tooltip {
   border-width: 2px;
   border: solid;
   background-color: @background;
-  box-shadow: inset 0 1px 2px alpha(@color1, 0.15);
+  
 }
 
 #brightness-scale highlight {

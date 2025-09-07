@@ -214,7 +214,7 @@ class NotificationPopupWindow(WaylandWindow):
             title="fabric-notifications",
             name="notifications-popup",
             type="popup",
-            margin="12px 12px 12px 12px",
+            margin="26px 26px 26px 26px",
             layer="top",
             anchor="top right",
             exclusivity="none",
