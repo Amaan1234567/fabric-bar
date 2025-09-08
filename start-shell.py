@@ -5,10 +5,14 @@ from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
 from modules.right_module.right_module import control_center
 from modules.notification.notification_popup import NotificationPopupWindow
-import loguru
+from loguru import logger
+import sys
 
 if __name__ == "__main__":
-    loguru.logger.disable("")
+    logger.remove()
+
+    # Add a new sink, filtering out messages from 'noisy_module'
+    logger.add(sys.stderr, filter=lambda record: record["name"] != "fabric.widgets.svg")
     bar = StatusBar()
     corners = ScreenCorners()
     borders = ScreenBorders()

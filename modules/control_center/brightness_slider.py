@@ -105,10 +105,10 @@ class BrightnessSlider(Box):
         #print(f"value: {value}")
         # print(f"delta: {delta}")
         _set_brightness_rel(value*100)
-
-        self.scale.animate_value(value)
-        if value*100 >MIN_BRIGHT:
-            self.scale.set_value(value)
+        print("brigntness value:",value)
+        if abs(self.scale.value - value)*100 >MIN_BRIGHT:
+            self.scale.animate_value(value)
+        self.scale.set_value(value)
         
         self.value_changing = False
 

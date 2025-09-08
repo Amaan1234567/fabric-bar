@@ -1,5 +1,11 @@
 {
     "python.analysis.autoImportCompletions": true,
     "python.defaultInterpreterPath": "./venv/bin/python",
-    "python.envFile": ".env"
+    "python.envFile": ".env",
+    "pylint.importStrategy": "useBundled",
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "standard",
+    "pylint.ignorePatterns": [
+    ],
+    "python.analysis.stubPath": "venv/lib64/python3.13/site-packages/pygobject_stubs-2.10.0.dist-info"
 }
