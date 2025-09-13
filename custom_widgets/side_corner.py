@@ -9,11 +9,11 @@ from fabric.widgets.shapes import Corner
 class SideCorner(Box):
     """A container for a corner shape."""
 
-    def __init__(self, corner, size):
+    def __init__(self, corner, size,name="corner"):
         super().__init__(
             name="corner-container",
             children=Corner(
-                name="corner",
+                name=name,
                 orientation=corner,
                 size=size,
             ),

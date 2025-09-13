@@ -43,7 +43,7 @@ class AudioWidget(Box):
             h_expand=True,
             v_expand=True,
             has_origin=True,
-            increments=[5, 5],
+            increments=[5, 0.5],
         )
         self.scale.connect("change-value", self._on_scroll)
 

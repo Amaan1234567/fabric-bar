@@ -1,7 +1,7 @@
 from typing import Iterable
 from fabric.widgets.box import Box
 from fabric.widgets.wayland import WaylandWindow as Window
-
+from fabric.widgets.overlay import Overlay
 from custom_widgets.side_corner import SideCorner
 
 
@@ -73,7 +73,8 @@ class ScreenCorners(Window):
                 Box(name="screen-padding-bottom", size=[-1, 1]),
             ],
         )
-
-        self.add(self.all_corners)
+        self.overlay = Overlay(child=self.all_corners,overlays=Box(name="corners-overlay",h_expand=True,v_expand=True))
+        # self.add(self.all_corners)
+        self.add(self.overlay)
 
         self.show_all()

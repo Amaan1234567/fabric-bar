@@ -1,6 +1,5 @@
 from widgets.bar import StatusBar
 from widgets.corners import ScreenCorners
-from widgets.borders import ScreenBorders
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
 from modules.control_center import control_center
@@ -15,11 +14,10 @@ if __name__ == "__main__":
     logger.add(sys.stderr, filter=lambda record: record["name"] != "fabric.widgets.svg")
     bar = StatusBar()
     corners = ScreenCorners()
-    borders = ScreenBorders()
     notifications = NotificationPopupWindow()
     app = Application(
         "hypr-fabric-bar",
-        windows=[bar, corners, borders, control_center, notifications],
+        windows=[bar, corners, control_center, notifications],
     )
 
     style_path = get_relative_path("styles/style.css")
