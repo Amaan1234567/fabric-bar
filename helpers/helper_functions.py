@@ -1,6 +1,5 @@
 """Module of Helper functions for the project"""
 
-
 from loguru import logger
 from gi.repository import GdkPixbuf  # type: ignore
 

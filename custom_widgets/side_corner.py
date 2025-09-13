@@ -1,6 +1,7 @@
 """
 Module that holds the Side Corner Class which displays the corner widgets of the ui
 """
+
 from fabric.widgets.box import Box
 from fabric.widgets.shapes import Corner
 

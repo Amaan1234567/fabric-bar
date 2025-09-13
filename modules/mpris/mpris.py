@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from gi.repository import GdkPixbuf, GLib, Gio # type: ignore
+from gi.repository import GdkPixbuf, GLib, Gio  # type: ignore
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label

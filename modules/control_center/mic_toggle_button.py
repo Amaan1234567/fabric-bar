@@ -16,11 +16,8 @@ class MicToggle(Button):
 
     def __init__(self):
         # Create the icon label
-        self.icon_label = Label(
-            name="mic-icon",
-            label="󰍬"  # Nerd Font microphone icon
-        )
-        
+        self.icon_label = Label(name="mic-icon", label="󰍬")  # Nerd Font microphone icon
+
         super().__init__(
             name="mic-toggle",
             child=self.icon_label,
@@ -34,9 +31,11 @@ class MicToggle(Button):
         self.connect(
             "state-flags-changed",
             lambda btn, *_: (
-                btn.set_cursor("pointer")
-                if btn.get_state_flags() & 2  # type: ignore
-                else btn.set_cursor("default"),
+                (
+                    btn.set_cursor("pointer")
+                    if btn.get_state_flags() & 2  # type: ignore
+                    else btn.set_cursor("default")
+                ),
             ),
         )
         # Poll every 6s to keep in sync
@@ -54,10 +53,10 @@ class MicToggle(Button):
                 text=True,
                 check=False,
             )
-            
+
             if result.returncode == 0:
                 return "yes" in result.stdout.lower()
-            
+
             # Fallback to amixer (ALSA)
             result = subprocess.run(
                 ["amixer", "get", "Capture"],
@@ -65,13 +64,13 @@ class MicToggle(Button):
                 text=True,
                 check=False,
             )
-            
+
             if result.returncode == 0:
                 # Check if [off] is in the output (indicates muted)
                 return "[off]" in result.stdout.lower()
-            
+
             return False  # Default to not muted if can't determine
-            
+
         except Exception:
             return False
 
@@ -103,7 +102,7 @@ class MicToggle(Button):
                 stderr=subprocess.DEVNULL,
                 check=False,
             )
-            
+
             if result.returncode != 0:
                 # Fallback to amixer (ALSA)
                 subprocess.run(
@@ -112,7 +111,7 @@ class MicToggle(Button):
                     stderr=subprocess.DEVNULL,
                     check=False,
                 )
-                
+
         except Exception:
             pass
 

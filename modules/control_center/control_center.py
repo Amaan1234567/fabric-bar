@@ -18,30 +18,48 @@ from .brightness_slider import BrightnessSlider
 
 class ControlCenter(Window):
     def __init__(self, **kwargs):
-        super().__init__(layer="top",
-                         title="control_center",
+        super().__init__(
+            layer="top",
+            title="control_center",
             anchor="right top bottom",
             exclusivity="auto",
             visible=False,
             type="top-level",
             margin="0px 0px 0px -1px",
-            **kwargs)
+            **kwargs
+        )
 
-        self.small_toggles = Box(orientation='h',h_align="center",spacing=15,children=[WifiToggle(),BluetoothToggle(),ROGButton(),WallpaperChangeButton(),MicToggle()])
-        self.med_toggles = Box(orientation='h',h_align="center",spacing=10,children=[PerformanceToggle(),BrightnessSlider()],h_expand=True)
-        self.control_center_content = Box(name="control-center",orientation='v',h_align="center",spacing=20)
+        self.small_toggles = Box(
+            orientation="h",
+            h_align="center",
+            spacing=15,
+            children=[
+                WifiToggle(),
+                BluetoothToggle(),
+                ROGButton(),
+                WallpaperChangeButton(),
+                MicToggle(),
+            ],
+        )
+        self.med_toggles = Box(
+            orientation="h",
+            h_align="center",
+            spacing=10,
+            children=[PerformanceToggle(), BrightnessSlider()],
+            h_expand=True,
+        )
+        self.control_center_content = Box(
+            name="control-center", orientation="v", h_align="center", spacing=20
+        )
         self.control_center_content.add(self.small_toggles)
         self.control_center_content.add(self.med_toggles)
-        
-        
 
         self.add(self.control_center_content)
-        #self.show()
-
-       
+        # self.show()
 
     def toggle_control_center(self):
         self.set_visible(not self.get_visible())
+
 
 # if self.revealer.get_reveal_child():
 #     GLib.timeout_add(300,self.set_visible,not self.get_visible())

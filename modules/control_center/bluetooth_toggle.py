@@ -27,9 +27,11 @@ class BluetoothToggle(Button):
         self.connect(
             "state-flags-changed",
             lambda btn, *_: (
-                btn.set_cursor("pointer")
-                if btn.get_state_flags() & 2  # type: ignore
-                else btn.set_cursor("default"),
+                (
+                    btn.set_cursor("pointer")
+                    if btn.get_state_flags() & 2  # type: ignore
+                    else btn.set_cursor("default")
+                ),
             ),
         )
         # Poll every 6s to keep in sync

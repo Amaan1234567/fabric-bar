@@ -26,7 +26,7 @@ class ScreenCorners(Window):
         self.all_corners = Box(
             orientation="v",
             children=[
-                Box(name="screen-padding-top",size=[-1,1]),
+                Box(name="screen-padding-top", size=[-1, 1]),
                 Box(
                     name="all-corners",
                     orientation="h",
@@ -38,7 +38,7 @@ class ScreenCorners(Window):
                         Box(
                             orientation="h",
                             children=[
-                                Box(name="screen-padding-left",size=[1, -1]),
+                                Box(name="screen-padding-left", size=[1, -1]),
                                 Box(
                                     name="left-corners",
                                     orientation="v",
@@ -65,12 +65,12 @@ class ScreenCorners(Window):
                                         SideCorner("bottom-right", size),
                                     ],
                                 ),
-                                Box(name="screen-padding-right",size=[1, -1])
+                                Box(name="screen-padding-right", size=[1, -1]),
                             ],
                         ),
                     ],
                 ),
-                Box(name="screen-padding-bottom",size=[-1,1]),
+                Box(name="screen-padding-bottom", size=[-1, 1]),
             ],
         )
 

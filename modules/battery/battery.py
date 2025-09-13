@@ -6,20 +6,25 @@ import psutil
 import re
 import subprocess
 
+
 class BatteryWidget(Box):
     def __init__(self, interval=1, **kwargs):
         super().__init__(**kwargs)
-        
+
         self.glyph_label = Label(name="battery-glyph", label="󰠠")
         self.percent_label = Label(name="battery-percent", label="100%")
-        
+
         self.add(self.glyph_label)
         self.add(self.percent_label)
 
         self.battery_health = "Unknown"
         self.interval = interval
 
-        self._on_upower_data(subprocess.getoutput("upower -i /org/freedesktop/UPower/devices/battery_BAT0"))
+        self._on_upower_data(
+            subprocess.getoutput(
+                "upower -i /org/freedesktop/UPower/devices/battery_BAT0"
+            )
+        )
         self._refresh()
         GLib.timeout_add_seconds(self.interval, self._refresh)
 
@@ -33,30 +38,36 @@ class BatteryWidget(Box):
 
         self.percent = battery.percent
         self.charging = battery.power_plugged
-        #print(battery)
+        # print(battery)
         self.time_left = self._format_time(battery.secsleft)
 
         status = (
-            "fully-charged" if self.charging and self.percent >= 99
-            else "charging" if self.charging
-            else "discharging"
+            "fully-charged"
+            if self.charging and self.percent >= 99
+            else "charging" if self.charging else "discharging"
         )
 
         glyph = self._map_glyph(self.percent, self.charging)
         percent_color = self._get_color_for_percent(self.percent)
-        #print(percent_color)
-        self.glyph_label.set_markup(f'<span foreground="{percent_color}">{glyph}</span>')
+        # print(percent_color)
+        self.glyph_label.set_markup(
+            f'<span foreground="{percent_color}">{glyph}</span>'
+        )
 
-        self.percent_label.set_markup(f'<span foreground="{percent_color}">{self.percent:.0f}%</span>')
+        self.percent_label.set_markup(
+            f'<span foreground="{percent_color}">{self.percent:.0f}%</span>'
+        )
 
-        tooltip = self._make_tooltip(status, self.percent, self.time_left, self.battery_health)
+        tooltip = self._make_tooltip(
+            status, self.percent, self.time_left, self.battery_health
+        )
         self.glyph_label.set_tooltip_markup(tooltip)
         self.percent_label.set_tooltip_markup(tooltip)
         return True
 
     def _on_upower_data(self, output):
         line = output.strip()
-        #print("starting: \n",line,"\nending...\n")
+        # print("starting: \n",line,"\nending...\n")
         self._full_now = None
         self._full_design = None
         if "energy-full:" in line:
@@ -65,7 +76,7 @@ class BatteryWidget(Box):
             try:
                 val_str = line.split("energy-full:", 1)[1].strip().split()[0]
                 self._full_now = float(val_str)
-                #print(self._full_now,self._full_design)
+                # print(self._full_now,self._full_design)
             except Exception as e:
                 print("⚠️ could not parse energy-full:", e)
 
@@ -73,7 +84,7 @@ class BatteryWidget(Box):
             try:
                 val_str = line.split("energy-full-design:", 1)[1].strip().split()[0]
                 self._full_design = float(val_str)
-                #print(self._full_now,self._full_design)
+                # print(self._full_now,self._full_design)
             except Exception as e:
                 print("⚠️ could not parse energy-full-design:", e)
 
@@ -100,15 +111,14 @@ class BatteryWidget(Box):
 
         # Pastel red (low %) to pastel green (high %)
         red_start, green_start, blue_start = (252, 56, 56)  # pastel red
-        red_end, green_end, blue_end = (99, 252, 23)        # pastel green
+        red_end, green_end, blue_end = (99, 252, 23)  # pastel green
 
         # Linear interpolation
-        r = int(red_start   + (red_end   - red_start)   * percent)
+        r = int(red_start + (red_end - red_start) * percent)
         g = int(green_start + (green_end - green_start) * percent)
-        b = int(blue_start  + (blue_end  - blue_start)  * percent)
+        b = int(blue_start + (blue_end - blue_start) * percent)
 
         return f"#{r:02x}{g:02x}{b:02x}"
-
 
     def _format_time(self, secs: int) -> str:
         if secs in (psutil.POWER_TIME_UNLIMITED, psutil.POWER_TIME_UNKNOWN):
@@ -119,9 +129,9 @@ class BatteryWidget(Box):
 
     def _make_tooltip(self, state, percent, time, health):
         color = (
-            "#a6e3a1" if state == "charging"
-            else "#f9e2af" if state == "discharging"
-            else "#94e2d5"
+            "#a6e3a1"
+            if state == "charging"
+            else "#f9e2af" if state == "discharging" else "#94e2d5"
         )
         percent_str = f"{percent:.0f}%"
 

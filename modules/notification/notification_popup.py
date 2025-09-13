@@ -8,12 +8,13 @@ from fabric.widgets.revealer import Revealer
 from fabric.widgets.wayland import WaylandWindow
 from fabric.widgets.revealer import Revealer
 from fabric.utils import invoke_repeater
-from gi.repository import GdkPixbuf , GLib, Gtk
+from gi.repository import GdkPixbuf, GLib, Gtk
 from os import path
 from custom_widgets.image_rounded import CustomImage
 
 NOTIFICATION_TIMEOUT = 3 * 1000
 NOTIFICATION_IMAGE_SIZE = 160
+
 
 class NotificationPopup(Box):
     def __init__(self, notification: Notification, **kwargs):
@@ -48,7 +49,9 @@ class NotificationPopup(Box):
             self.image = CustomImage(
                 name="notification-thumbnail",
                 pixbuf=image_pixbuf.scale_simple(
-                    NOTIFICATION_IMAGE_SIZE, NOTIFICATION_IMAGE_SIZE, GdkPixbuf.InterpType.BILINEAR
+                    NOTIFICATION_IMAGE_SIZE,
+                    NOTIFICATION_IMAGE_SIZE,
+                    GdkPixbuf.InterpType.BILINEAR,
                 ),
             )
             self.row_content.add(self.image)
@@ -60,12 +63,22 @@ class NotificationPopup(Box):
             v_expand=True,
             v_align="fill",
         )
-        self.notification_title = Label(name="notification-title",label=self._notification.summary, h_align="fill",max_chars_width=30,line_wrap="word-char",ellipsization="end")
+        self.notification_title = Label(
+            name="notification-title",
+            label=self._notification.summary,
+            h_align="fill",
+            max_chars_width=30,
+            line_wrap="word-char",
+            ellipsization="end",
+        )
         self.notification_dynamic_pad = Box(v_expand=True)
         self.notification_body = Label(
-            name="notification-body",label=self._notification.body,
+            name="notification-body",
+            label=self._notification.body,
             h_align="fill",
-            line_wrap="word-char",chars_width=20,ellipsization="end"
+            line_wrap="word-char",
+            chars_width=20,
+            ellipsization="end",
         )
         self.right_content.children = [
             self.notification_title,
@@ -121,58 +134,69 @@ class NotificationPopup(Box):
 
     def close_notification(self):
         self.revealer.set_reveal_child(False)
+
         def delete_self():
             parent.remove(self) if (parent := self.get_parent()) else None
-        GLib.timeout_add(300,delete_self)
-        GLib.timeout_add(300,self.destroy)
 
-    def pixbuf_cropping_if_image_is_not_1_1(self,original_pixbuf):
+        GLib.timeout_add(300, delete_self)
+        GLib.timeout_add(300, self.destroy)
+
+    def pixbuf_cropping_if_image_is_not_1_1(self, original_pixbuf): # remove this and use helper function
         try:
-            
+
             # Get original dimensions
             original_width = original_pixbuf.get_width()
             original_height = original_pixbuf.get_height()
-            
+
             # Check if aspect ratio is 1:1
             if original_width == original_height:
                 # Square image - just scale it
-                pic2 = original_pixbuf.scale_simple(NOTIFICATION_IMAGE_SIZE, NOTIFICATION_IMAGE_SIZE, GdkPixbuf.InterpType.BILINEAR)
+                pic2 = original_pixbuf.scale_simple(
+                    NOTIFICATION_IMAGE_SIZE,
+                    NOTIFICATION_IMAGE_SIZE,
+                    GdkPixbuf.InterpType.BILINEAR,
+                )
             else:
                 # Non-square image - center crop first, then scale
                 crop_size = min(original_width, original_height)
                 crop_x = (original_width - crop_size) // 2
                 crop_y = (original_height - crop_size) // 2
-                
+
                 # Create cropped pixbuf
                 cropped_pixbuf = GdkPixbuf.Pixbuf.new(
                     GdkPixbuf.Colorspace.RGB,
                     original_pixbuf.get_has_alpha(),
                     original_pixbuf.get_bits_per_sample(),
                     crop_size,
-                    crop_size
+                    crop_size,
                 )
-                
+
                 # Copy the center square
                 original_pixbuf.copy_area(
-                    crop_x, crop_y,
-                    crop_size, crop_size,
-                    cropped_pixbuf,
-                    0, 0
+                    crop_x, crop_y, crop_size, crop_size, cropped_pixbuf, 0, 0
                 )
-                
+
                 # Scale the cropped square
-                pic2 = cropped_pixbuf.scale_simple(NOTIFICATION_IMAGE_SIZE, NOTIFICATION_IMAGE_SIZE, GdkPixbuf.InterpType.BILINEAR)
-            
+                pic2 = cropped_pixbuf.scale_simple(
+                    NOTIFICATION_IMAGE_SIZE,
+                    NOTIFICATION_IMAGE_SIZE,
+                    GdkPixbuf.InterpType.BILINEAR,
+                )
+
             return pic2
-            
+
         except Exception as e:
             print(f"Error processing image: {e}")
             return None
 
-    def _load_notification_pixbuf(self, notification: Notification) -> GdkPixbuf.Pixbuf | None:
+    def _load_notification_pixbuf(
+        self, notification: Notification
+    ) -> GdkPixbuf.Pixbuf | None:
         try:
             if getattr(notification, "image_pixbuf", None):
-                return self.pixbuf_cropping_if_image_is_not_1_1(notification.image_pixbuf)
+                return self.pixbuf_cropping_if_image_is_not_1_1(
+                    notification.image_pixbuf
+                )
 
             if getattr(notification, "image_data", None):
                 loader = GdkPixbuf.PixbufLoader()
@@ -180,7 +204,9 @@ class NotificationPopup(Box):
                 loader.close()
                 return self.pixbuf_cropping_if_image_is_not_1_1(loader.get_pixbuf())
 
-            if getattr(notification, "image_path", None) and path.exists(notification.image_path):
+            if getattr(notification, "image_path", None) and path.exists(
+                notification.image_path
+            ):
                 return GdkPixbuf.Pixbuf.new_from_file_at_scale(
                     notification.image_path,
                     NOTIFICATION_IMAGE_SIZE,
@@ -207,6 +233,7 @@ class NotificationPopup(Box):
             print(f"Failed to load notification icon: {e}")
 
         return None
+
 
 class NotificationPopupWindow(WaylandWindow):
     def __init__(self, **kwargs):
@@ -241,7 +268,7 @@ class NotificationPopupWindow(WaylandWindow):
         #         Notification,
         #         notifs_service.get_notification_from_id(nid),
         #     ).serialize())
-        
+
         self.notification = NotificationPopup(
             cast(
                 Notification,

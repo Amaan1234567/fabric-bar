@@ -2,9 +2,10 @@ import fabric
 from fabric.widgets.box import Box
 from fabric.hyprland.widgets import WorkspaceButton, Workspaces
 
+
 class CustomWorkspaces(Box):
-    def __init__(self,**kwargs):
-        super().__init__(name="workspaces-box",**kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(name="workspaces-box", **kwargs)
 
         def create_workspace_label(ws_id: int) -> str:
             return ""

@@ -2,10 +2,12 @@
 This module defines the AnimatedCircularProgressBar widget, which extends the CircularProgressBar
 from the fabric library to add animation to the progress updates.
 """
+
 from typing import Any
 
 from fabric.widgets.circularprogressbar import CircularProgressBar
 from utils.animator import Animator
+
 
 class AnimatedCircularProgressBar(CircularProgressBar):
     """An animated circular progress bar."""

@@ -38,11 +38,12 @@ class AudioWidget(Box):
                 subprocess.getoutput(
                     "wpctl status | grep '\\*' | head -1 | sed -E 's/.*\\[vol: ([0-9.]+)\\].*/\\1/'"
                 ).strip()
-            )*100,
+            )
+            * 100,
             h_expand=True,
             v_expand=True,
-            has_origin = True,
-            increments=[5,5],
+            has_origin=True,
+            increments=[5, 5],
         )
         self.scale.connect("change-value", self._on_scroll)
 
@@ -52,7 +53,7 @@ class AudioWidget(Box):
         self.add(self.scale)
 
         self.audio = Audio()
-        
+
         self.step = step_size
 
         self.audio.connect("notify::speaker", self._on_speaker_changed)
@@ -78,11 +79,11 @@ class AudioWidget(Box):
 
         if self.scrolling:
             return
-        
+
         spk = self.audio.speaker
         if not spk:
             return
-        
+
         vol: int = round(spk.volume)
         desc: str = (spk.description or "").lower()
         muted: bool = spk.muted
@@ -91,7 +92,7 @@ class AudioWidget(Box):
         logger.debug(f"speaker desc: {desc}")
         logger.info(f"speaker-muted: {muted}")
         logger.debug(f"audio-scale value:{self.scale.value}")
-        
+
         if self.scale.value - vol > 5:
             self.scale.animate_value(vol)
         self.scale.set_value(vol)
@@ -124,7 +125,7 @@ class AudioWidget(Box):
         """Scroll on the ring to change volume."""
         self.scrolling = True
 
-        logger.debug(f"audio scale value returned on value change: {value}")    
+        logger.debug(f"audio scale value returned on value change: {value}")
         if self.scale.value - value > 5:
             self.scale.animate_value(value)
         self.scale.set_value(value)

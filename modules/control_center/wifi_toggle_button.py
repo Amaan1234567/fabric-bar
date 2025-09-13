@@ -27,9 +27,11 @@ class WifiToggle(Button):
         self.connect(
             "state-flags-changed",
             lambda btn, *_: (
-                btn.set_cursor("pointer")
-                if btn.get_state_flags() & 2  # type: ignore
-                else btn.set_cursor("default"),
+                (
+                    btn.set_cursor("pointer")
+                    if btn.get_state_flags() & 2  # type: ignore
+                    else btn.set_cursor("default")
+                ),
             ),
         )
         # Poll every 5s to keep in sync
@@ -40,33 +42,35 @@ class WifiToggle(Button):
         """Toggle WiFi on/off"""
         if not self._wifi_is_available():
             return  # Can't toggle if WiFi hardware isn't available
-            
+
         cmd = ["off", "on"][not self._wifi_is_on()]
         try:
-            subprocess.run([
-                "nmcli", "radio", "wifi", cmd
-            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            subprocess.run(
+                ["nmcli", "radio", "wifi", cmd],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
         except:
             pass
-        
+
         GLib.timeout_add(1500, self._refresh)
 
     @staticmethod
     def _wifi_is_available() -> bool:
         """Check if WiFi hardware is available"""
         try:
-            result = subprocess.run([
-                "nmcli", "radio", "wifi"
-            ], capture_output=True, text=True, check=False)
-            
+            result = subprocess.run(
+                ["nmcli", "radio", "wifi"], capture_output=True, text=True, check=False
+            )
+
             # If command fails, WiFi is not available
             if result.returncode != 0:
                 return False
-                
+
             # Check if output contains any valid state (enabled/disabled)
             output = result.stdout.strip().lower()
             return output in ["enabled", "disabled"]
-            
+
         except:
             return False
 
@@ -74,9 +78,9 @@ class WifiToggle(Button):
     def _wifi_is_on() -> bool:
         """Check if WiFi is enabled"""
         try:
-            result = subprocess.run([
-                "nmcli", "radio", "wifi"
-            ], capture_output=True, text=True, check=False)
+            result = subprocess.run(
+                ["nmcli", "radio", "wifi"], capture_output=True, text=True, check=False
+            )
             return "enabled" in result.stdout
         except:
             return False
@@ -84,7 +88,7 @@ class WifiToggle(Button):
     def _refresh(self) -> bool:
         """Update WiFi status and icon"""
         ctx = self.get_style_context()
-        
+
         if not self._wifi_is_available():
             # WiFi hardware not available - show slash icon
             self.set_label("󰤭")  # WiFi off/slash icon
@@ -93,14 +97,14 @@ class WifiToggle(Button):
             ctx.remove_class("wifi-off")
         else:
             powered = self._wifi_is_on()
-            
+
             if powered:
                 self.set_label("󰤨")  # WiFi on icon
                 ctx.add_class("wifi-on")
                 ctx.remove_class("wifi-off")
                 ctx.remove_class("wifi-unavailable")
             else:
-                self.set_label("󰤭")  # WiFi off icon  
+                self.set_label("󰤭")  # WiFi off icon
                 ctx.add_class("wifi-off")
                 ctx.remove_class("wifi-on")
                 ctx.remove_class("wifi-unavailable")
