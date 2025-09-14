@@ -173,7 +173,7 @@ class MprisPopup(PopupWindow):
 
     def _on_status_change(self):
         status = self.service.get_status()
-        self.play_button.set_label("" if status != "playing" else "")
+        self.play_button.set_label("" if status != "playing" else "")
 
     def _on_shuffle_change(self):
         state = self.service.get_shuffle()
@@ -190,7 +190,6 @@ class MprisPopup(PopupWindow):
 
     def art_update(self, f, res):
         try:
-            print(res)
             stream = f.read_finish(res)
             pix = GdkPixbuf.Pixbuf.new_from_stream(stream, None)
 
@@ -213,8 +212,6 @@ class MprisPopup(PopupWindow):
     @cooldown(0.4)
     def _on_scroll(self, source, event, value):
         """Mouse wheel sends ±STEP % *relative* increments."""
-        self.value_changing = True
-        # print("detecting")
         # print(f"event: {event}")
         # print(f"source: {source}")
 
@@ -343,11 +340,9 @@ class Mpris(Box):
 
     def art_update(self, f, res):
         try:
-
             pix = GdkPixbuf.Pixbuf.new_from_stream(f.read_finish(res), None)
 
             if pixbuf := pix:
-
                 self.album_art.set_from_pixbuf(create_album_art(pixbuf, 30))
                 self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:

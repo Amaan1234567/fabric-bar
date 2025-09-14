@@ -26,6 +26,7 @@ def create_album_art(
     if original_width == original_height:
         # Square image - just scale it
         pic = original_pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.BILINEAR)
+        return pic
     else:
         # Non-square image - center crop first, then scale
         crop_size = min(original_width, original_height)
@@ -42,6 +43,7 @@ def create_album_art(
         )
 
         # Copy the center square
+        logger.debug(f"cropped_pixbuf: {cropped_pixbuf}")
         if cropped_pixbuf is not None:
             original_pixbuf.copy_area(
                 crop_x, crop_y, crop_size, crop_size, cropped_pixbuf, 0, 0

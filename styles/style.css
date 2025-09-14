@@ -121,7 +121,6 @@ border-width:  0 0 3px 0 ;
   margin-right: 15px;
   color: white;
 }
-
 #clock label {
   font-size: 18px;
   background: transparent;
@@ -352,6 +351,10 @@ tooltip {
 #shuffle-button label,
 #repeat-button label {
   font-size: 25px;
+}
+
+#play-button {
+  color:@color4;
 }
 
 #system-controls {
