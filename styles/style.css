@@ -92,9 +92,9 @@ border-width:  0 0 3px 0 ;
   background-color: transparent;
   border:solid;
   border-radius: 42px;
-  border-width: 1px;
+  border-width: 2px;
   border-color: @color4;
-  box-shadow: @color1 0px 0px 3px 4px;
+  box-shadow: @color4 0px 0px 3px 4px;
 }
 
 #screen-padding-left,#screen-padding-right{

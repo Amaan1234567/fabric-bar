@@ -9,7 +9,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.audio.service import Audio
 from fabric.utils import cooldown
-
+from gi.repository import GLib
 from custom_widgets.animated_scale import AnimatedScale
 
 
@@ -43,7 +43,7 @@ class AudioWidget(Box):
             h_expand=True,
             v_expand=True,
             has_origin=True,
-            increments=[5, 0.5],
+            increments=[1, 5],
         )
         self.scale.connect("change-value", self._on_scroll)
 
@@ -72,8 +72,7 @@ class AudioWidget(Box):
         speaker.connect("notify::volume", self._update_ui)
         speaker.connect("notify::is-muted", self._update_ui)
         self._update_ui()
-
-    @cooldown(0.1)
+    @cooldown(0.2)
     def _update_ui(self, *_: Any):
         """Refresh progress, icon, label, and tooltip."""
 
@@ -93,7 +92,7 @@ class AudioWidget(Box):
         logger.info(f"speaker-muted: {muted}")
         logger.debug(f"audio-scale value:{self.scale.value}")
 
-        if self.scale.value - vol > 5:
+        if abs(self.scale.value - vol) > 5:
             self.scale.animate_value(vol)
         self.scale.set_value(vol)
 
@@ -126,8 +125,10 @@ class AudioWidget(Box):
         self.scrolling = True
 
         logger.debug(f"audio scale value returned on value change: {value}")
-        if self.scale.value - value > 5:
+        logger.debug(f"current change in volume: {abs(self.scale.value)}")
+        if abs(self.scale.value - value) > 5:
             self.scale.animate_value(value)
         self.scale.set_value(value)
         self.audio.speaker.volume = value
         self.scrolling = False
+        GLib.timeout_add(200,self._update_ui)
