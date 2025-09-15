@@ -72,7 +72,7 @@ class AudioWidget(Box):
         speaker.connect("notify::volume", self._update_ui)
         speaker.connect("notify::is-muted", self._update_ui)
         self._update_ui()
-    @cooldown(0.05)
+    @cooldown(0.1)
     def _update_ui(self, *_: Any):
         """Refresh progress, icon, label, and tooltip."""
 
