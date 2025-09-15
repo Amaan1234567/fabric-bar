@@ -56,7 +56,7 @@ class WindowName(Box):
         """
         trunc = True
         trunc_size = 10
-        custom_map: List[Tuple[str, str, str]] = []  # Corrected type
+        custom_map: List[Tuple[str, str, str]] = []
         icon_enabled = True
 
         win_title = truncate(win_title, trunc_size) if trunc else win_title
@@ -66,7 +66,7 @@ class WindowName(Box):
         for pattern, icon, name in merged_titles:
             try:
                 if re.search(pattern, win_class.lower()):
-                    # print(f"\n{icon} {name}" if icon_enabled else name)
+                    logger.debug(f"\n{icon} {name}" if icon_enabled else name)
                     return f"{icon} {name}" if icon_enabled else name
             except re.error as e:
                 logger.warning(f"[window_title] Invalid regex '{pattern}': {e}")

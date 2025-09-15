@@ -44,8 +44,6 @@ class NotificationButton(Box):
         self.content.add(self.container_box)
         self.add(self.content)
 
-        # self.trigger_control_center(None,None) # hacky bug fix
-
     def trigger_control_center(self, _, __):
         # print("toggling control center")
         control_center.toggle_control_center()

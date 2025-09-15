@@ -29,6 +29,8 @@ class AudioWidget(Box):
     def __init__(self, step_size: int = 5, **kwargs: Any):
         super().__init__(name="audio-container", spacing=5, show_label=False, **kwargs)
 
+        self.step = step_size
+
         self.scale: AnimatedScale = AnimatedScale(
             name="audio-scale",
             orientation="horizontal",
@@ -49,20 +51,15 @@ class AudioWidget(Box):
 
         self.icon = Label(name="audio-icon", label=self._ICONS["medium"])
 
-        self.add(self.icon)
-        self.add(self.scale)
-
         self.audio = Audio()
-
-        self.step = step_size
 
         self.audio.connect("notify::speaker", self._on_speaker_changed)
 
-        self._on_speaker_changed()
-        self.scrolling = False
+        self.scrolling = False  # cheap mutex
 
-    # def initial_update(self):
-    #     self.scale.value = round(spk.volume)
+        self.add(self.icon)
+        self.add(self.scale)
+
     def _on_speaker_changed(self, *_: Any):
         """When the default sink changes, listen for its volume/mute changes."""
         speaker = self.audio.speaker
@@ -72,6 +69,7 @@ class AudioWidget(Box):
         speaker.connect("notify::volume", self._update_ui)
         speaker.connect("notify::is-muted", self._update_ui)
         self._update_ui()
+
     @cooldown(0.1)
     def _update_ui(self, *_: Any):
         """Refresh progress, icon, label, and tooltip."""
@@ -92,8 +90,8 @@ class AudioWidget(Box):
         logger.info(f"speaker-muted: {muted}")
         logger.debug(f"audio-scale value:{self.scale.value}")
 
-        # if abs(self.scale.value - vol) > 5:
-        self.scale.animate_value(vol)
+        if abs(self.scale.value - vol) > 5:
+            self.scale.animate_value(vol)
         self.scale.set_value(vol)
 
         if muted or vol == 0:
@@ -126,9 +124,12 @@ class AudioWidget(Box):
 
         logger.debug(f"audio scale value returned on value change: {value}")
         logger.debug(f"current change in volume: {abs(self.scale.value)}")
-        # if abs(self.scale.value - value) > 5:
-        self.scale.animate_value(value)
+
+        if abs(self.scale.value - value) > 5:
+            self.scale.animate_value(value)
         self.scale.set_value(value)
         self.audio.speaker.volume = value
+
         self.scrolling = False
-        GLib.timeout_add(100,self._update_ui)
+
+        GLib.timeout_add(100, self._update_ui)
