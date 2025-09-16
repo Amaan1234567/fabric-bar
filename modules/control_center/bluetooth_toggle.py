@@ -1,9 +1,10 @@
-import subprocess
-import gi
+"""hold the bluetooth toggle module"""
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+import subprocess
+from loguru import logger
+
 from fabric.widgets.button import Button
+from fabric.bluetooth.service import BluetoothClient
 
 
 class BluetoothToggle(Button):
@@ -22,6 +23,8 @@ class BluetoothToggle(Button):
         self.set_hexpand(True)
         self.set_vexpand(False)
 
+        self.bluetooth_client = BluetoothClient()
+        self.bluetooth_client.connect("changed", self._refresh)
         # Set initial state
         self._refresh()
         self.connect(
@@ -34,22 +37,14 @@ class BluetoothToggle(Button):
                 ),
             ),
         )
-        # Poll every 6s to keep in sync
-        GLib.timeout_add_seconds(6, self._refresh)
         self.set_tooltip_text("Toggle Bluetooth")
 
-    @staticmethod
-    def _bluetooth_is_on() -> bool:
+    def _bluetooth_is_on(self) -> bool:
         """Returns True if bluetoothctl reports Powered: yes"""
-        try:
-            out = subprocess.run(
-                ["bluetoothctl", "show"],
-                capture_output=True,
-                text=True,
-                check=False,
-            ).stdout
-            return "Powered: yes" in out
-        except Exception:
+        logger.debug(f"{self.bluetooth_client.state}")
+        if self.bluetooth_client.state == "on":
+            return True
+        else:
             return False
 
     def _refresh(self) -> bool:
@@ -74,9 +69,7 @@ class BluetoothToggle(Button):
                 ["bluetoothctl", "power", cmd],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                check=True,
             )
         except Exception:
             pass
-
-        # Refresh after short delay
-        GLib.timeout_add(800, self._refresh)
