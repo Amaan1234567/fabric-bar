@@ -1,17 +1,26 @@
-from widgets.bar import StatusBar
-from widgets.corners import ScreenCorners
+"""main python file that initialised the whole UI
+"""
+import sys
+from loguru import logger
+
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
 from modules.control_center import control_center
 from modules.notification.notification_popup import NotificationPopupWindow
-from loguru import logger
-import sys
+
+from widgets.bar import StatusBar
+from widgets.corners import ScreenCorners
 
 if __name__ == "__main__":
     logger.remove()
 
     # Add a new sink, filtering out messages from 'noisy_module'
-    logger.add(sys.stderr, filter=lambda record: record["name"] != "fabric.widgets.svg")
+    logger.add(
+        sys.stderr,
+        filter=lambda record: record["name"] != "fabric.widgets.svg",
+        level="INFO",
+    )
+
     bar = StatusBar()
     corners = ScreenCorners()
     notifications = NotificationPopupWindow()
