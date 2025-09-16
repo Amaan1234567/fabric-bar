@@ -1,11 +1,13 @@
 from fabric import Fabricator
-from fabric.utils import exec_shell_command_async, get_relative_path
+from fabric.utils import get_relative_path
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 
 
 class CavaWidget(Box):
-
+    """music visualiser widget, uses unicode bar symbols to visualise music
+    decibel level at different frequencies
+    """
     def __init__(self, **kwargs):
         super().__init__(orientation="h", spacing=1, name="cava", **kwargs)
 
@@ -24,22 +26,12 @@ class CavaWidget(Box):
             interval=1000,
             poll_from=f"{script_path} {self.bars}",
             stream=True,
-        ).connect("changed", self.update_label)
+        ).connect("changed", self._update_label)
 
         ctx = self.get_style_context()
         ctx.add_class("cava-active")
 
-    def update_label(self, _, label):
-        # ctx = self.get_style_context()
-        # ctx.add_class("cava-active")
-        # if( label == "▁"*self.bars): #means nothing playing
-        #     label=""
-        #     ctx.remove_class("cava-active")
-        #     ctx.add_class("cava-silent")
-        # else:
-        #     ctx.add_class("cava-active")
-        #     ctx.remove_class("cava-silent")
-
+    def _update_label(self, _, label):
         self.cava_label.set_label(label)
-        # print(label)
+
         return True

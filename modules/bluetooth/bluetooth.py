@@ -9,7 +9,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
 from fabric.widgets.eventbox import EventBox
-from fabric.utils import cooldown
+from fabric.utils import cooldown,exec_shell_command_async
 from fabric.bluetooth.service import BluetoothClient, BluetoothDevice
 from gi.repository import GLib, Gdk  # type: ignore
 
@@ -70,11 +70,7 @@ class BluetoothWidget(Box):
     @cooldown(1)
     def _on_left_click(self, _, event):
         if event.button == Gdk.BUTTON_PRIMARY:
-            subprocess.run(
-                "blueman-manager & disown",
-                shell=True,
-                check=False,
-            )
+            exec_shell_command_async("blueman-manager")
 
     def _on_hover(self):
         self._refresh()
