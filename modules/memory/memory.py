@@ -26,6 +26,8 @@ class Memory(Box):
             start_angle=140,
             end_angle=395,
             invert=True,
+            min_value = 0.0,
+            max_value = 100.0
         )
         self.add(self.progress_bar)
 
@@ -43,6 +45,8 @@ class Memory(Box):
     ) -> bool:
         """Called by Fabricator whenever `get_memory_usage` returns a new value."""
         value = self.get_memory_usage()
-        self.progress_bar.animate_value(value / 100.0)
+        if abs(self.progress_bar.value - value) > 5:
+            self.progress_bar.animate_value(value)
+        self.progress_bar.set_value(value)
         # print(f"[memory] updated to {value:.1f}%")
         return True

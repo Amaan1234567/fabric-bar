@@ -1,53 +1,18 @@
-from gi.repository import Gtk
-import subprocess
+"""holds module for brightness slider used in control center"""
+
+from loguru import logger
 
 from fabric import Fabricator
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
-from fabric.widgets.eventbox import EventBox
-from fabric.utils import cooldown
-from time import sleep
+from fabric.utils import cooldown, exec_shell_command_async
 from custom_widgets.animated_scale import AnimatedScale
 
 # ---------------------------------------------------------------- helpers
 MIN_BRIGHT = 5  # avoid a black screen
+MIN_BRIGHTNESS_STEP = 3
 STEP = 5  # percentage per scroll “tick”
-from fabric.utils import monitor_file
-
-
-def get_brightness(actual_brightness_file: str, max_brightness_file: str):
-    with open(max_brightness_file, "r", encoding="utf8") as max_brightness:
-        max_brightness = int(max_brightness.read())
-
-        def compute_brightness(*_):
-            with open(
-                actual_brightness_file, "r", encoding="utf8"
-            ) as actual_brightness:
-                actual_brightness = int(actual_brightness.read())
-                current_brightness = round((actual_brightness / max_brightness) * 100)
-                print(current_brightness)
-
-        compute_brightness()
-
-        monitor_file(actual_brightness_file, compute_brightness)
-
-
-def _read_brightness() -> int:
-    """
-    Current brightness percentage (0-100). Converts raw units if needed.
-    """
-    raw = int(subprocess.check_output(["brightnessctl", "g"], text=True))
-    maxi = int(subprocess.check_output(["brightnessctl", "m"], text=True))
-    pct = int(raw * 100 / maxi)
-    return max(MIN_BRIGHT, min(100, int(round(pct))))
-
-
-def _set_brightness_rel(delta_pct: int):
-    """
-    Add or subtract a *relative* percentage (positive or negative).
-    """
-    subprocess.getoutput(" ".join(["brightnessctl", "set", f"{abs(delta_pct)}%"]))
 
 
 # ------------------------------------------------------------- main widget
@@ -65,20 +30,21 @@ class BrightnessSlider(Box):
             v_expand=True,
             h_expand=True,
         )
-        path = "/sys/class/backlight/intel_backlight/device/intel_backlight"
-        get_brightness(f"{path}/actual_brightness", f"{path}/max_brightness")
+        path = "/sys/class/backlight/intel_backlight/"
+        self.actual_brightness_file = f"{path}/actual_brightness"
+        self.max_brightness_file = f"{path}/max_brightness"
         self._step = step
         self.scale = AnimatedScale(
             name="brightness-scale",
             orientation="horizontal",
-            min=MIN_BRIGHT,
-            max=100,
-            value=_read_brightness() / 100,
+            min_value=MIN_BRIGHT,
+            max_value=100,
+            value=self._get_brightness(),
             draw_value=False,
             h_expand=True,
             v_expand=True,
             has_origin=True,
-            increments=(0.3, 0.1),
+            increments=(STEP, STEP),
         )
 
         self.label = Label(
@@ -94,43 +60,56 @@ class BrightnessSlider(Box):
         self.scale.connect("change-value", self._on_scroll)
         self.overlay = Overlay(child=self.scale, overlays=self.label)
         self.add(self.overlay)
-        # self.add(self.scale)
-        # self.add(self.label)
+
         self.value_changing = True
-        Fabricator(poll_from=lambda E: self.get_brightness(), interval=100).connect(
+        Fabricator(poll_from=lambda E: self._get_brightness(), interval=500).connect(
             "changed", self._refresh
         )
 
-    def get_brightness(self):
-        """Return the latest brightness"""
+    def _set_brightness_rel(self, delta_pct: int):
+        """
+        Add or subtract a *relative* percentage (positive or negative).
+        """
 
-        return _read_brightness()
+        exec_shell_command_async(
+            " ".join(["brightnessctl", "set", f"{abs(delta_pct)}%"])
+        )
+
+    def _get_brightness(self):
+        with open(self.max_brightness_file, "r", encoding="utf8") as max_brightness:
+            max_brightness = int(max_brightness.read())
+
+            with open(
+                self.actual_brightness_file, "r", encoding="utf8"
+            ) as actual_brightness:
+                actual_brightness = int(actual_brightness.read())
+                current_brightness = round((actual_brightness / max_brightness) * 100)
+
+                logger.debug(f"current_brightness: {current_brightness}")
+                return current_brightness
 
     @cooldown(0.1)
-    def _on_scroll(self, source, event, value):
-        self.value_changing = True
+    def _on_scroll(self, _, __, value):
         """Mouse wheel sends ±STEP % *relative* increments."""
-        # print("detecting")
-        # print(f"event: {event}")
-        # print(f"source: {source}")
+        self.value_changing = True
+        logger.debug("detecting scroll on brightness scale")
 
-        # print(f"value: {value}")
-        # print(f"delta: {delta}")
-        _set_brightness_rel(value * 100)
+        self._set_brightness_rel(value)
         print("brigntness value:", value)
-        if abs(self.scale.value - value) * 100 > MIN_BRIGHT:
+        if abs(self.scale.value - value) > MIN_BRIGHTNESS_STEP:
             self.scale.animate_value(value)
         self.scale.set_value(value)
 
         self.value_changing = False
 
     def _refresh(self, _, value):
-        # print("refreshing")
-        # print("value changing",self.value_changing)
-        if value != round(self.scale.value * 100) and not self.value_changing:
-            self.scale.animate_value(_read_brightness() / 100)
-            self.scale.set_value(value / 100)
-            if value < 15:
-                self.label.add_style_class("brightness-icon-low")
-            else:
-                self.label.remove_style_class("brightness-icon-low")
+        if self.value_changing:
+            return
+
+        if abs(self.scale.value - value) > MIN_BRIGHTNESS_STEP:
+            self.scale.animate_value(value)
+        self.scale.set_value(value)
+        if value < 15:
+            self.label.add_style_class("brightness-icon-low")
+        else:
+            self.label.remove_style_class("brightness-icon-low")

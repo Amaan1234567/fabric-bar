@@ -1,13 +1,15 @@
-from fabric.widgets.box import Box
-from fabric.widgets.label import Label
-from fabric.widgets.svg import Svg
-from gi.repository import GLib
-from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
-from fabric import Fabricator
+from encodings import utf_8
+from venv import logger
 import psutil
 import re
 import os
-from time import sleep
+
+from fabric.widgets.box import Box
+from fabric.widgets.label import Label
+from fabric.widgets.svg import Svg
+from fabric.utils import monitor_file,get_relative_path
+from gi.repository import GLib
+from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
 
 
 class Cpu(Box):
@@ -34,6 +36,8 @@ class Cpu(Box):
             start_angle=140,
             end_angle=395,
             invert=True,
+            min_value = 0.0,
+            max_value = 100.0
         )
         self.add(self.progress_bar)
 
@@ -43,17 +47,18 @@ class Cpu(Box):
         self.update_label()
         # Set up a Fabricator service to poll CPU% every 500ms
         GLib.timeout_add_seconds(1, self.update_label)
+        #monitor_file("../../styles/colors.css",self._update_svg_color,initial_call=True)
 
     def _get_color6_from_css(self):
         """Get color6 value from colors.css file"""
-        css_file_path = "colors.css"
+        css_file_path = get_relative_path("../../styles/colors.css")
         default_color = "#F3E3BC"  # Fallback color6 value
 
         if not os.path.exists(css_file_path):
             return default_color
 
         try:
-            with open(css_file_path, "r") as file:
+            with open(css_file_path, "r",encoding="utf-8") as file:
                 css_content = file.read()
 
             # Look for @define-color color6 #HEXCODE;
@@ -77,9 +82,12 @@ class Cpu(Box):
         try:
             # Apply color6 to the SVG
             # print(self.color6)
-            # print("color: "+self.color6 + ";")
+            logger.info(f"color retrieved from colors.css for CPU widget: {self.color6};")
+             # Update SVG color to color6 every update
+            self.color6 = self._get_color6_from_css()
             self.icon.set_style(style="stroke: " + self.color6 + ";")
             # print(f"Updated SVG color to: {self.color6}")
+            return True
         except Exception as e:
             print(f"Error updating SVG color: {e}")
 
@@ -93,10 +101,9 @@ class Cpu(Box):
         """Called by Fabricator whenever get_cpu_usage returns a new value."""
         # Update progress bar
         value = self.get_cpu_usage()
-        self.progress_bar.animate_value(value / 100.0)
-
-        # Update SVG color to color6 every update
-        self.color6 = self._get_color6_from_css()
         self._update_svg_color()
+        if abs(self.progress_bar.value - value) > 2:
+            self.progress_bar.animate_value(value)
+        self.progress_bar.set_value(value)
 
         return True

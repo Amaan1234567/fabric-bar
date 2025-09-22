@@ -42,7 +42,7 @@ class BluetoothToggle(Button):
     def _bluetooth_is_on(self) -> bool:
         """Returns True if bluetoothctl reports Powered: yes"""
         logger.debug(f"{self.bluetooth_client.state}")
-        if self.bluetooth_client.state == "on":
+        if self.bluetooth_client.get_property("state") == "on":
             return True
         else:
             return False
@@ -71,5 +71,5 @@ class BluetoothToggle(Button):
                 stderr=subprocess.DEVNULL,
                 check=True,
             )
-        except Exception:
-            pass
+        except TimeoutError as exception:
+            logger.exception(f"{exception} encountered")

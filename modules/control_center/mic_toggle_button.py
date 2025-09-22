@@ -1,10 +1,10 @@
-import subprocess
-import gi
+"""contains the mic toggle widget"""
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+from loguru import logger
+
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
+from fabric.audio.service import Audio
 
 
 class MicToggle(Button):
@@ -25,9 +25,8 @@ class MicToggle(Button):
         )
         self.set_hexpand(True)
         self.set_vexpand(False)
-
-        # Set initial state
-        self._refresh()
+        self.audio = Audio()
+        self.audio.connect("microphone_changed", self._refresh)
         self.connect(
             "state-flags-changed",
             lambda btn, *_: (
@@ -38,46 +37,20 @@ class MicToggle(Button):
                 ),
             ),
         )
-        # Poll every 6s to keep in sync
-        GLib.timeout_add_seconds(6, self._refresh)
+
         self.set_tooltip_text("toggle mic")
 
-    @staticmethod
-    def _mic_is_muted() -> bool:
+    def _mic_is_muted(self) -> bool:
         """Returns True if microphone is muted"""
-        try:
-            # Try pactl first (PulseAudio)
-            result = subprocess.run(
-                ["pactl", "get-source-mute", "@DEFAULT_SOURCE@"],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
 
-            if result.returncode == 0:
-                return "yes" in result.stdout.lower()
-
-            # Fallback to amixer (ALSA)
-            result = subprocess.run(
-                ["amixer", "get", "Capture"],
-                capture_output=True,
-                text=True,
-                check=False,
-            )
-
-            if result.returncode == 0:
-                # Check if [off] is in the output (indicates muted)
-                return "[off]" in result.stdout.lower()
-
-            return False  # Default to not muted if can't determine
-
-        except Exception:
-            return False
+        return self.audio.microphone.muted
 
     def _refresh(self) -> bool:
         """Update CSS class and icon based on mic state"""
-        muted = self._mic_is_muted()
+        logger.debug("refreshing mic toggle")
 
+        muted = self._mic_is_muted()
+        logger.debug(muted)
         ctx = self.get_style_context()
         if muted:
             # Microphone is muted
@@ -94,26 +67,4 @@ class MicToggle(Button):
 
     def _toggle(self, _button):
         """Toggle microphone mute"""
-        try:
-            # Try pactl first (PulseAudio)
-            result = subprocess.run(
-                ["pactl", "set-source-mute", "@DEFAULT_SOURCE@", "toggle"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=False,
-            )
-
-            if result.returncode != 0:
-                # Fallback to amixer (ALSA)
-                subprocess.run(
-                    ["amixer", "set", "Capture", "toggle"],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    check=False,
-                )
-
-        except Exception:
-            pass
-
-        # Refresh after short delay
-        GLib.timeout_add(800, self._refresh)
+        self.audio.microphone.set_property("muted", not self._mic_is_muted())

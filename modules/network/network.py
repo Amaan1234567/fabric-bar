@@ -85,12 +85,6 @@ class NetworkWidget(Box):
             keyboard_mode="on_demand",
         )
 
-        try:
-            self.networks_popup.set_accept_focus(True)
-            self.networks_popup.set_can_focus(True)
-        except:
-            pass
-
         self._update_networks_list()
 
         self._auto_hide_timer = None
@@ -112,7 +106,7 @@ class NetworkWidget(Box):
 
         # Initial scan and then every 8 seconds
         scan_networks()
-        GLib.timeout_add_seconds(8, scan_networks)
+        GLib.timeout_add_seconds(1, scan_networks)
 
     def _scan_networks_async(self):
         """Scan networks asynchronously using GLib subprocess"""

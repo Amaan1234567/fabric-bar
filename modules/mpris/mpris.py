@@ -200,6 +200,8 @@ class MprisPopup(PopupWindow):
             print("encountered error:", e)
 
     def _update_progress(self):
+        if not self.get_visible():
+            return True 
         position = self.service.get_position()
         # print(self.song_length)
         if self.song_length != 0:
