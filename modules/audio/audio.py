@@ -12,6 +12,7 @@ from fabric.utils import cooldown
 from gi.repository import GLib
 from custom_widgets.animated_scale import AnimatedScale
 
+VOLUME_MIN_STEP = 3
 
 class AudioWidget(Box):
     """A widget that displays and controls volume using Fabric's Audio service."""
@@ -36,12 +37,7 @@ class AudioWidget(Box):
             orientation="horizontal",
             min_value=0,
             max_value=100,
-            value=float(
-                subprocess.getoutput(
-                    "wpctl status | grep '\\*' | head -1 | sed -E 's/.*\\[vol: ([0-9.]+)\\].*/\\1/'"
-                ).strip()
-            )
-            * 100,
+            value=0,
             h_expand=True,
             v_expand=True,
             has_origin=True,
@@ -90,7 +86,7 @@ class AudioWidget(Box):
         logger.info(f"speaker-muted: {muted}")
         logger.debug(f"audio-scale value:{self.scale.value}")
 
-        if abs(self.scale.value - vol) > 5:
+        if abs(self.scale.value - vol) > VOLUME_MIN_STEP:
             self.scale.animate_value(vol)
         self.scale.set_value(vol)
 
@@ -117,7 +113,7 @@ class AudioWidget(Box):
         )
         self.set_tooltip_markup(tip)
 
-    @cooldown(0.1)
+    @cooldown(0.01)
     def _on_scroll(self, _, __, value: float):
         """Scroll on the ring to change volume."""
         self.scrolling = True
@@ -125,11 +121,11 @@ class AudioWidget(Box):
         logger.debug(f"audio scale value returned on value change: {value}")
         logger.debug(f"current change in volume: {abs(self.scale.value)}")
 
-        if abs(self.scale.value - value) > 5:
+        if abs(self.scale.value - value) > VOLUME_MIN_STEP:
             self.scale.animate_value(value)
         self.scale.set_value(value)
         self.audio.speaker.volume = value
 
         self.scrolling = False
 
-        GLib.timeout_add(100, self._update_ui)
+        
