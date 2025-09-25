@@ -1,11 +1,14 @@
-import fabric
+"""holds performance toggle widget"""
+
+from loguru import logger
 from fabric.widgets.button import Button
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-import subprocess
+from fabric.power_profiles.service import PowerProfiles
 
 
 class PerformanceToggle(Button):
+    """widget to toggle performance mode, uses the powerprofiles service"""
     def __init__(self, **kwargs):
         super().__init__(
             name="performance-toggle",
@@ -14,17 +17,14 @@ class PerformanceToggle(Button):
             size=[147, 10],
             **kwargs
         )
-        self.status_icon_map = {"Quiet": "󰒲", "Balanced": "󰈐", "Performance": "󰿗"}
-        self.modes = ["Quiet", "Balanced", "Performance"]
-        self.current_mode = subprocess.getoutput(
-            "asusctl profile -p | grep is | awk '{print $4}'"
-        )
+        self.service = PowerProfiles()
+        self.service.connect("changed",self._update_active_mode)
+        logger.debug(f"profiles: {self.service.profiles}")
+        self.status_icon_map = {"power-saver": "󰒲", "balanced": "󰈐", "performance": "󰿗"}
+        self.modes = ["power-saver", "balanced", "performance"]
         self.status_idx = 0
+        self.current_mode = self.service.active_profile 
 
-        for i in range(len(self.modes)):
-            if self.modes[i].strip() == self.current_mode:
-                self.status_idx = i
-                break
         self.content = Box(
             orientation="v", spacing=30, h_align="center", v_align="center"
         )
@@ -39,14 +39,21 @@ class PerformanceToggle(Button):
 
         self.add(self.content)
 
-        self.connect("clicked", self.cycle_mode)
+        self.connect("clicked", self._cycle_mode)
+        self._update_active_mode()
 
-    def cycle_mode(self):
-        print(self.status_idx)
+    def _update_active_mode(self):
+        logger.debug("performance toggle updating")
+        logger.debug(f"active profile: {self.service.active_profile}")
+        self.current_mode = self.service.active_profile
+        for i,mode in enumerate(self.modes):
+            if mode == self.current_mode:
+                self.status_idx = i
+                break
+        self.status.set_label(self.current_mode)
+
+    def _cycle_mode(self):
         self.status_idx = (self.status_idx + 1) % 3
         self.current_mode = self.modes[self.status_idx]
-
-        subprocess.run(
-            ["asusctl", "profile", "--profile-set", self.current_mode.strip()]
-        )
+        self.service.active_profile = self.current_mode
         self.status.set_label(self.current_mode)

@@ -3,7 +3,7 @@ charset-normalizer==3.4.2
 click==8.1.7
 colorist==1.8.5
 dbus-python==1.4.0
-fabric @ git+https://github.com/Fabric-Development/fabric.git@0d82275169d3d6ff9cde25eac8bbd754a3dfeddf
+fabric @ git+https://github.com/Fabric-Development/fabric.git@91caa4e8e88f777acdf6b1e426d54c74a9c8bde3
 idna==3.10
 ijson==3.4.0
 joblib==1.5.1

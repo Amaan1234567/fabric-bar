@@ -1,13 +1,16 @@
+"""holds cava widget"""
 from fabric import Fabricator
 from fabric.utils import get_relative_path
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-from loguru import logger
+
+
 
 class CavaWidget(Box):
     """music visualiser widget, uses unicode bar symbols to visualise music
     decibel level at different frequencies
     """
+
     def __init__(self, **kwargs):
         super().__init__(orientation="h", spacing=1, name="cava", **kwargs)
 
@@ -34,7 +37,6 @@ class CavaWidget(Box):
     def _update_label(self, _, label):
         if self.cava_label.get_label() == label:
             return True
-        
+
         self.cava_label.set_label(label)
-        logger.debug(f"cava_label:{label}")
         return True
