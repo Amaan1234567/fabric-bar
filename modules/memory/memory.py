@@ -1,15 +1,16 @@
+"""holds the memory widget"""
+
+import psutil
+from gi.repository import GLib # type: ignore
+
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-from fabric.widgets.circularprogressbar import CircularProgressBar
 from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
-from fabric import Fabricator
-import psutil
-from time import sleep
 
-from gi.repository import GLib
 
 
 class Memory(Box):
+    """memory widget, displays current memory usage"""
     def __init__(self) -> None:
         # 1px spacing, horizontal orientation
         super().__init__(orientation="h", spacing=1, name="memory")
@@ -26,8 +27,8 @@ class Memory(Box):
             start_angle=140,
             end_angle=395,
             invert=True,
-            min_value = 0.0,
-            max_value = 100.0
+            min_value=0.0,
+            max_value=100.0,
         )
         self.add(self.progress_bar)
 
@@ -45,7 +46,7 @@ class Memory(Box):
     ) -> bool:
         """Called by Fabricator whenever `get_memory_usage` returns a new value."""
         value = self.get_memory_usage()
-        if abs(self.progress_bar.value - value) > 5:
+        if abs(self.progress_bar.value - value) > 3:
             self.progress_bar.animate_value(value)
         self.progress_bar.set_value(value)
         # print(f"[memory] updated to {value:.1f}%")

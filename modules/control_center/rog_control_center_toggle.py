@@ -1,11 +1,11 @@
+"""hold rog app trigger button"""
 from fabric.widgets.button import Button
-from fabric.widgets.image import Image
 from fabric.widgets.svg import Svg
-from fabric.utils import cooldown
-import subprocess
+from fabric.utils import cooldown, exec_shell_command_async
 
 
 class ROGButton(Button):
+    """ widget that hold the button to trigger ROG app"""
     def __init__(self):
         # Let Fabric handle SVG scaling automatically
         rog_icon = Svg(
@@ -39,15 +39,6 @@ class ROGButton(Button):
         )
 
     @cooldown(1)
-    def _launch_rog_center(self, button):
+    def _launch_rog_center(self, _):
         """Launch ROG Control Center"""
-        try:
-            subprocess.run(
-                ["bash", "-c", "rog-control-center & disown"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                check=True
-            )
-            # print("ROG Control Center launched")
-        except Exception as e:
-            print(f"Failed to launch ROG Control Center: {e}")
+        exec_shell_command_async("rog-control-center & disown")

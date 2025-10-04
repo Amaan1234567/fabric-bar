@@ -56,3 +56,7 @@ def create_album_art(
         else:
             logger.error("could not get cropped_pixbuf, cropped_pixbuf was None")
             raise RuntimeError("could not get cropped_pixbuf, cropped_pixbuf was None")
+
+
+def truncate(text, max_len=15):
+    return text if len(text) <= max_len else text[: max_len - 1] + "…"

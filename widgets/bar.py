@@ -6,6 +6,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.label import Label
+from fabric.hyprland.widgets import HyprlandWorkspaces as Workspaces
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.separator import Separator
 
@@ -31,9 +32,9 @@ class StatusBar(Window):
             layer="top",
             name="bar-window",
             anchor="left top right",
+            pass_through=False,
             exclusivity="auto",
-            type="top-level",
-            all_visible=True,
+            all_visible=False,
             **kwargs
         )
 

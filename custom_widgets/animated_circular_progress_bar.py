@@ -21,7 +21,7 @@ class AnimatedCircularProgressBar(CircularProgressBar):
                 bezier_curve=(0.34, 1.56, 0.64, 1.0),
                 duration=0.4,
                 min_value=self.min_value,
-                max_value=self.value,
+                max_value=self.max_value,
                 tick_widget=self,
                 notify_value=lambda p, *_: self.set_value(p.value),
             )
