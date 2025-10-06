@@ -5,12 +5,13 @@ from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from fabric.utils import invoke_repeater
-from mpris_popup import MprisPopup
 
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
 from services.playerctlservice import SimplePlayerctlService
 from helpers.helper_functions import create_album_art, truncate
+
+from modules.mpris.mpris_popup import MprisPopup
 
 class Mpris(Box):
     """mpris widget that is shown in the bar, which shows truncated song name and album art"""
