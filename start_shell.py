@@ -1,5 +1,4 @@
-"""main python file that initialised the whole UI
-"""
+"""main python file that initialised the whole UI"""
 
 # import sys
 from loguru import logger
@@ -9,8 +8,9 @@ from fabric import Application
 from modules.control_center import control_center
 from modules.notification.notification_window import NotificationPopupWindow
 
-from widgets.bar import StatusBar
+from widgets.top_bar import StatusBar
 from widgets.corners import ScreenCorners
+
 if __name__ == "__main__":
     logger.remove()
 
@@ -41,8 +41,10 @@ if __name__ == "__main__":
     if colors_path:
         style_monitor = monitor_file(colors_path)
         style_monitor.connect(
-            "changed", lambda *a: (app.set_stylesheet_from_file(style_path),
-                                   app.set_stylesheet_from_file(get_relative_path("styles/style.css"))
-                                   )
+            "changed",
+            lambda *a: (
+                app.set_stylesheet_from_file(style_path),
+                app.set_stylesheet_from_file(get_relative_path("styles/style.css")),
+            ),
         )
     app.run()

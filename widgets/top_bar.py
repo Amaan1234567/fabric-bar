@@ -1,3 +1,4 @@
+"""holds the main bar widget"""
 import subprocess
 
 from fabric.widgets.box import Box

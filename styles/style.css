@@ -601,10 +601,10 @@ tooltip {
 
 
 #notification {
-    min-width: 460px;
-    padding:0;
-    border-radius: 1rem;
-    background-color: alpha(@backgroundWaybar, 0.7);
+  min-width: 430px;
+  padding:0;
+  border-radius: 1rem;
+  background-color: alpha(@backgroundWaybar, 0.7);
 }
 
 #notification-info {
