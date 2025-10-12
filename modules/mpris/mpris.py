@@ -67,7 +67,7 @@ class Mpris(Box):
         self._on_status_change()
 
     def _update_progress(self):
-        position = self.service.get_position()
+        position = self.service._get_position()
         # print(self.song_length)
         if self.song_length != 0:
             # print(position)
@@ -123,7 +123,7 @@ class Mpris(Box):
             print("encountered_error: ", e)
 
     def _update_widget(self):
-        if data := self.service.get_metadata():
+        if data := self.service._get_metadata():
 
             art_url, title, song_length = (
                 data["art_url"],

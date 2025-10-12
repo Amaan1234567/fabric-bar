@@ -1,5 +1,7 @@
 """holds the playerctl service"""
+
 import os
+from loguru import logger
 from gi.repository import Playerctl
 from fabric.core.service import Service, Signal
 
@@ -10,6 +12,7 @@ class SimplePlayerctlService(Service):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.manager = Playerctl.PlayerManager()
+        self.temp_art_path = None
         self.players = {}  # player_name -> Playerctl.Player
 
         # Connect manager signals
@@ -29,19 +32,21 @@ class SimplePlayerctlService(Service):
                     # player.connect("metadata",lambda _: self.emit_update())
                     self._connect_player_signals_with_emits(player)
                     self.players[name.name] = player
-                except:
-                    pass
+                except Exception as exception:
+                    logger.exception(
+                        f"Exception encountered in Playerctl: {exception} "
+                    )
 
     def _connect_player_signals_with_emits(self, player) -> Playerctl.Player:
         signals = ["metadata", "loop-status", "seeked", "shuffle"]
         for signal in signals:
-            player.connect(signal, lambda _: (self.emit_update(), False))
+            player.connect(signal, lambda _: (self._emit_update(), False))
         for signal in [
             "playback-status::playing",
             "playback-status::paused",
             "playback-status::ended",
         ]:
-            player.connect(signal, lambda _: (self.emit_track_status(), False))
+            player.connect(signal, lambda _: (self._emit_track_status(), False))
 
     def _on_player_appeared(self, manager, name):
         """Handle new player"""
@@ -53,18 +58,22 @@ class SimplePlayerctlService(Service):
                 self._connect_player_signals_with_emits(player)
 
                 self.players[name.name] = player
-            except:
+            except Exception as exception:
+                logger.exception(f"Exception encountered in Playerctl: {exception} ")
                 pass
 
     @Signal
-    def track_change(self) -> None: ...
-    @Signal
-    def track_status_change(self) -> None: ...
+    def track_change(self) -> None:
+        """signal for track change"""
 
-    def emit_track_status(self):
+    @Signal
+    def track_status_change(self) -> None:
+        """signal for status change"""
+
+    def _emit_track_status(self):
         self.emit("track-status-change")
 
-    def emit_update(self):
+    def _emit_update(self):
         # print("emitting after recieving metadata signal")
         self.notify("changed")
         self.emit("track-change")
@@ -79,11 +88,11 @@ class SimplePlayerctlService(Service):
             del self.players[player_name]
         self.emit("track-change")
 
-    def get_players(self):
+    def _get_players(self):
         """Get list of all player names"""
         return list(self.players.keys())
 
-    def get_metadata(self, player_name=None):
+    def _get_metadata(self, player_name=None):
         """Get metadata for player (or first available player if None)"""
         if not self.players:
             return None
@@ -120,14 +129,16 @@ class SimplePlayerctlService(Service):
                 "artist": artist,
                 "album": album,
                 "art_url": art_url,
-                "length": length / 1000000 if length > 0 else 0,  # Convert to seconds
+                "length": (
+                    length / 1000000 if length is not None and length > 0 else 0
+                ),  # Convert to seconds
                 "player_name": player_name,
             }
-        except Exception as e:
-            print(e)
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return None
 
-    def get_position(self, player_name=None):
+    def _get_position(self, player_name=None):
         """Get current position in seconds"""
         if not self.players:
             return 0
@@ -142,10 +153,11 @@ class SimplePlayerctlService(Service):
             position = self.players[player_name].props.position
             # print("position: ",position)
             return position / 1000000 if position > 0 else 0  # Convert to seconds
-        except:
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return 0
 
-    def set_position(self, position, player_name=None):
+    def _set_position(self, position, player_name=None):
         if not self.players:
             return 0
 
@@ -158,8 +170,8 @@ class SimplePlayerctlService(Service):
         try:
             player: Playerctl.Player = self.players[player_name]
             player.set_position(int(position * 1e6))
-        except Exception as e:
-            print(e)
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
 
     def get_status(self, player_name=None):
         """Get playback status"""
@@ -177,8 +189,9 @@ class SimplePlayerctlService(Service):
             if hasattr(status, "value_nick"):
                 return status.value_nick.lower()
             else:
-                return str(status).split(".")[-1].lower()
-        except:
+                return str(status).rsplit(".", maxsplit=1)[-1].lower()
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return "stopped"
 
     def get_shuffle(self, player_name=None):
@@ -190,8 +203,8 @@ class SimplePlayerctlService(Service):
             player_name = list(self.players.keys())[0]
             try:
                 return bool(self.players[player_name].props.shuffle)
-            except:
-                return False
+            except Exception as exception:
+                logger.exception(f"Exception encountered in Playerctl: {exception} ")
 
         if player_name not in self.players:
             return False
@@ -212,8 +225,9 @@ class SimplePlayerctlService(Service):
             if hasattr(loop_status, "value_nick"):
                 return loop_status.value_nick.lower()
             else:
-                return str(loop_status).split(".")[-1].lower()
-        except:
+                return str(loop_status).rsplit(".", maxsplit=1)[-1].lower()
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return "none"
 
     # Control methods
@@ -231,7 +245,8 @@ class SimplePlayerctlService(Service):
         try:
             self.players[player_name].play_pause()
             return True
-        except:
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return False
 
     def next_track(self, player_name=None):
@@ -248,7 +263,8 @@ class SimplePlayerctlService(Service):
         try:
             self.players[player_name].next()
             return True
-        except:
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return False
 
     def previous_track(self, player_name=None):
@@ -265,7 +281,8 @@ class SimplePlayerctlService(Service):
         try:
             self.players[player_name].previous()
             return True
-        except:
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return False
 
     def toggle_shuffle(self, player_name=None):
@@ -283,7 +300,8 @@ class SimplePlayerctlService(Service):
             current = self.players[player_name].props.shuffle
             self.players[player_name].set_shuffle(not current)
             return True
-        except:
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return False
 
     def cycle_loop(self, player_name=None):
@@ -308,7 +326,8 @@ class SimplePlayerctlService(Service):
 
             self.players[player_name].set_loop_status(new_status)
             return True
-        except:
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return False
 
     def _cleanup_temp(self):
@@ -316,8 +335,9 @@ class SimplePlayerctlService(Service):
         if self.temp_art_path and os.path.isfile(self.temp_art_path):
             try:
                 os.remove(self.temp_art_path)
-            except:
-                pass
+            except Exception as exception:
+                logger.exception(f"Exception encountered in Playerctl: {exception} ")
+
             self.temp_art_path = None
 
     # Helper methods for variant conversion
@@ -327,10 +347,13 @@ class SimplePlayerctlService(Service):
             return ""
         try:
             return str(variant.get_string())
-        except:
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
+
             try:
                 return str(variant.unpack())
-            except:
+            except TypeError as type_error:
+                logger.exception(f"Exception encountered in Playerctl: {type_error} ")
                 return ""
 
     def _get_variant_artist(self, variant):
@@ -343,7 +366,8 @@ class SimplePlayerctlService(Service):
                 return str(artist_data[0])
             else:
                 return str(artist_data)
-        except:
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return self._get_variant_string(variant)
 
     def _get_variant_int(self, variant):
@@ -354,7 +378,9 @@ class SimplePlayerctlService(Service):
             # First try to unpack - this should work for any variant type
             value = variant.unpack()
             return int(value)
-        except:
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
+
             try:
                 # Fallback: try different getter methods
                 if hasattr(variant, "get_uint64"):
@@ -362,6 +388,6 @@ class SimplePlayerctlService(Service):
                 elif hasattr(variant, "get_int64"):
                     return int(variant.get_int64())
                 # ... other types
-            except Exception as e:
-                print(f"Error converting variant to int: {e}")
+            except TypeError as type_error:
+                logger.exception(f"Exception encountered in Playerctl: {type_error} ")
                 return 0

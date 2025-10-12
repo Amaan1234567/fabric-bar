@@ -194,7 +194,7 @@ class MprisPopup(PopupWindow):
     def _update_progress(self):
         if not self.get_visible():
             return True
-        position = self.service.get_position()
+        position = self.service._get_position()
 
         if self.song_length != 0:
 
@@ -206,13 +206,13 @@ class MprisPopup(PopupWindow):
     @cooldown(0.4)
     def _on_scroll(self, _, __, value):
         """Mouse wheel sends ±STEP % *relative* increments."""
-        self.service.set_position(value)
+        self.service._set_position(value)
 
         self.scale.animate_value(value)
         self.scale.set_value(value)
 
     def _update_widget(self):
-        data = self.service.get_metadata()
+        data = self.service._get_metadata()
         if data:
             art_url, title, artist, self.song_length = (
                 data["art_url"],
