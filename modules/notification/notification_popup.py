@@ -67,17 +67,17 @@ class NotificationPopup(Box):
         )
         self.notification_title = Label(
             name="notification-title",
-            label=truncate(self._notification.summary,50),
+            label=truncate(self._notification.summary,20),
             h_align="fill",
             line_wrap="word"
         )
         self.notification_dynamic_pad = Box(v_expand=True)
         self.notification_body = Label(
             name="notification-body",
-            label=truncate(self._notification.body,100),
+            label=truncate(self._notification.body,50),
             h_align="fill",
             h_expand=True,
-            line_wrap="word",
+            line_wrap="word-char",
         )
         self.right_content.children = [
             self.notification_title,

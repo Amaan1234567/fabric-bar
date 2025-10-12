@@ -1,7 +1,7 @@
 """main python file that initialised the whole UI
 """
 
-import sys
+# import sys
 from loguru import logger
 
 from fabric.utils.helpers import monitor_file, get_relative_path
@@ -14,12 +14,12 @@ from widgets.corners import ScreenCorners
 if __name__ == "__main__":
     logger.remove()
 
-    # Add a new sink, filtering out messages from 'noisy_module'
-    logger.add(
-        sys.stderr,
-        filter=lambda record: record["name"] != "fabric.widgets.svg",
-        level="DEBUG",
-    )
+    # # Add a new sink, filtering out messages from 'noisy_module'
+    # logger.add(
+    #     sys.stderr,
+    #     filter=lambda record: record["name"] != "fabric.widgets.svg",
+    #     level="DEBUG",
+    # )
 
     bar = StatusBar()
     corners = ScreenCorners()
