@@ -40,9 +40,6 @@ class NetworkWidget(Box):
         self.content.add(self.icon)
         self.add(self.content)
 
-        # Refresh periodically
-        GLib.timeout_add_seconds(self.interval, self._refresh)
-
         try:
             self.current_tooltip = self._get_active_connection_info()[2]
             self.icon.set_tooltip_text(self.current_tooltip)
@@ -102,14 +99,16 @@ class NetworkWidget(Box):
         self.networks_popup.connect("enter-notify-event", self._on_popup_enter)
         self.networks_popup.connect("leave-notify-event", self._on_popup_leave)
 
-        GLib.timeout_add(2000, self._refresh)
+        GLib.timeout_add_seconds(interval, self._refresh)
+        GLib.timeout_add_seconds(5,self._trigger_nm_rescan)
+
+    def _trigger_nm_rescan(self):
+        exec_shell_command_async(["nmcli","dev","wifi","rescan"])
+        return True
 
     def _scan_networks_async(self):
         """Scan networks asynchronously using GLib subprocess"""
-        if self._scanning:
-            return
-
-        self._scanning = True
+        
         self.networks = []
         exec_shell_command_async(
             [
@@ -123,11 +122,9 @@ class NetworkWidget(Box):
             ],
             self._on_scan_complete,
         )
-        self._scanning = False
 
     def _on_scan_complete(self, result):
         """Handle async scan completion - FIXED callback"""
-        self._scanning = False
 
         try:
 
@@ -256,7 +253,6 @@ class NetworkWidget(Box):
             self._on_popup_enter(None, None)
             self.networks_popup.set_visible(True)
             self.networks_revealer.set_reveal_child(True)
-            self._populate_networks_ui()
 
     def _update_saved_networks_list_async(self):
         """Update networks list asynchronously"""
@@ -275,18 +271,18 @@ class NetworkWidget(Box):
         """Populate networks UI (called on main thread)"""
         logger.debug(f"Updating networks list, {len(self.networks)} networks available")
         logger.debug(self.networks)
-        # Clear existing network buttons
+
         for child in self.networks_box.children:
             self.networks_box.remove(child)
 
         if not self.wifi_on:
-            print("Wifi is Off or not available")
+            logger.debug("Wifi is Off or not available")
             no_networks = Label(name="wifi-no-networks", label="Wifi is Off")
             self.networks_box.add(no_networks)
             return
 
-        if not self.networks or self._scanning:
-            print("No networks found, showing message")
+        if len(self.networks) == 0 or self._scanning:
+            logger.debug("No networks found, showing message")
             no_networks = Label(
                 name="wifi-no-networks", label="🔄 Scanning for networks..."
             )
@@ -299,6 +295,7 @@ class NetworkWidget(Box):
         self.networks.sort(key=lambda x: x.get("signal", 0), reverse=True)
 
         # Add network buttons (limit to 8)
+        network_containers = []
         for network in self.networks[:8]:
             try:
                 ssid = network.get("ssid", "")
@@ -396,12 +393,13 @@ class NetworkWidget(Box):
                     network_button.password_revealer = password_revealer
                     network_button.password_entry = password_entry
 
-                self.networks_box.add(network_container)
+                network_containers.append(network_container)
                 # print(f"Added network button for: {ssid}")
 
             except Exception as e:
                 print(f"Error adding network {network}: {e}")
                 continue
+        self.networks_box.children = network_containers
 
     def _handle_network_click(self, ssid, is_secure, is_saved, button):
         """Handle network button click"""

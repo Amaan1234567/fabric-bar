@@ -135,7 +135,8 @@ class Mpris(Box):
             self.title_label.set_visible(True)
 
             self.song_length = song_length
-            self.song_progress.max_value = self.song_length
+            if song_length:
+                self.song_progress.max_value = self.song_length
             self.title_label.set_label(truncate(title.strip() or "—"))
             if self.temp_url_cache != art_url and art_url != "":
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)

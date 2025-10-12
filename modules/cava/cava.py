@@ -26,8 +26,9 @@ class CavaWidget(Button):
 
         self.children = self.cava_label
         self.update_service = Fabricator(
-            poll_from=f"sh -c '{script_path} {self.bars}'",
+            poll_from=f"bash -c '{script_path} {self.bars}'",
             stream=True,
+            interval=40,
             on_changed=self._update_label
         )
 
@@ -35,5 +36,7 @@ class CavaWidget(Button):
         ctx.add_class("cava-active")
 
     def _update_label(self, _, label):
+        if self.cava_label.get_label() == label:
+            return True
         self.cava_label.set_label(label)
         return True

@@ -14,12 +14,12 @@ from widgets.corners import ScreenCorners
 if __name__ == "__main__":
     logger.remove()
 
-    # Add a new sink, filtering out messages from 'noisy_module'
-    logger.add(
-        sys.stderr,
-        filter=lambda record: record["name"] != "fabric.widgets.svg",
-        level="DEBUG",
-    )
+    # # Add a new sink, filtering out messages from 'noisy_module'
+    # logger.add(
+    #     sys.stderr,
+    #     filter=lambda record: record["name"] != "fabric.widgets.svg",
+    #     level="DEBUG",
+    # )
 
     bar = StatusBar()
     corners = ScreenCorners()
@@ -34,13 +34,15 @@ if __name__ == "__main__":
         app.set_stylesheet_from_file(style_path)
         style_monitor = monitor_file(style_path)
         style_monitor.connect(
-            "changed", lambda *a: app.set_stylesheet_from_file(style_path)
+            "changed", lambda *a: app.set_stylesheet_from_file(style_path))
         )
 
     colors_path = get_relative_path("styles/colors.css")
     if colors_path:
         style_monitor = monitor_file(colors_path)
         style_monitor.connect(
-            "changed", lambda *a: app.set_stylesheet_from_file(style_path)
+            "changed", lambda *a: (app.set_stylesheet_from_file(style_path),
+                                   app.set_stylesheet_from_file(get_relative_path("styles/style.css"))
+                                   )
         )
     app.run()

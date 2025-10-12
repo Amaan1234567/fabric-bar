@@ -39,4 +39,4 @@ class WallpaperChangeButton(Button):
     @cooldown(1)
     def _change_wallpaper(self, _):
         """Launch ROG Control Center"""
-        exec_shell_command_async("bash -c \"~/Scripts/wallpaper_change.sh & disown\"")
+        exec_shell_command_async("bash -c \"~/Scripts/wallpaper_change.sh\"")

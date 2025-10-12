@@ -6,7 +6,11 @@
   font-weight: 900;
   font-size: 16px;
   background: transparent;
+  transition: all 0.5s cubic-bezier(0.55, 0.68, 0.48, 1.682);
+  
 }
+
+
 
 /* @keyframes gradient-border {
   0%   { border-image-source: linear-gradient(45deg, @color2, @color4, @color5, @color3, @color6); }
@@ -34,19 +38,13 @@
 
 @keyframes animated-gradient {
   0% {
-    background-position: 50% 0%;
-  }
-  25% {
-    background-position: 100% 50%;
+    background-position: 0% 0%;
   }
   50% {
-    background-position: 50% 100%;
-  }
-  75% {
-    background-position: 0% 50%;
+    background-position: 100% 0%;
   }
   100% {
-    background-position: 50% 0%;
+    background-position: 0% 0%;
   }
 }
 
@@ -66,20 +64,18 @@ border-width:  0 0 3px 0 ;
 
 /* #bar {
     background-color: @background;
-    background-image: url("./22723-256x256x32.png");
-    background-repeat: repeat;
-    background-size: 10px;
+    background-image: url("assets/gradient.png");
+    background-repeat: no-repeat;
+    background-size: 1000px;
 } */
 
 #bar {
   background-color: @background;
-  /* padding-left:26px;
-  padding-right:26px; */
+
 }
 
 #corner {
   background-color: @background;
-  
 }
 
 
@@ -179,30 +175,24 @@ border-width:  0 0 3px 0 ;
   padding-right: 4px;
   font-weight: 500;
   color: lighter(@color4);
-  transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.682);
+  transition: all 0.3s cubic-bezier(0.55, 0.68, 0.48, 1.682);
 }
 
-.workspace-button.active,
-.workspace-button.active:hover {
-  background: radial-gradient(@color4, @color5, @color6);
+.workspace-button.active{
+  background: @color4;
   color: @background;
   font-weight: 900;
-  animation: ws_active 10s ease-in-out 1;
-  background-size: 1000% 1000%;
-  animation: animated-gradient 25s ease infinite;
-  transition: all 0.4s cubic-bezier(0.55, -0.68, 0.48, 1.682);
+  /* animation: animated-gradient 25s ease infinite; */
   padding-left: 20px;
   padding-right: 20px;
   border-radius: 40px;
 }
 
 .workspace-button:hover {
-  background: alpha(@color6, 0.4);
+  background: alpha(@color4, 0.8);
   color: @background;
-  background-size: 1000% 1000%;
-  animation: ws_active 20s ease-in-out 1;
-  animation: animated-gradient 5s ease infinite;
-  transition: all 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682);
+  /* background-size: 400% 400%;
+  animation: animated-gradient 5s ease infinite; */
   padding-left: 20px;
   padding-right: 20px;
   border-radius: 40px;
@@ -219,25 +209,14 @@ border-width:  0 0 3px 0 ;
 }
 .cava-active {
   padding: 0;
-  background: linear-gradient(
-    45deg,
-    @color2,
-    @color3,
-    @color4,
-    @color5,
-    @color6,
-    @color7,
-    @color8
-  );
-  background-size: 500% 500%;
+  background: @color3;
   color: @background;
   margin-top: 8px;
   margin-bottom: 8px;
   padding-right: 7px;
   padding-left: 7px;
   border-radius: 5px;
-  animation: animated-gradient 25s ease-in-out infinite;
-  box-shadow: @color6 0px 0px 6px 2px;
+  box-shadow: @color3 0px 0px 10px 4px;
 }
 
 .cava-silent {
