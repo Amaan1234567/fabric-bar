@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 import subprocess
-import fabric
 
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.centerbox import CenterBox
-from fabric.widgets.label import Label
-from fabric.hyprland.widgets import HyprlandWorkspaces as Workspaces
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.separator import Separator
 
@@ -18,7 +15,7 @@ from modules.workspaces.workspaces import CustomWorkspaces
 from modules.active_window_name.active_window import WindowName
 from modules.cava.cava import CavaWidget
 from modules.mpris.mpris import Mpris
-from modules.notification_button.notification_button import NotificationButton
+from modules.control_center_button.control_center_button import ControlCenterButton
 from modules.battery.battery import BatteryWidget
 from modules.audio.audio import AudioWidget
 from modules.network.network import NetworkWidget
@@ -55,7 +52,7 @@ class StatusBar(Window):
         )
         self.active_window = WindowName()
         self.cava = CavaWidget()
-        self.right_module = NotificationButton()
+        self.right_module = ControlCenterButton()
         left_box = Box(
             orientation="h",
             spacing=20,
