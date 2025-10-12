@@ -9,7 +9,7 @@ from fabric.utils import invoke_repeater
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
 from services.playerctlservice import SimplePlayerctlService
-from helpers.helper_functions import create_album_art, truncate
+from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 
 from modules.mpris.mpris_popup import MprisPopup
 
@@ -117,7 +117,7 @@ class Mpris(Box):
             pix = GdkPixbuf.Pixbuf.new_from_stream(f.read_finish(res), None)
 
             if pixbuf := pix:
-                self.album_art.set_from_pixbuf(create_album_art(pixbuf, 30))
+                self.album_art.set_from_pixbuf(pixbuf_cropping_if_image_is_not_1_1(pixbuf, 30))
                 self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:
             print("encountered_error: ", e)

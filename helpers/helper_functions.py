@@ -4,7 +4,7 @@ from loguru import logger
 from gi.repository import GdkPixbuf  # type: ignore
 
 
-def create_album_art(
+def pixbuf_cropping_if_image_is_not_1_1(
     original_pixbuf: GdkPixbuf.Pixbuf, size: int = 200
 ) -> GdkPixbuf.Pixbuf | None:
     """Helper functions to create a 1:1 pixbuf

@@ -7,7 +7,7 @@ from loguru import logger
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
 from modules.control_center import control_center
-from modules.notification.notification_popup import NotificationPopupWindow
+from modules.notification.notification_window import NotificationPopupWindow
 
 from widgets.bar import StatusBar
 from widgets.corners import ScreenCorners
@@ -34,7 +34,7 @@ if __name__ == "__main__":
         app.set_stylesheet_from_file(style_path)
         style_monitor = monitor_file(style_path)
         style_monitor.connect(
-            "changed", lambda *a: app.set_stylesheet_from_file(style_path))
+            "changed", lambda *a: app.set_stylesheet_from_file(style_path)
         )
 
     colors_path = get_relative_path("styles/colors.css")

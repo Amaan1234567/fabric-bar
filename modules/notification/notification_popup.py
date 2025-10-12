@@ -1,22 +1,24 @@
-from typing import cast
-from fabric.notifications.service import Notifications, Notification
+"""contains notification Popups widget and the window that it belongs to"""
+
+from os import path
+
 from fabric.widgets.box import Box
-from fabric.widgets.flowbox import FlowBox
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button
-from fabric.widgets.revealer import Revealer
-from fabric.widgets.wayland import WaylandWindow
+from fabric.notifications.service import Notification
 from fabric.widgets.revealer import Revealer
 from fabric.utils import invoke_repeater
 from gi.repository import GdkPixbuf, GLib, Gtk
-from os import path
 from custom_widgets.image_rounded import CustomImage
+from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1,truncate
 
 NOTIFICATION_TIMEOUT = 3 * 1000
 NOTIFICATION_IMAGE_SIZE = 160
-
+NOTIFICATION_BUTTONS_WRAP_THRESHOLD = 2
 
 class NotificationPopup(Box):
+    """the notification popup"""
+
     def __init__(self, notification: Notification, **kwargs):
         super().__init__(
             name="notification",
@@ -65,20 +67,17 @@ class NotificationPopup(Box):
         )
         self.notification_title = Label(
             name="notification-title",
-            label=self._notification.summary,
+            label=truncate(self._notification.summary,50),
             h_align="fill",
-            max_chars_width=30,
-            line_wrap="word-char",
-            ellipsization="end",
+            line_wrap="word"
         )
         self.notification_dynamic_pad = Box(v_expand=True)
         self.notification_body = Label(
             name="notification-body",
-            label=self._notification.body,
+            label=truncate(self._notification.body,100),
             h_align="fill",
-            line_wrap="word-char",
-            chars_width=20,
-            ellipsization="end",
+            h_expand=True,
+            line_wrap="word",
         )
         self.right_content.children = [
             self.notification_title,
@@ -96,19 +95,22 @@ class NotificationPopup(Box):
         self.row_content.add(self.close_button)
         self.column_content.add(self.row_content)
         if actions := self._notification.actions:
-            self.column_content.add(
+            self.right_content.add(
                 Box(
                     name="action-buttons",
                     spacing=4,
-                    orientation="h",
+                    orientation="v",
                     children=[
-                        Button(
+                        Box(spacing=4,orientation='h',children = [
+                            Button(
                             h_expand=True,
                             v_expand=True,
                             label=action.label,
                             on_clicked=lambda *_, action=action: action.invoke(),
                         )
-                        for action in actions
+                        for action in actions[i:i+NOTIFICATION_BUTTONS_WRAP_THRESHOLD]
+                        ])
+                        for i in range(0,len(actions),NOTIFICATION_BUTTONS_WRAP_THRESHOLD)
                     ],
                 )
             )
@@ -122,7 +124,7 @@ class NotificationPopup(Box):
 
         self._notification.connect(
             "closed",
-            self.close_notification,
+            self._close_notification,
         )
 
         # automatically close the notification after the timeout period
@@ -132,77 +134,27 @@ class NotificationPopup(Box):
             initial_call=False,
         )
 
-    def close_notification(self):
+    def _delete_self(self):
+        parent.remove(self) if (parent := self.get_parent()) else None
+
+    def _close_notification(self):
         self.revealer.set_reveal_child(False)
 
-        def delete_self():
-            parent.remove(self) if (parent := self.get_parent()) else None
-
-        GLib.timeout_add(300, delete_self)
+        GLib.timeout_add(300, self._delete_self)
         GLib.timeout_add(300, self.destroy)
-
-    def pixbuf_cropping_if_image_is_not_1_1(self, original_pixbuf): # remove this and use helper function
-        try:
-
-            # Get original dimensions
-            original_width = original_pixbuf.get_width()
-            original_height = original_pixbuf.get_height()
-
-            # Check if aspect ratio is 1:1
-            if original_width == original_height:
-                # Square image - just scale it
-                pic2 = original_pixbuf.scale_simple(
-                    NOTIFICATION_IMAGE_SIZE,
-                    NOTIFICATION_IMAGE_SIZE,
-                    GdkPixbuf.InterpType.BILINEAR,
-                )
-            else:
-                # Non-square image - center crop first, then scale
-                crop_size = min(original_width, original_height)
-                crop_x = (original_width - crop_size) // 2
-                crop_y = (original_height - crop_size) // 2
-
-                # Create cropped pixbuf
-                cropped_pixbuf = GdkPixbuf.Pixbuf.new(
-                    GdkPixbuf.Colorspace.RGB,
-                    original_pixbuf.get_has_alpha(),
-                    original_pixbuf.get_bits_per_sample(),
-                    crop_size,
-                    crop_size,
-                )
-
-                # Copy the center square
-                original_pixbuf.copy_area(
-                    crop_x, crop_y, crop_size, crop_size, cropped_pixbuf, 0, 0
-                )
-
-                # Scale the cropped square
-                pic2 = cropped_pixbuf.scale_simple(
-                    NOTIFICATION_IMAGE_SIZE,
-                    NOTIFICATION_IMAGE_SIZE,
-                    GdkPixbuf.InterpType.BILINEAR,
-                )
-
-            return pic2
-
-        except Exception as e:
-            print(f"Error processing image: {e}")
-            return None
 
     def _load_notification_pixbuf(
         self, notification: Notification
     ) -> GdkPixbuf.Pixbuf | None:
         try:
             if getattr(notification, "image_pixbuf", None):
-                return self.pixbuf_cropping_if_image_is_not_1_1(
-                    notification.image_pixbuf
-                )
+                return pixbuf_cropping_if_image_is_not_1_1(notification.image_pixbuf)
 
             if getattr(notification, "image_data", None):
                 loader = GdkPixbuf.PixbufLoader()
-                loader.write(notification.image_data)
+                loader.write(notification.image_data, 1)
                 loader.close()
-                return self.pixbuf_cropping_if_image_is_not_1_1(loader.get_pixbuf())
+                return pixbuf_cropping_if_image_is_not_1_1(loader.get_pixbuf())
 
             if getattr(notification, "image_path", None) and path.exists(
                 notification.image_path
@@ -233,47 +185,3 @@ class NotificationPopup(Box):
             print(f"Failed to load notification icon: {e}")
 
         return None
-
-
-class NotificationPopupWindow(WaylandWindow):
-    def __init__(self, **kwargs):
-        super().__init__(
-            title="fabric-notifications",
-            name="notifications-popup",
-            type="popup",
-            margin="26px 26px 26px 26px",
-            layer="top",
-            anchor="top right",
-            exclusivity="none",
-            v_expand=True,
-            **kwargs,
-        )
-
-        self.notifications_service = Notifications()
-        self.notifications_service.connect("notification-added", self.add_notification)
-
-        self.content = Box(
-            orientation="v",
-            spacing=20,
-            v_expand=True,
-            v_align="start",
-            h_align="fill",
-            size=2,
-        )
-        self.add(self.content)
-
-    def add_notification(self, notifs_service, nid):
-
-        # print(cast(
-        #         Notification,
-        #         notifs_service.get_notification_from_id(nid),
-        #     ).serialize())
-
-        self.notification = NotificationPopup(
-            cast(
-                Notification,
-                notifs_service.get_notification_from_id(nid),
-            )
-        )
-        self.content.add(self.notification)
-        self.notification.revealer.set_reveal_child(True)

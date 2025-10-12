@@ -13,7 +13,7 @@ from custom_widgets.popwindow import PopupWindow
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_scale import AnimatedScale
 from services.playerctlservice import SimplePlayerctlService
-from helpers.helper_functions import create_album_art, truncate
+from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 
 
 class MprisPopup(PopupWindow):
@@ -186,7 +186,7 @@ class MprisPopup(PopupWindow):
             pix = GdkPixbuf.Pixbuf.new_from_stream(stream, None)
 
             if pixbuf := pix:
-                self.album_art_overlay.set_from_pixbuf(create_album_art(pixbuf))
+                self.album_art_overlay.set_from_pixbuf(pixbuf_cropping_if_image_is_not_1_1(pixbuf))
                 self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:
             logger.exception("encountered error:", e)
