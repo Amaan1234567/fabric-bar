@@ -3,13 +3,11 @@ Module that holds the AudioWidget class which shows the current volume and other
 """
 
 from typing import Any
-import subprocess
 from loguru import logger
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.audio.service import Audio
 from fabric.utils import cooldown
-from gi.repository import GLib
 from custom_widgets.animated_scale import AnimatedScale
 
 VOLUME_MIN_STEP = 3

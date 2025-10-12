@@ -1,4 +1,5 @@
-from typing import Iterable
+"""holds screen corners widget"""
+
 from fabric.widgets.box import Box
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.overlay import Overlay

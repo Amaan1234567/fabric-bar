@@ -1,10 +1,11 @@
-import fabric
+"""holds the animator class"""
 from typing import cast
 from fabric import Service, Signal, Property
 from gi.repository import GLib, Gtk
 
 
 class Animator(Service):
+    """Animator class to animate certain widgets"""
     @Signal
     def finished(self) -> None: ...
 

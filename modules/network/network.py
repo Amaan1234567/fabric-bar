@@ -1,6 +1,7 @@
 """holds the network widget shown in bar"""
 
 from loguru import logger
+from dbus.mainloop.glib import DBusGMainLoop
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.eventbox import EventBox
@@ -14,6 +15,7 @@ import NetworkManager as NM
 from custom_widgets.popwindow import PopupWindow
 
 
+
 class NetworkWidget(Box):
     """
     A Fabric widget displaying network type & strength using JetBrainsMono Nerd Font glyphs.
@@ -22,6 +24,8 @@ class NetworkWidget(Box):
 
     def __init__(self, window, interval=1, **kwargs):
         super().__init__(**kwargs)
+        DBusGMainLoop(set_as_default=True)
+        
         self.interval = interval
         self.window = window
         self.networks = []
@@ -39,7 +43,6 @@ class NetworkWidget(Box):
         self.icon = Label(name="network-icon", label="󰤯", justification="center")
         self.content.add(self.icon)
         self.add(self.content)
-
         try:
             self.current_tooltip = self._get_active_connection_info()[2]
             self.icon.set_tooltip_text(self.current_tooltip)
@@ -489,13 +492,13 @@ class NetworkWidget(Box):
 
                     # Try to get device type safely
                     try:
-                        if hasattr(dev.DeviceType, "variant_level"):
-                            dtype = int(dev.DeviceType)
-                        else:
-                            dtype = int(dev.DeviceType)
-                    except:
+                        dtype = int(dev.DeviceType)
+                        
+                    except Exception as exception:
+                        logger.exception(f"caught exeception {exception} while getting wifi status")
                         continue
-
+                    
+                    logger.debug(f"dtype: {dtype}")
                     # Get IP safely
                     ip_addr = "Unknown"
                     try:
@@ -531,9 +534,11 @@ class NetworkWidget(Box):
                             return "ethernet", None, f"Ethernet\nIP: {ip_addr}"
 
                 except Exception as e:
+                    logger.debug(f"exception caught: {e}")
                     continue
 
         except Exception as e:
+            logger.debug(f"exception caught: {e}")
             pass
 
         return "none", None, "No Connection"
@@ -546,7 +551,7 @@ class NetworkWidget(Box):
         eth = "󰈀"
         usb = ""
         off = "󰤭"
-
+        logger.debug(f"status: {status}")
         if status == "wifi" and strength is not None:
             if strength < 25:
                 lvl = "empty"

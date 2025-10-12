@@ -2,7 +2,6 @@
 and battery of bluetooth device if supported
 """
 
-import subprocess
 from typing import List
 from loguru import logger
 from fabric.widgets.box import Box
@@ -11,7 +10,7 @@ from fabric.widgets.label import Label
 from fabric.widgets.eventbox import EventBox
 from fabric.utils import cooldown,exec_shell_command_async
 from fabric.bluetooth.service import BluetoothClient, BluetoothDevice
-from gi.repository import GLib, Gdk  # type: ignore
+from gi.repository import Gdk  # type: ignore
 
 
 class BluetoothWidget(Box):

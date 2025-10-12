@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import subprocess
 
 from fabric.widgets.box import Box
@@ -20,7 +19,7 @@ from modules.battery.battery import BatteryWidget
 from modules.audio.audio import AudioWidget
 from modules.network.network import NetworkWidget
 from modules.bluetooth.bluetooth import BluetoothWidget
-from modules.system_tray.system_tray import barSystemTray
+#from modules.system_tray.system_tray import barSystemTray
 
 
 class StatusBar(Window):

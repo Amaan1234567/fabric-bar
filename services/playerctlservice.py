@@ -1,11 +1,7 @@
-#!/usr/bin/env python3
-
+"""holds the playerctl service"""
 import os
-import tempfile
-import urllib.request
-from gi.repository import GdkPixbuf, Playerctl, Gio, GLib
-import asyncio
-from fabric.core.service import Property, Service, Signal
+from gi.repository import Playerctl
+from fabric.core.service import Service, Signal
 
 
 class SimplePlayerctlService(Service):
