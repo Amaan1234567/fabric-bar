@@ -236,7 +236,7 @@ class NetworkWidget(Box):
 
     def on_left_click(self, _, event):
         """Handle click events"""
-        if event.button == Gdk.BUTTON_PRIMARY:
+        if event.button == Gdk.BUTTON_PRIMARY: # type: ignore
             self._toggle_networks_popup()
 
     def _toggle_networks_popup(self):
@@ -502,7 +502,7 @@ class NetworkWidget(Box):
     def _get_active_connection_info(self):
         """Get active connection info with minimal D-Bus calls"""
         try:
-            for ac in NM.NetworkManager.ActiveConnections:  # type: ignore
+            for ac in NM.NetworkManager.ActiveConnections:
                 try:
                     devices = ac.Devices
                     if not devices:
