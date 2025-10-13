@@ -15,7 +15,6 @@ import NetworkManager as NM
 from custom_widgets.popwindow import PopupWindow
 
 
-
 class NetworkWidget(Box):
     """
     A Fabric widget displaying network type & strength using JetBrainsMono Nerd Font glyphs.
@@ -25,7 +24,7 @@ class NetworkWidget(Box):
     def __init__(self, window, interval=1, **kwargs):
         super().__init__(**kwargs)
         DBusGMainLoop(set_as_default=True)
-        
+
         self.interval = interval
         self.window = window
         self.networks = []
@@ -103,15 +102,15 @@ class NetworkWidget(Box):
         self.networks_popup.connect("leave-notify-event", self._on_popup_leave)
 
         GLib.timeout_add_seconds(interval, self._refresh)
-        GLib.timeout_add_seconds(5,self._trigger_nm_rescan)
+        GLib.timeout_add_seconds(5, self._trigger_nm_rescan)
 
     def _trigger_nm_rescan(self):
-        exec_shell_command_async(["nmcli","dev","wifi","rescan"])
+        exec_shell_command_async(["nmcli", "dev", "wifi", "rescan"])
         return True
 
     def _scan_networks_async(self):
         """Scan networks asynchronously using GLib subprocess"""
-        
+
         self.networks = []
         exec_shell_command_async(
             [
@@ -242,10 +241,9 @@ class NetworkWidget(Box):
 
     def _toggle_networks_popup(self):
         """Toggle the networks popup"""
-        # print(f"Toggle popup called, networks count: {len(self.networks)}")
 
         if self.networks_popup.get_visible():
-            # print("Hiding popup")
+
             self.networks_revealer.set_reveal_child(False)
             GLib.timeout_add(250, self.networks_popup.set_visible, False)
         else:
@@ -298,14 +296,16 @@ class NetworkWidget(Box):
         self.networks.sort(key=lambda x: x.get("signal", 0), reverse=True)
 
         # Add network buttons (limit to 8)
+        network_containers = self._create_network_containers()
+        self.networks_box.children = network_containers
+
+    def _create_network_containers(self):
         network_containers = []
         for network in self.networks[:8]:
             try:
-                ssid = network.get("ssid", "")
-                signal = network.get("signal", 0)
-                is_secure = bool(network.get("security", ""))
-                connected = network.get("in_use", False)
-                is_saved = ssid in [i[0] for i in self.saved_connections]
+                ssid, signal, is_secure, connected, is_saved = (
+                    self._get_network_details(network)
+                )
 
                 logger.debug(
                     f"Processing network: {ssid}, secure: {is_secure}, \
@@ -317,84 +317,14 @@ class NetworkWidget(Box):
                     continue
 
                 # Create network container
-                network_container = Box(
-                    name="wifi-network-container",
-                    orientation="vertical",
-                    spacing=2,
+                network_container, network_button = self._create_network_container(
+                    ssid, signal, is_secure, is_saved
                 )
-
-                # Create network button
-                lock_icon = "" if is_secure else ""
-                label = f"{lock_icon} {ssid} ({signal}%)"
-
-                network_button = Button(
-                    name="wifi-network-available",
-                    label=label,
-                    h_align="start",
-                    on_clicked=lambda btn, s=ssid, sec=is_secure,
-                    saved=is_saved: self._handle_network_click(
-                        s, sec, saved, btn
-                    ),
-                )
-                network_button.connect(
-                    "state-flags-changed",
-                    lambda btn, *_: (
-                        (
-                            btn.set_cursor("pointer")
-                            if btn.get_state_flags() & 2  # type: ignore
-                            else btn.set_cursor("default")
-                        ),
-                    ),
-                )
-
-                network_container.add(network_button)
-
                 # Add password entry if network is secured and not saved
                 # print(ssid,is_saved)
-                if is_secure and not is_saved:
-                    password_box = Box(
-                        name="wifi-password-box",
-                        orientation="horizontal",
-                        spacing=4,
-                        h_align="start",
-                    )
-
-                    password_entry = Entry(
-                        name="wifi-password-entry",
-                        placeholder_text="Password",
-                        password=True,
-                        h_expand=True,
-                    )
-                    password_entry.get_style_context().add_class("wifi-password-entry")
-                    password_entry.connect(
-                        "activate",
-                        lambda entry, s=ssid: self._connect_with_password(s, entry),
-                    )
-
-                    cancel_btn = Button(
-                        name="wifi-password-cancel",
-                        label="✕",
-                        on_clicked=lambda btn,
-                        container=network_container: self._hide_password_entry(
-                            container
-                        ),
-                    )
-
-                    password_box.children = [password_entry, cancel_btn]
-
-                    password_revealer = Revealer(
-                        name="wifi-password-revealer",
-                        transition_type="slide-down",
-                        transition_duration=200,
-                        child_revealed=False,
-                    )
-                    password_revealer.add(password_box)
-
-                    network_container.add(password_revealer)
-
-                    # Store revealer reference on the button for later access
-                    network_button.password_revealer = password_revealer
-                    network_button.password_entry = password_entry
+                self._add_password_entry_box(
+                    ssid, is_secure, is_saved, network_container, network_button
+                )
 
                 network_containers.append(network_container)
                 # print(f"Added network button for: {ssid}")
@@ -402,7 +332,96 @@ class NetworkWidget(Box):
             except Exception as e:
                 print(f"Error adding network {network}: {e}")
                 continue
-        self.networks_box.children = network_containers
+        return network_containers
+
+    def _get_network_details(self, network):
+        ssid = network.get("ssid", "")
+        signal = network.get("signal", 0)
+        is_secure = bool(network.get("security", ""))
+        connected = network.get("in_use", False)
+        is_saved = ssid in [i[0] for i in self.saved_connections]
+        return ssid, signal, is_secure, connected, is_saved
+
+    def _add_password_entry_box(
+        self, ssid, is_secure, is_saved, network_container, network_button
+    ):
+        if is_secure and not is_saved:
+            password_box = Box(
+                name="wifi-password-box",
+                orientation="horizontal",
+                spacing=4,
+                h_align="start",
+            )
+
+            password_entry = Entry(
+                name="wifi-password-entry",
+                placeholder_text="Password",
+                password=True,
+                h_expand=True,
+            )
+            password_entry.get_style_context().add_class("wifi-password-entry")
+            password_entry.connect(
+                "activate",
+                lambda entry, s=ssid: self._connect_with_password(s, entry),
+            )
+
+            cancel_btn = Button(
+                name="wifi-password-cancel",
+                label="✕",
+                on_clicked=lambda btn, container=network_container: self._hide_password_entry(
+                    container
+                ),
+            )
+
+            password_box.children = [password_entry, cancel_btn]
+
+            password_revealer = Revealer(
+                name="wifi-password-revealer",
+                transition_type="slide-down",
+                transition_duration=200,
+                child_revealed=False,
+            )
+            password_revealer.add(password_box)
+
+            network_container.add(password_revealer)
+
+            # Store revealer reference on the button for later access
+            network_button.password_revealer = password_revealer
+            network_button.password_entry = password_entry
+
+    def _create_network_container(self, ssid, signal, is_secure, is_saved):
+        network_container = Box(
+            name="wifi-network-container",
+            orientation="vertical",
+            spacing=2,
+        )
+
+        # Create network button
+        lock_icon = "" if is_secure else ""
+        label = f"{lock_icon} {ssid} ({signal}%)"
+
+        network_button = Button(
+            name="wifi-network-available",
+            label=label,
+            h_align="start",
+            on_clicked=lambda btn, s=ssid, sec=is_secure,
+            saved=is_saved: self._handle_network_click(
+                s, sec, saved, btn
+            ),
+        )
+        network_button.connect(
+            "state-flags-changed",
+            lambda btn, *_: (
+                (
+                    btn.set_cursor("pointer")
+                    if btn.get_state_flags() & 2  # type: ignore
+                    else btn.set_cursor("default")
+                ),
+            ),
+        )
+
+        network_container.add(network_button)
+        return network_container, network_button
 
     def _handle_network_click(self, ssid, is_secure, is_saved, button):
         """Handle network button click"""
@@ -493,11 +512,13 @@ class NetworkWidget(Box):
                     # Try to get device type safely
                     try:
                         dtype = int(dev.DeviceType)
-                        
+
                     except Exception as exception:
-                        logger.exception(f"caught exeception {exception} while getting wifi status")
+                        logger.exception(
+                            f"caught exeception {exception} while getting wifi status"
+                        )
                         continue
-                    
+
                     logger.debug(f"dtype: {dtype}")
                     # Get IP safely
                     ip_addr = "Unknown"
