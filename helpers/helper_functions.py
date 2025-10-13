@@ -27,36 +27,37 @@ def pixbuf_cropping_if_image_is_not_1_1(
         # Square image - just scale it
         pic = original_pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.BILINEAR)
         return pic
-    else:
-        # Non-square image - center crop first, then scale
-        crop_size = min(original_width, original_height)
-        crop_x = (original_width - crop_size) // 2
-        crop_y = (original_height - crop_size) // 2
 
-        # Create cropped pixbuf
-        cropped_pixbuf = GdkPixbuf.Pixbuf.new(
-            GdkPixbuf.Colorspace.RGB,
-            original_pixbuf.get_has_alpha(),
-            original_pixbuf.get_bits_per_sample(),
-            crop_size,
-            crop_size,
-        )
+    # Non-square image - center crop first, then scale
+    crop_size = min(original_width, original_height)
+    crop_x = (original_width - crop_size) // 2
+    crop_y = (original_height - crop_size) // 2
 
-        # Copy the center square
-        logger.debug(f"cropped_pixbuf: {cropped_pixbuf}")
-        if cropped_pixbuf is not None:
-            original_pixbuf.copy_area(
-                crop_x, crop_y, crop_size, crop_size, cropped_pixbuf, 0, 0
-            )
+    # Create cropped pixbuf
+    cropped_pixbuf = GdkPixbuf.Pixbuf.new(
+        GdkPixbuf.Colorspace.RGB,
+        original_pixbuf.get_has_alpha(),
+        original_pixbuf.get_bits_per_sample(),
+        crop_size,
+        crop_size,
+    )
 
-            # Scale the cropped square
-            pic = cropped_pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.HYPER)
+    # Copy the center square
+    logger.debug(f"cropped_pixbuf: {cropped_pixbuf}")
+    if cropped_pixbuf is None:
+        logger.error("could not get cropped_pixbuf, cropped_pixbuf was None")
+        raise RuntimeError("could not get cropped_pixbuf, cropped_pixbuf was None")
 
-            return pic
-        else:
-            logger.error("could not get cropped_pixbuf, cropped_pixbuf was None")
-            raise RuntimeError("could not get cropped_pixbuf, cropped_pixbuf was None")
+    original_pixbuf.copy_area(
+        crop_x, crop_y, crop_size, crop_size, cropped_pixbuf, 0, 0
+    )
+
+    # Scale the cropped square
+    pic = cropped_pixbuf.scale_simple(size, size, GdkPixbuf.InterpType.HYPER)
+
+    return pic
 
 
 def truncate(text, max_len=15):
+    """truncates text to given char len"""
     return text if len(text) <= max_len else text[: max_len - 1] + "…"

@@ -67,7 +67,7 @@ class Mpris(Box):
         self._on_status_change()
 
     def _update_progress(self):
-        position = self.service._get_position()
+        position = self.service.get_position()
         # print(self.song_length)
         if self.song_length != 0:
             # print(position)
@@ -89,7 +89,8 @@ class Mpris(Box):
     def _on_hover_leave(self, *_):
         # print("triggered leave")
         self._schedule_overlay_hide()
-        GLib.source_remove(self.delay)
+        if self.delay:
+            GLib.source_remove(self.delay)
 
     def _on_overlay_enter(self, *_):
         self._cancel_hide_timeout()
@@ -123,7 +124,7 @@ class Mpris(Box):
             print("encountered_error: ", e)
 
     def _update_widget(self):
-        if data := self.service._get_metadata():
+        if data := self.service.get_metadata():
 
             art_url, title, song_length = (
                 data["art_url"],
@@ -138,7 +139,7 @@ class Mpris(Box):
             if song_length:
                 self.song_progress.max_value = self.song_length
             self.title_label.set_label(truncate(title.strip() or "—"))
-            if self.temp_url_cache != art_url and art_url != "":
+            if art_url not in (self.temp_url_cache ,""):
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
         else:

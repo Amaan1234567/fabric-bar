@@ -42,10 +42,7 @@ class BluetoothToggle(Button):
     def _bluetooth_is_on(self) -> bool:
         """Returns True if bluetoothctl reports Powered: yes"""
         logger.debug(f"{self.bluetooth_client.state}")
-        if self.bluetooth_client.get_property("state") == "on":
-            return True
-        else:
-            return False
+        return self.bluetooth_client.get_property("state") == "on"
 
     def _refresh(self) -> bool:
         """Update CSS class based on Bluetooth state"""

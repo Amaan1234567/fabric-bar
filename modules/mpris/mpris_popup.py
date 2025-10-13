@@ -194,7 +194,7 @@ class MprisPopup(PopupWindow):
     def _update_progress(self):
         if not self.get_visible():
             return True
-        position = self.service._get_position()
+        position = self.service.get_position()
 
         if self.song_length != 0:
 
@@ -206,13 +206,13 @@ class MprisPopup(PopupWindow):
     @cooldown(0.4)
     def _on_scroll(self, _, __, value):
         """Mouse wheel sends ±STEP % *relative* increments."""
-        self.service._set_position(value)
+        self.service.set_position(value)
 
         self.scale.animate_value(value)
         self.scale.set_value(value)
 
     def _update_widget(self):
-        data = self.service._get_metadata()
+        data = self.service.get_metadata()
         if data:
             art_url, title, artist, self.song_length = (
                 data["art_url"],
@@ -224,7 +224,7 @@ class MprisPopup(PopupWindow):
             self.song_artist.set_label(truncate(artist.strip() or "—", max_len=20))
             self.scale.max_value = self.song_length
 
-            if self.temp_url_cache != art_url and art_url != "":
+            if art_url not in (self.temp_url_cache,""):
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
 

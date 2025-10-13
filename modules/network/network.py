@@ -236,7 +236,7 @@ class NetworkWidget(Box):
 
     def on_left_click(self, _, event):
         """Handle click events"""
-        if event.button == Gdk.BUTTON_PRIMARY: # type: ignore
+        if event.button == Gdk.BUTTON_PRIMARY:  # type: ignore
             self._toggle_networks_popup()
 
     def _toggle_networks_popup(self):
@@ -342,9 +342,9 @@ class NetworkWidget(Box):
         is_saved = ssid in [i[0] for i in self.saved_connections]
         return ssid, signal, is_secure, connected, is_saved
 
-    def _add_password_entry_box(
-        self, ssid, is_secure, is_saved, network_container, network_button
-    ):
+    def _add_password_entry_box(self, *args):
+        ssid, is_secure, is_saved, network_container, network_button = args
+
         if is_secure and not is_saved:
             password_box = Box(
                 name="wifi-password-box",
@@ -560,7 +560,6 @@ class NetworkWidget(Box):
 
         except Exception as e:
             logger.debug(f"exception caught: {e}")
-            pass
 
         return "none", None, "No Connection"
 

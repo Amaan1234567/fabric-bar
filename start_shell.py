@@ -21,12 +21,12 @@ if __name__ == "__main__":
     #     level="DEBUG",
     # )
 
-    bar = StatusBar()
+    status_bar = StatusBar()
     corners = ScreenCorners()
     notifications = NotificationPopupWindow()
     app = Application(
         "hypr-fabric-bar",
-        windows=[bar, corners, control_center, notifications],
+        windows=[status_bar, corners, control_center, notifications],
     )
 
     style_path = get_relative_path("styles/style.css")

@@ -9,12 +9,9 @@ class CustomWorkspaces(Workspaces):
 
     def __init__(self, **kwargs):
 
-        # Add the HyperlandWorkspace widget as a child
         super().__init__(
             name="workspaces",
             spacing=4,
-            # buttons=None,
-            # Factory function to create buttons for each workspace
             buttons_factory=self._setup_button,
             **kwargs,
         )

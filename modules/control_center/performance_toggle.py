@@ -9,21 +9,22 @@ from fabric.power_profiles.service import PowerProfiles
 
 class PerformanceToggle(Button):
     """widget to toggle performance mode, uses the powerprofiles service"""
+
     def __init__(self, **kwargs):
         super().__init__(
             name="performance-toggle",
             v_expand=False,
             h_expand=False,
             size=[147, 10],
-            **kwargs
+            **kwargs,
         )
         self.service = PowerProfiles()
-        self.service.connect("changed",self._update_active_mode)
+        self.service.connect("changed", self._update_active_mode)
         logger.debug(f"profiles: {self.service.profiles}")
         self.status_icon_map = {"power-saver": "󰒲", "balanced": "󰈐", "performance": "󰿗"}
         self.modes = ["power-saver", "balanced", "performance"]
         self.status_idx = 0
-        self.current_mode = self.service.active_profile 
+        self.current_mode = self.service.active_profile
 
         self.content = Box(
             orientation="v", spacing=30, h_align="center", v_align="center"
@@ -46,7 +47,7 @@ class PerformanceToggle(Button):
         logger.debug("performance toggle updating")
         logger.debug(f"active profile: {self.service.active_profile}")
         self.current_mode = self.service.active_profile
-        for i,mode in enumerate(self.modes):
+        for i, mode in enumerate(self.modes):
             if mode == self.current_mode:
                 self.status_idx = i
                 break

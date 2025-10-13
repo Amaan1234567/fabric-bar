@@ -92,7 +92,7 @@ class SimplePlayerctlService(Service):
         """Get list of all player names"""
         return list(self.players.keys())
 
-    def _get_metadata(self, player_name=None):
+    def get_metadata(self, player_name=None):
         """Get metadata for player (or first available player if None)"""
         if not self.players:
             return None
@@ -138,7 +138,7 @@ class SimplePlayerctlService(Service):
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return None
 
-    def _get_position(self, player_name=None):
+    def get_position(self, player_name=None):
         """Get current position in seconds"""
         if not self.players:
             return 0
@@ -157,7 +157,8 @@ class SimplePlayerctlService(Service):
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return 0
 
-    def _set_position(self, position, player_name=None):
+    def set_position(self, position, player_name=None):
+        """set given position(time in seconds) in player"""
         if not self.players:
             return 0
 

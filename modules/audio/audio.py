@@ -12,6 +12,7 @@ from custom_widgets.animated_scale import AnimatedScale
 
 VOLUME_MIN_STEP = 3
 
+
 class AudioWidget(Box):
     """A widget that displays and controls volume using Fabric's Audio service."""
 
@@ -125,5 +126,3 @@ class AudioWidget(Box):
         self.audio.speaker.volume = value
 
         self.scrolling = False
-
-        
