@@ -11,7 +11,6 @@ from custom_widgets.animated_scale import AnimatedScale
 
 # ---------------------------------------------------------------- helpers
 MIN_BRIGHT = 5  # avoid a black screen
-MIN_BRIGHTNESS_STEP = 3
 STEP = 5  # percentage per scroll “tick”
 
 
@@ -88,16 +87,14 @@ class BrightnessSlider(Box):
                 logger.debug(f"current_brightness: {current_brightness}")
                 return current_brightness
 
-    @cooldown(0.1)
     def _on_scroll(self, _, __, value):
         """Mouse wheel sends ±STEP % *relative* increments."""
         self.value_changing = True
         logger.debug("detecting scroll on brightness scale")
 
         self._set_brightness_rel(value)
-        print("brigntness value:", value)
-        if abs(self.scale.value - value) > MIN_BRIGHTNESS_STEP:
-            self.scale.animate_value(value)
+        
+        self.scale.animate_value(value)
         self.scale.set_value(value)
 
         self.value_changing = False
@@ -105,9 +102,8 @@ class BrightnessSlider(Box):
     def _refresh(self, _, value):
         if self.value_changing:
             return
-
-        if abs(self.scale.value - value) > MIN_BRIGHTNESS_STEP:
-            self.scale.animate_value(value)
+        
+        self.scale.animate_value(value)
         self.scale.set_value(value)
         if value < 15:
             self.label.add_style_class("brightness-icon-low")
