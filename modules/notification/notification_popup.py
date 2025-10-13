@@ -13,6 +13,7 @@ from custom_widgets.image_rounded import CustomImage
 from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1,truncate
 
 NOTIFICATION_TIMEOUT = 3 * 1000
+NOTIFICATION_TIMEOUT_WITH_ACTIONS = 5 * 1000
 NOTIFICATION_IMAGE_SIZE = 160
 NOTIFICATION_BUTTONS_WRAP_THRESHOLD = 2
 
@@ -128,11 +129,18 @@ class NotificationPopup(Box):
         )
 
         # automatically close the notification after the timeout period
-        invoke_repeater(
-            NOTIFICATION_TIMEOUT,
-            lambda: self._notification.close("expired"),
-            initial_call=False,
-        )
+        if len(self._notification.actions) != 0:
+            invoke_repeater(
+                NOTIFICATION_TIMEOUT_WITH_ACTIONS,
+                lambda: self._notification.close("expired"),
+                initial_call=False,
+            )
+        else:
+            invoke_repeater(
+                NOTIFICATION_TIMEOUT,
+                lambda: self._notification.close("expired"),
+                initial_call=False,
+            )
 
     def _delete_self(self):
         parent.remove(self) if (parent := self.get_parent()) else None

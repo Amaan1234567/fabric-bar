@@ -275,6 +275,7 @@ tooltip {
 }
 #mpris-popup-scale{
   all:unset;
+  margin-bottom: -10px;
 }
 
 #mpris-popup-scale trough 
