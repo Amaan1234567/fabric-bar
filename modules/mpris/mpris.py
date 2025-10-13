@@ -1,5 +1,6 @@
 """holds the mpris widget shown in bar"""
 
+from loguru import logger
 from gi.repository import GdkPixbuf, GLib, Gio  # type: ignore
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
@@ -121,7 +122,7 @@ class Mpris(Box):
                 self.album_art.set_from_pixbuf(pixbuf_cropping_if_image_is_not_1_1(pixbuf, 30))
                 self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:
-            print("encountered_error: ", e)
+            logger.exception("encountered_error: ", e)
 
     def _update_widget(self):
         if data := self.service.get_metadata():
