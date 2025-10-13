@@ -1,7 +1,8 @@
-from typing import Iterable
+"""holds screen corners widget"""
+
 from fabric.widgets.box import Box
 from fabric.widgets.wayland import WaylandWindow as Window
-
+from fabric.widgets.overlay import Overlay
 from custom_widgets.side_corner import SideCorner
 
 
@@ -26,7 +27,7 @@ class ScreenCorners(Window):
         self.all_corners = Box(
             orientation="v",
             children=[
-                Box(name="screen-padding-top",size=[-1,1]),
+                Box(name="screen-padding-top", size=[-1, 1]),
                 Box(
                     name="all-corners",
                     orientation="h",
@@ -38,7 +39,7 @@ class ScreenCorners(Window):
                         Box(
                             orientation="h",
                             children=[
-                                Box(name="screen-padding-left",size=[1, -1]),
+                                Box(name="screen-padding-left", size=[1, -1]),
                                 Box(
                                     name="left-corners",
                                     orientation="v",
@@ -65,15 +66,16 @@ class ScreenCorners(Window):
                                         SideCorner("bottom-right", size),
                                     ],
                                 ),
-                                Box(name="screen-padding-right",size=[1, -1])
+                                Box(name="screen-padding-right", size=[1, -1]),
                             ],
                         ),
                     ],
                 ),
-                Box(name="screen-padding-bottom",size=[-1,1]),
+                Box(name="screen-padding-bottom", size=[-1, 1]),
             ],
         )
-
-        self.add(self.all_corners)
+        self.overlay = Overlay(child=self.all_corners,overlays=Box(name="corners-overlay",h_expand=True,v_expand=True))
+        # self.add(self.all_corners)
+        self.add(self.overlay)
 
         self.show_all()

@@ -1,29 +1,25 @@
-import fabric
-from fabric.widgets.box import Box
-from fabric.hyprland.widgets import WorkspaceButton, Workspaces
+"""contains the workspaces widget"""
 
-class CustomWorkspaces(Box):
-    def __init__(self,**kwargs):
-        super().__init__(name="workspaces-box",**kwargs)
+from fabric.core.widgets import WorkspaceButton
+from fabric.hyprland.widgets import HyprlandWorkspaces as Workspaces
 
-        def create_workspace_label(ws_id: int) -> str:
-            return ""
 
-        def setup_button(ws_id: int) -> WorkspaceButton:
-            button = WorkspaceButton(
-                style_classes="workspace-button",
-                id=ws_id,
-                label=f"{ws_id}",
-            )
-            return button
+class CustomWorkspaces(Workspaces):
+    """Hyprland workspaces widget"""
 
-        # Create a HyperlandWorkspace widget to manage workspace buttons
-        self.workspace = Workspaces(
+    def __init__(self, **kwargs):
+
+        super().__init__(
             name="workspaces",
             spacing=4,
-            # Factory function to create buttons for each workspace
-            buttons_factory=setup_button,
+            buttons_factory=self._setup_button,
+            **kwargs,
         )
 
-        # Add the HyperlandWorkspace widget as a child
-        self.children = self.workspace
+    def _setup_button(self, ws_id: int) -> WorkspaceButton:
+        button = WorkspaceButton(
+            style_classes="workspace-button",
+            id=ws_id,
+            label=f"{ws_id}",
+        )
+        return button

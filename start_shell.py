@@ -1,0 +1,50 @@
+"""main python file that initialised the whole UI"""
+
+# import sys
+from loguru import logger
+
+from fabric.utils.helpers import monitor_file, get_relative_path
+from fabric import Application
+from modules.control_center import control_center
+from modules.notification.notification_window import NotificationPopupWindow
+
+from widgets.top_bar import StatusBar
+from widgets.corners import ScreenCorners
+
+if __name__ == "__main__":
+    logger.remove()
+
+    # # Add a new sink, filtering out messages from 'noisy_module'
+    # logger.add(
+    #     sys.stderr,
+    #     filter=lambda record: record["name"] != "fabric.widgets.svg",
+    #     level="DEBUG",
+    # )
+
+    status_bar = StatusBar()
+    corners = ScreenCorners()
+    notifications = NotificationPopupWindow()
+    app = Application(
+        "hypr-fabric-bar",
+        windows=[status_bar, corners, control_center, notifications],
+    )
+
+    style_path = get_relative_path("styles/style.css")
+    if style_path:
+        app.set_stylesheet_from_file(style_path)
+        style_monitor = monitor_file(style_path)
+        style_monitor.connect(
+            "changed", lambda *a: app.set_stylesheet_from_file(style_path)
+        )
+
+    colors_path = get_relative_path("styles/colors.css")
+    if colors_path:
+        style_monitor = monitor_file(colors_path)
+        style_monitor.connect(
+            "changed",
+            lambda *a: (
+                app.set_stylesheet_from_file(style_path),
+                app.set_stylesheet_from_file(get_relative_path("styles/style.css")),
+            ),
+        )
+    app.run()

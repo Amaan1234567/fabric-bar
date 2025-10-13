@@ -1,9 +1,9 @@
-import subprocess
-import gi
+"""holds the widget to toggle wifi"""
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+from gi.repository import GLib  # type: ignore
 from fabric.widgets.button import Button
+from fabric.utils.helpers import exec_shell_command_async
+from loguru import logger
 
 
 class WifiToggle(Button):
@@ -19,6 +19,10 @@ class WifiToggle(Button):
             label="󰤨",  # Nerd Font WiFi icon
             on_clicked=self._toggle_wifi,
         )
+        self.wifi_available = True
+        self.wifi_on = True
+        self._is_wifi_available()
+        self._is_wifi_on()
         self.set_hexpand(True)
         self.set_vexpand(False)
 
@@ -27,80 +31,65 @@ class WifiToggle(Button):
         self.connect(
             "state-flags-changed",
             lambda btn, *_: (
-                btn.set_cursor("pointer")
-                if btn.get_state_flags() & 2  # type: ignore
-                else btn.set_cursor("default"),
+                (
+                    btn.set_cursor("pointer")
+                    if btn.get_state_flags() & 2  # type: ignore
+                    else btn.set_cursor("default")
+                ),
             ),
         )
         # Poll every 5s to keep in sync
-        GLib.timeout_add_seconds(5, self._refresh)
+        GLib.timeout_add_seconds(1, self._refresh)
         self.set_tooltip_text("Toggle Wifi")
 
-    def _toggle_wifi(self, button):
+    def _wifi_on_callback(self, output):
+        self.wifi_on = output == "enabled"
+
+    def _is_wifi_on(self):
+        exec_shell_command_async(["nmcli", "radio", "wifi"], self._wifi_on_callback)
+
+    def _toggle_wifi(self, _):
         """Toggle WiFi on/off"""
-        if not self._wifi_is_available():
+        if not self.wifi_available:
             return  # Can't toggle if WiFi hardware isn't available
-            
-        cmd = ["off", "on"][not self._wifi_is_on()]
-        try:
-            subprocess.run([
-                "nmcli", "radio", "wifi", cmd
-            ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        except:
-            pass
-        
-        GLib.timeout_add(1500, self._refresh)
 
-    @staticmethod
-    def _wifi_is_available() -> bool:
+        cmd = ["off", "on"][not self.wifi_on]
+        exec_shell_command_async(["nmcli", "radio", "wifi", cmd])
+
+    def _wifi_check_callback(self, output):
+        logger.debug(f"wifi toggle output: {output}")
+        if int(output) > 1:
+            self.wifi_available = True
+        else:
+            self.wifi_available = False
+
+    def _is_wifi_available(self):
         """Check if WiFi hardware is available"""
-        try:
-            result = subprocess.run([
-                "nmcli", "radio", "wifi"
-            ], capture_output=True, text=True, check=False)
-            
-            # If command fails, WiFi is not available
-            if result.returncode != 0:
-                return False
-                
-            # Check if output contains any valid state (enabled/disabled)
-            output = result.stdout.strip().lower()
-            return output in ["enabled", "disabled"]
-            
-        except:
-            return False
-
-    @staticmethod
-    def _wifi_is_on() -> bool:
-        """Check if WiFi is enabled"""
-        try:
-            result = subprocess.run([
-                "nmcli", "radio", "wifi"
-            ], capture_output=True, text=True, check=False)
-            return "enabled" in result.stdout
-        except:
-            return False
+        exec_shell_command_async(
+            ["nmcli", "device", " | ", "grep", "-c", "wifi"], self._wifi_check_callback
+        )
 
     def _refresh(self) -> bool:
         """Update WiFi status and icon"""
+
         ctx = self.get_style_context()
-        
-        if not self._wifi_is_available():
+        self._is_wifi_on()
+        self._is_wifi_available()
+        if not self.wifi_available:
             # WiFi hardware not available - show slash icon
             self.set_label("󰤭")  # WiFi off/slash icon
             ctx.add_class("wifi-unavailable")
             ctx.remove_class("wifi-on")
             ctx.remove_class("wifi-off")
         else:
-            powered = self._wifi_is_on()
-            
-            if powered:
+
+            if self.wifi_on:
                 self.set_label("󰤨")  # WiFi on icon
                 ctx.add_class("wifi-on")
                 ctx.remove_class("wifi-off")
                 ctx.remove_class("wifi-unavailable")
             else:
-                self.set_label("󰤭")  # WiFi off icon  
+                self.set_label("󰤭")  # WiFi off icon
                 ctx.add_class("wifi-off")
                 ctx.remove_class("wifi-on")
                 ctx.remove_class("wifi-unavailable")

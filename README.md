@@ -16,5 +16,5 @@ You can download and setup wallust or matugen to create a colors.css, or create 
 
 # Running the bar and widget 
 ```python
-python start-shell.py
+python start_shell.py
 ```

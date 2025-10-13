@@ -1,10 +1,27 @@
+"""
+This module defines the AnimatedScale widget, which extends the Scale widget
+from the fabric library to add animation to the scale's value changes.
+"""
+
+from typing import Any
+
 from fabric.widgets.scale import Scale
 from utils.animator import Animator
 
+
 class AnimatedScale(Scale):
-    def __init__(self,**kwargs):
+    """
+    A scale widget with animated value changes.
+    """
+
+    def __init__(self, **kwargs: Any):
+        """
+        Initializes the AnimatedScale with optional keyword arguments.
+
+        The animation is configured using an Animator instance.
+        """
         super().__init__(**kwargs)
-        self.animator = (
+        self.animator: Animator = (
             Animator(
                 # edit the following parameters to customize the animation
                 bezier_curve=(0.8, 1.55, 0.265, 1.25),
@@ -19,9 +36,14 @@ class AnimatedScale(Scale):
             .unwrap()
         )
 
-    def animate_value(self, value: float):
+    def animate_value(self, value: float) -> None:
+        """
+        Animates the scale's value to the specified target value.
+
+        Args:
+            value (float): The target value to animate to.
+        """
         self.animator.pause()
         self.animator.min_value = self.value
         self.animator.max_value = value
         self.animator.play()
-        return

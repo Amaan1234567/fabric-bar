@@ -1,3 +1,4 @@
+"""holds all constants used all over the code"""
 WINDOW_TITLE_MAP = [
     # Original Entries
     ["discord", "", "Discord"],

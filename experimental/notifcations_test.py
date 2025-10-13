@@ -39,7 +39,7 @@ class NotificationWidget(Box):
                         NOTIFICATION_IMAGE_SIZE,
                         GdkPixbuf.InterpType.BILINEAR,
                     ),
-                    size=64
+                    size=64,
                 )
             )
 

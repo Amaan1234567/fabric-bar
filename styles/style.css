@@ -6,7 +6,10 @@
   font-weight: 900;
   font-size: 16px;
   background: transparent;
+  transition: background 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682);
 }
+
+
 
 /* @keyframes gradient-border {
   0%   { border-image-source: linear-gradient(45deg, @color2, @color4, @color5, @color3, @color6); }
@@ -34,19 +37,13 @@
 
 @keyframes animated-gradient {
   0% {
-    background-position: 50% 0%;
-  }
-  25% {
-    background-position: 100% 50%;
+    background-position: 0% 0%;
   }
   50% {
-    background-position: 50% 100%;
-  }
-  75% {
-    background-position: 0% 50%;
+    background-position: 100% 0%;
   }
   100% {
-    background-position: 50% 0%;
+    background-position: 0% 0%;
   }
 }
 
@@ -66,50 +63,49 @@ border-width:  0 0 3px 0 ;
 
 /* #bar {
     background-color: @background;
-    background-image: url("./22723-256x256x32.png");
-    background-repeat: repeat;
-    background-size: 10px;
+    background-image: url("assets/gradient.png");
+    background-repeat: no-repeat;
+    background-size: 1000px;
 } */
 
 #bar {
   background-color: @background;
-  /* padding-left:26px;
-  padding-right:26px; */
+
 }
 
 #corner {
   background-color: @background;
-  
 }
 
 
-#screen-borders {
-  margin-top: 12px;
-  margin-bottom: 23px;
-  margin-left: 16px;
-  margin-right: 16px;
+#corners-overlay {
+  padding: 10px;
+  margin-top: 8px;
+  margin-bottom: 15px;
+  margin-left: 9px;
+  margin-right: 9px;
   background-color: transparent;
   border:solid;
   border-radius: 42px;
-  /* border-width: 1px;
-  border-color: @color5; */
-  box-shadow: @color1 0px 0px 7px 10px;
+  border-width: 2px;
+  border-color: @color4;
+  box-shadow: @color4 0px 0px 3px 4px;
 }
 
 #screen-padding-left,#screen-padding-right{
   background-color: @background;
-  padding:8px;
+  padding:5px;
 }
 
 #screen-padding-bottom{
   background-color: @background;
-  padding:12px;
+  padding:8px;
 }
 
 
 #screen-padding-top{
   background-color: @background;
-  padding:6px;
+  padding:3px;
 }
 
 .sep {
@@ -120,7 +116,6 @@ border-width:  0 0 3px 0 ;
   margin-right: 15px;
   color: white;
 }
-
 #clock label {
   font-size: 18px;
   background: transparent;
@@ -134,12 +129,12 @@ border-width:  0 0 3px 0 ;
   margin-right: 0px;
 }
 
-/* #cpu-label {
+#cpu-label {
     color: @color6;
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 600;
     padding:10px;
-} */
+}
 
 #cpu-progress-bar {
   color: white;
@@ -179,31 +174,24 @@ border-width:  0 0 3px 0 ;
   padding-right: 4px;
   font-weight: 500;
   color: lighter(@color4);
-  animation: ws_hover 60s ease-in-out 1;
-  transition: all 0.3s cubic-bezier(0.55, -0.68, 0.48, 1.682);
+  transition: all 0.3s cubic-bezier(0.55, 0.68, 0.48, 1.682);
 }
 
-.workspace-button.active,
-.workspace-button.active:hover {
-  background: radial-gradient(@color4, @color5, @color6);
+.workspace-button.active{
+  background: @color4;
   color: @background;
   font-weight: 900;
-  animation: ws_active 10s ease-in-out 1;
-  background-size: 1000% 1000%;
-  animation: animated-gradient 25s ease infinite;
-  transition: all 0.4s cubic-bezier(0.55, -0.68, 0.48, 1.682);
+  /* animation: animated-gradient 25s ease infinite; */
   padding-left: 20px;
   padding-right: 20px;
   border-radius: 40px;
 }
 
 .workspace-button:hover {
-  background: alpha(@color6, 0.4);
+  background: alpha(@color4, 0.8);
   color: @background;
-  background-size: 1000% 1000%;
-  animation: ws_active 20s ease-in-out 1;
-  animation: animated-gradient 5s ease infinite;
-  transition: all 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682);
+  /* background-size: 400% 400%;
+  animation: animated-gradient 5s ease infinite; */
   padding-left: 20px;
   padding-right: 20px;
   border-radius: 40px;
@@ -220,25 +208,14 @@ border-width:  0 0 3px 0 ;
 }
 .cava-active {
   padding: 0;
-  background: linear-gradient(
-    45deg,
-    @color2,
-    @color3,
-    @color4,
-    @color5,
-    @color6,
-    @color7,
-    @color8
-  );
-  background-size: 500% 500%;
+  background: @color3;
   color: @background;
   margin-top: 8px;
   margin-bottom: 8px;
   padding-right: 7px;
   padding-left: 7px;
   border-radius: 5px;
-  animation: animated-gradient 25s ease-in-out infinite;
-  box-shadow: @color6 0px 0px 6px 2px;
+  box-shadow: @color3 0px 0px 10px 4px;
 }
 
 .cava-silent {
@@ -353,6 +330,10 @@ tooltip {
   font-size: 25px;
 }
 
+#play-button {
+  color:@color4;
+}
+
 #system-controls {
   padding:0px;
   background-color: @color4;
@@ -369,16 +350,14 @@ tooltip {
   font-size: 18px;
   font-weight: 600;
   padding-top: 2px;
+  margin-top:-2px;
 }
 
 #audio-container {
   padding:0px;
 }
 
-#audio-scale{
-  padding:0;
-  margin-bottom: -2px;
-}
+
 
 #audio-scale trough {
   padding:0;
@@ -387,15 +366,13 @@ tooltip {
   border-width: 1px;
   border-radius: 5px;
   border-color: @background;
+  min-width: 55px;
+  min-height: 10px;
 }
 
-#audio-scale slider {
-  min-height: 10px;
-  min-width: 50px;
-}
 
 #audio-scale highlight {
-  border-radius:3px;
+  border-radius: 5px;
   background: @background;
   
 }
@@ -528,9 +505,15 @@ tooltip {
   color: @color2;
 }
 
+#wallpaper-icon {
+  color: @background;
+  font-size: 24px;
+  font-weight: 900;
+}
+
 #wallpaper-change-button {
-  padding-left: 10px;
-  padding-right: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
   border-radius: 10px;
   background-color: @color4;
 }
@@ -582,15 +565,10 @@ tooltip {
   border-color: @color4;
 }
 
-#brightness-eventbox {
-  border: solid;
-  border-width: 2px;
-  border-color: @color4;
-  border-radius: 10px;
-}
+
 
 #brightness-scale slider {
-  all: initial;
+  
   padding-top: 10px;
   padding-bottom: 10px;
   min-height: 20px;
@@ -623,10 +601,10 @@ tooltip {
 
 
 #notification {
-    min-width: 360px;
-    padding:0;
-    border-radius: 1rem;
-    background-color: alpha(@backgroundWaybar, 0.7);
+  min-width: 430px;
+  padding:0;
+  border-radius: 1rem;
+  background-color: alpha(@backgroundWaybar, 0.7);
 }
 
 #notification-info {
@@ -641,17 +619,33 @@ tooltip {
 }
 
 #notification-info {
-  padding:5px;
+  padding:0px;
+  margin-right: -10px;
+  margin-left: 15px;
 }
 
-#action-butttons button {
+#action-buttons {
+  padding-top:5px;
+}
+
+#action-buttons > * > button {
   border-radius: 10px;
   background-color: @color4;
-  padding:3px;
+  padding-top: 4px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-bottom: 4px;
+}
+#action-buttons > * > button > label
+{
+  font-size: 14px;
 }
 
 #notification-close-button{
-  padding:5px;
+  padding-top:2px;
+  padding-bottom:2px;
+  padding-right: 7px;
+  padding-left: 7px;
   color:@color5;
   background-color: transparent;
 }
@@ -666,5 +660,5 @@ tooltip {
 }
 
 #notification-body {
-  font-size: 14px;
+  font-size: 16px;
 }

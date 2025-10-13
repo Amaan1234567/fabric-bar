@@ -1,9 +1,10 @@
-import subprocess
-import gi
+"""hold the bluetooth toggle module"""
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
+import subprocess
+from loguru import logger
+
 from fabric.widgets.button import Button
+from fabric.bluetooth.service import BluetoothClient
 
 
 class BluetoothToggle(Button):
@@ -22,33 +23,26 @@ class BluetoothToggle(Button):
         self.set_hexpand(True)
         self.set_vexpand(False)
 
+        self.bluetooth_client = BluetoothClient()
+        self.bluetooth_client.connect("changed", self._refresh)
         # Set initial state
         self._refresh()
         self.connect(
             "state-flags-changed",
             lambda btn, *_: (
-                btn.set_cursor("pointer")
-                if btn.get_state_flags() & 2  # type: ignore
-                else btn.set_cursor("default"),
+                (
+                    btn.set_cursor("pointer")
+                    if btn.get_state_flags() & 2  # type: ignore
+                    else btn.set_cursor("default")
+                ),
             ),
         )
-        # Poll every 6s to keep in sync
-        GLib.timeout_add_seconds(6, self._refresh)
         self.set_tooltip_text("Toggle Bluetooth")
 
-    @staticmethod
-    def _bluetooth_is_on() -> bool:
+    def _bluetooth_is_on(self) -> bool:
         """Returns True if bluetoothctl reports Powered: yes"""
-        try:
-            out = subprocess.run(
-                ["bluetoothctl", "show"],
-                capture_output=True,
-                text=True,
-                check=False,
-            ).stdout
-            return "Powered: yes" in out
-        except Exception:
-            return False
+        logger.debug(f"{self.bluetooth_client.state}")
+        return self.bluetooth_client.get_property("state") == "on"
 
     def _refresh(self) -> bool:
         """Update CSS class based on Bluetooth state"""
@@ -72,9 +66,7 @@ class BluetoothToggle(Button):
                 ["bluetoothctl", "power", cmd],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                check=True,
             )
-        except Exception:
-            pass
-
-        # Refresh after short delay
-        GLib.timeout_add(800, self._refresh)
+        except TimeoutError as exception:
+            logger.exception(f"{exception} encountered")
