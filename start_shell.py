@@ -8,7 +8,7 @@ from fabric import Application
 from modules.control_center import control_center
 from modules.notification.notification_window import NotificationPopupWindow
 
-from widgets.top_bar import StatusBar
+from widgets.top_bar import TopBar
 from widgets.corners import ScreenCorners
 
 if __name__ == "__main__":
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     #     level="DEBUG",
     # )
 
-    status_bar = StatusBar()
+    status_bar = TopBar()
     corners = ScreenCorners()
     notifications = NotificationPopupWindow()
     app = Application(

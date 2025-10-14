@@ -20,10 +20,9 @@ from modules.battery.battery import BatteryWidget
 from modules.audio.audio import AudioWidget
 from modules.network.network import NetworkWidget
 from modules.bluetooth.bluetooth import BluetoothWidget
-#from modules.system_tray.system_tray import barSystemTray
 
-
-class StatusBar(Window):
+class TopBar(Window):
+    """top bar of UI"""
     def __init__(self, **kwargs):
         super().__init__(
             layer="top",
@@ -59,8 +58,6 @@ class StatusBar(Window):
             children=[
                 self.cpu,
                 self.memory,
-                self.workspaces,
-                self.active_window,
             ],
         )
 
@@ -69,14 +66,22 @@ class StatusBar(Window):
         self.battery = BatteryWidget()
         self.network = NetworkWidget(self, interval=1)
         self.bluetooth = BluetoothWidget(interval=1)
-        # self.system_tray = barSystemTray()
         center_box = Box(
             orientation="h",
-            spacing=60,
+            spacing=30,
             h_align="center",
             children=[
                 self.mpris,
                 self.cava,
+                self.active_window,
+                self.workspaces,
+            ],
+        )
+
+        right_box = Box(
+            orientation="h",
+            spacing=20,
+            children=[
                 self.clock,
                 Box(
                     name="system-controls",
@@ -88,13 +93,9 @@ class StatusBar(Window):
                         self.bluetooth,
                     ],
                 ),
-            ],
-        )
-
-        right_box = Box(
-            orientation="h",
-            spacing=10,
-            children=[self.battery, self.right_module, self.logout_btn],
+                self.battery, 
+                self.right_module, 
+                self.logout_btn],
         )
 
         self.content = CenterBox(
