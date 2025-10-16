@@ -21,6 +21,7 @@ from modules.audio.audio import AudioWidget
 from modules.network.network import NetworkWidget
 from modules.bluetooth.bluetooth import BluetoothWidget
 from modules.gpu.gpu import GpuWidget
+from modules.network_speed.network_speed import NetworkSpeed
 
 class TopBar(Window):
     """top bar of UI"""
@@ -39,6 +40,7 @@ class TopBar(Window):
         self.workspaces = CustomWorkspaces()
         self.memory = Memory()
         self.gpu = GpuWidget()
+        self.network_speed = NetworkSpeed()
         self.clock = Clock()
         self.logout_btn = Button(
             label="⏻",
@@ -60,7 +62,8 @@ class TopBar(Window):
             children=[
                 self.cpu,
                 self.memory,
-                self.gpu
+                self.gpu,
+                self.network_speed
             ],
         )
 

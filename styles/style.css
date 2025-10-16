@@ -205,6 +205,23 @@ border-width:  0 0 3px 0 ;
   border-color: shade(@color4, 0.85);
 }
 
+#download-icon {
+  font-size:16px;
+}
+
+#download-speed{
+  font-size:14px;
+}
+
+
+#upload-icon {
+  font-size:16px;
+}
+
+#upload-speed{
+  font-size:14px;
+}
+
 #workspaces {
   background-color: transparent;
   padding-right:10px;
