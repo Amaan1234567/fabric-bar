@@ -20,6 +20,7 @@ from modules.battery.battery import BatteryWidget
 from modules.audio.audio import AudioWidget
 from modules.network.network import NetworkWidget
 from modules.bluetooth.bluetooth import BluetoothWidget
+from modules.gpu.gpu import GpuWidget
 
 class TopBar(Window):
     """top bar of UI"""
@@ -37,6 +38,7 @@ class TopBar(Window):
         self.cpu = Cpu()
         self.workspaces = CustomWorkspaces()
         self.memory = Memory()
+        self.gpu = GpuWidget()
         self.clock = Clock()
         self.logout_btn = Button(
             label="⏻",
@@ -54,10 +56,11 @@ class TopBar(Window):
         self.right_module = ControlCenterButton()
         left_box = Box(
             orientation="h",
-            spacing=20,
+            spacing=10,
             children=[
                 self.cpu,
                 self.memory,
+                self.gpu
             ],
         )
 

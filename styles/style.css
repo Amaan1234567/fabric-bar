@@ -126,7 +126,6 @@ border-width:  0 0 3px 0 ;
 
 #cpu {
   margin-left: 10px;
-  margin-right: 0px;
 }
 
 #cpu-label {
@@ -142,8 +141,56 @@ border-width:  0 0 3px 0 ;
   
 }
 
-#memory {
-  margin-left: -10px;
+#gpu-stats {
+  margin-right: 0px;
+}
+
+#gpu-icon {
+  min-width: 20px;
+  padding: 0;
+  margin: 0;
+  color: white;
+}
+
+#gpu-scales-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#gpu-usage-scale trough {
+  padding:0;
+  margin:0;
+  border:solid;
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: @color4;
+  min-width: 35px;
+  min-height: 5px;
+}
+
+
+#gpu-usage-scale highlight {
+  border-radius: 5px;
+  background: @color4;
+  
+}
+
+#gpu-mem-usage-scale trough {
+  padding:0;
+  margin:0;
+  border:solid;
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: @color4;
+  min-width: 35px;
+  min-height: 5px;
+}
+
+
+#gpu-mem-usage-scale highlight {
+  border-radius: 5px;
+  background: @color4;
+  
 }
 
 #memory-label {
