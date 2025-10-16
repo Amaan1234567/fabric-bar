@@ -7,15 +7,17 @@ from fabric.widgets.label import Label
 from fabric.widgets.button import Button
 from fabric.notifications.service import Notification
 from fabric.widgets.revealer import Revealer
-from fabric.utils import invoke_repeater
+from fabric.utils import invoke_repeater, get_relative_path
 from gi.repository import GdkPixbuf, GLib, Gtk
 from custom_widgets.image_rounded import CustomImage
-from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1,truncate
+from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
+from utils.variables import APP_ICON_MAP
 
 NOTIFICATION_TIMEOUT = 3 * 1000
 NOTIFICATION_TIMEOUT_WITH_ACTIONS = 5 * 1000
 NOTIFICATION_IMAGE_SIZE = 160
 NOTIFICATION_BUTTONS_WRAP_THRESHOLD = 2
+
 
 class NotificationPopup(Box):
     """the notification popup"""
@@ -68,14 +70,14 @@ class NotificationPopup(Box):
         )
         self.notification_title = Label(
             name="notification-title",
-            label=truncate(self._notification.summary,20),
+            label=truncate(self._notification.summary, 20),
             h_align="fill",
-            line_wrap="word"
+            line_wrap="word",
         )
         self.notification_dynamic_pad = Box(v_expand=True)
         self.notification_body = Label(
             name="notification-body",
-            label=truncate(self._notification.body,50),
+            label=truncate(self._notification.body, 50),
             h_align="fill",
             h_expand=True,
             line_wrap="word-char",
@@ -102,16 +104,24 @@ class NotificationPopup(Box):
                     spacing=4,
                     orientation="v",
                     children=[
-                        Box(spacing=4,orientation='h',children = [
-                            Button(
-                            h_expand=True,
-                            v_expand=True,
-                            label=action.label,
-                            on_clicked=lambda *_, action=action: action.invoke(),
+                        Box(
+                            spacing=4,
+                            orientation="h",
+                            children=[
+                                Button(
+                                    h_expand=True,
+                                    v_expand=True,
+                                    label=action.label,
+                                    on_clicked=lambda *_, action=action: action.invoke(),
+                                )
+                                for action in actions[
+                                    i : i + NOTIFICATION_BUTTONS_WRAP_THRESHOLD
+                                ]
+                            ],
                         )
-                        for action in actions[i:i+NOTIFICATION_BUTTONS_WRAP_THRESHOLD]
-                        ])
-                        for i in range(0,len(actions),NOTIFICATION_BUTTONS_WRAP_THRESHOLD)
+                        for i in range(
+                            0, len(actions), NOTIFICATION_BUTTONS_WRAP_THRESHOLD
+                        )
                     ],
                 )
             )
@@ -167,11 +177,13 @@ class NotificationPopup(Box):
             if getattr(notification, "image_path", None) and path.exists(
                 notification.image_path
             ):
-                return GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                    notification.image_path,
-                    NOTIFICATION_IMAGE_SIZE,
-                    NOTIFICATION_IMAGE_SIZE,
-                    True,
+                return pixbuf_cropping_if_image_is_not_1_1(
+                    GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                        notification.image_path,
+                        NOTIFICATION_IMAGE_SIZE,
+                        NOTIFICATION_IMAGE_SIZE,
+                        True,
+                    )
                 )
 
             if getattr(notification, "app_icon", None):
@@ -191,5 +203,20 @@ class NotificationPopup(Box):
                     return info.load_icon()
         except Exception as e:
             print(f"Failed to load notification icon: {e}")
-
-        return None
+        if path := APP_ICON_MAP.get(self._notification.app_name.lower()):
+            return pixbuf_cropping_if_image_is_not_1_1(
+                GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                    get_relative_path(f"../../{path}"),
+                    NOTIFICATION_IMAGE_SIZE,
+                    NOTIFICATION_IMAGE_SIZE,
+                    True,
+                )
+            )
+        return pixbuf_cropping_if_image_is_not_1_1(
+            GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                get_relative_path(f"../../assets/default_notification_pic.png"),
+                NOTIFICATION_IMAGE_SIZE,
+                NOTIFICATION_IMAGE_SIZE,
+                True,
+            )
+        )

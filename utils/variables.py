@@ -100,3 +100,8 @@ WINDOW_TITLE_MAP = [
     # Desktop
     ["^$", "󰇄", "Desktop"],
 ]
+
+APP_ICON_MAP = {
+    "spotify" : "assets/spotify.png",
+    
+}

@@ -1,4 +1,5 @@
 """holds the main bar widget"""
+
 import subprocess
 
 from fabric.widgets.box import Box
@@ -23,8 +24,10 @@ from modules.bluetooth.bluetooth import BluetoothWidget
 from modules.gpu.gpu import GpuWidget
 from modules.network_speed.network_speed import NetworkSpeed
 
+
 class TopBar(Window):
     """top bar of UI"""
+
     def __init__(self, **kwargs):
         super().__init__(
             layer="top",
@@ -59,12 +62,9 @@ class TopBar(Window):
         left_box = Box(
             orientation="h",
             spacing=10,
-            children=[
-                self.cpu,
-                self.memory,
-                self.gpu,
-                self.network_speed
-            ],
+            children=[self.cpu, self.memory, self.gpu, 
+                      self.network_speed
+                      ],
         )
 
         self.mpris = Mpris(window=self)
@@ -99,9 +99,10 @@ class TopBar(Window):
                         self.bluetooth,
                     ],
                 ),
-                self.battery, 
-                self.right_module, 
-                self.logout_btn],
+                self.battery,
+                self.right_module,
+                self.logout_btn,
+            ],
         )
 
         self.content = CenterBox(
