@@ -4,6 +4,7 @@ from threading import Thread
 import time
 import psutil
 from loguru import logger
+from gi.repository import GLib #type: ignore
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 
@@ -51,13 +52,14 @@ class NetworkSpeed(Box):
             if bytes_sent < 1_048_576 and bytes_recv < 1_048_576:
                 download_speed = bytes_recv / (1024 * 1)
                 upload_speed = bytes_sent / (1024 * 1)
-                self.download_speed.set_label(f"{download_speed:.2f} KB/s")
-                self.upload_speed.set_label(f"{upload_speed:.2f} KB/s")
+                
+                GLib.idle_add(self.download_speed.set_label,f"{download_speed:.2f} KB/s")
+                GLib.idle_add(self.upload_speed.set_label,f"{upload_speed:.2f} KB/s")
             else:
                 download_speed = (bytes_recv) / (1_048_576 * 1)
                 upload_speed = (bytes_sent) / (1_048_576 * 1)
-                self.download_speed.set_label(f"{download_speed:.2f} MB/s")
-                self.upload_speed.set_label(f"{upload_speed:.2f} MB/s")
+                GLib.idle_add(self.download_speed.set_label,f"{download_speed:.2f} MB/s")
+                GLib.idle_add(self.upload_speed.set_label,f"{upload_speed:.2f} MB/s")
 
             logger.debug(f"download speed: {download_speed}")
             logger.debug(f"upload speed: {upload_speed}")

@@ -6,7 +6,6 @@ from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.wayland import WaylandWindow as Window
-from fabric.widgets.separator import Separator
 
 
 from modules.clock.clock import Clock
@@ -52,9 +51,6 @@ class TopBar(Window):
                 ["wlogout", "--protocol", "layer-shell"]
             ),
             name="logout",
-        )
-        self.seperator = Separator(
-            orientation="h", h_expand=True, h_align="fill", style_classes="sep"
         )
         self.active_window = WindowName()
         self.cava = CavaWidget()

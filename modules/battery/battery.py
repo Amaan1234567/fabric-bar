@@ -14,7 +14,7 @@ class BatteryWidget(Box):
     and tells extra info in tooltips like time to charge, battery health etc
     """
 
-    def __init__(self, interval=1, **kwargs):
+    def __init__(self, interval=10, **kwargs):
         super().__init__(**kwargs)
 
         self.glyph_label = Label(name="battery-glyph", label="󰠠")
