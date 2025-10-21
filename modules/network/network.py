@@ -1,7 +1,6 @@
 """holds the network widget shown in bar"""
 
 from loguru import logger
-from dbus.mainloop.glib import DBusGMainLoop
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.eventbox import EventBox
@@ -9,10 +8,11 @@ from fabric.widgets.revealer import Revealer
 from fabric.widgets.button import Button
 from fabric.widgets.entry import Entry
 from fabric.utils.helpers import exec_shell_command_async
-from gi.repository import GLib, Gdk  # type: ignore
-import NetworkManager as NM
+from gi.repository import GLib, Gdk #type: ignore
+
 
 from custom_widgets.popwindow import PopupWindow
+from services.networkservice import NetworkService, WifiService, EthernetService
 
 
 class NetworkWidget(Box):
@@ -23,16 +23,20 @@ class NetworkWidget(Box):
 
     def __init__(self, window, interval=1, **kwargs):
         super().__init__(**kwargs)
-        DBusGMainLoop(set_as_default=True)
 
         self.interval = interval
         self.window = window
         self.networks = []
         self._scanning = False
-        self.wifi_on = True
-        self._is_wifi_on()
+        self.wifi_on = False
+        self.ethernet_on = False
         self.connected_ssid = ""
         self.saved_connections = []
+        self._service = NetworkService()
+        self._ethernet_device: EthernetService | None = None
+        self._wifi_device: WifiService | None = None
+        self._service.connect("device_ready", self._init_device)
+        self.current_tooltip = ""
 
         # Glyph label
         self.content = EventBox(
@@ -42,12 +46,6 @@ class NetworkWidget(Box):
         self.icon = Label(name="network-icon", label="󰤯", justification="center")
         self.content.add(self.icon)
         self.add(self.content)
-        try:
-            self.current_tooltip = self._get_active_connection_info()[2]
-            self.icon.set_tooltip_text(self.current_tooltip)
-        except Exception as e:
-            self.current_tooltip = "Network"
-            self.icon.set_tooltip_text(self.current_tooltip)
 
         self.connect("enter-notify-event", self._on_hover)
         self.connect(
@@ -92,117 +90,45 @@ class NetworkWidget(Box):
             keyboard_mode="on_demand",
         )
 
-        self._update_saved_networks_list_async()
-        self._scan_networks_async()
-
         self._auto_hide_timer = None
         self._is_hovering = False
 
         self.networks_popup.connect("enter-notify-event", self._on_popup_enter)
         self.networks_popup.connect("leave-notify-event", self._on_popup_leave)
 
-        GLib.timeout_add_seconds(interval, self._refresh)
-        GLib.timeout_add_seconds(5, self._trigger_nm_rescan)
+    def _init_device(self):
+        logger.debug("device ready initialising")
+        self._ethernet_device = self._service.ethernet_device
+        self._wifi_device = self._service.wifi_device
+        if self._wifi_device is not None:
+            self._wifi_device.connect("scanning", self._scanning_handler)
+            self._wifi_device.connect("scan_complete", self._scan_complete_handler)
+            self._wifi_device.connect("network_change", self._refresh)
+            self._wifi_device.connect("enabled", self._wifi_enabled)
+            self._wifi_device.connect("disabled", self._wifi_disabled)
+            self.wifi_on = self._wifi_device.wireless_enabled
+        if self._ethernet_device is not None:
+            self._ethernet_device.connect("enabled", self._ethernet_enabled)
+            self._ethernet_device.connect("changed", self._refresh)
+        self._refresh()
 
-    def _trigger_nm_rescan(self):
-        exec_shell_command_async(["nmcli", "dev", "wifi", "rescan"])
-        return True
+    def _ethernet_enabled(self, is_enabled: bool):
+        self.ethernet_on = is_enabled
+        self._refresh()
 
-    def _scan_networks_async(self):
-        """Scan networks asynchronously using GLib subprocess"""
+    def _wifi_enabled(self):
+        self.wifi_on = True
+        self._refresh()
 
-        self.networks = []
-        exec_shell_command_async(
-            [
-                "nmcli",
-                "-t",
-                "-f",
-                "ACTIVE,SSID,SIGNAL,SECURITY",
-                "dev",
-                "wifi",
-                "list",
-            ],
-            self._on_scan_complete,
-        )
+    def _wifi_disabled(self):
+        self.wifi_on = False
+        self._refresh()
 
-    def _on_scan_complete(self, result):
-        """Handle async scan completion - FIXED callback"""
+    def _scanning_handler(self):
+        self._scanning = True
 
-        try:
-
-            stdout = result
-
-            # Parse networks
-            networks = []
-            if stdout and stdout.strip():
-                for line in stdout.strip().split("\n"):
-                    if not line:
-                        continue
-
-                    parts = line.split(":")
-                    # logger.debug(parts)
-                    if len(parts) >= 4:
-                        ssid = parts[1]
-                        if not ssid or ssid == "--":
-                            continue
-
-                        try:
-                            networks.append(
-                                {
-                                    "ssid": ssid,
-                                    "signal": (
-                                        int(parts[2]) if parts[2].isdigit() else 0
-                                    ),
-                                    "security": parts[1],
-                                    "in_use": parts == "yes",
-                                }
-                            )
-                        except (ValueError, IndexError):
-                            continue
-
-            # Update networks on main thread
-            # logger.debug(f"found following networks after scan \n{networks}")
-            self.networks.extend(networks)
-
-            # print(f"Networks updated: {old_count} -> {new_count}")
-
-        except Exception as e:
-            print(f"Failed to parse scan results: {e}")
-
-    def _on_connections_complete(self, result):
-        try:
-            # FIX: Proper async result handling
-            stdout = result
-
-            saved_ssids = []
-            if stdout:
-                for line in stdout.strip().split("\n"):
-                    if not line:
-                        continue
-                    parts = line.split(":")
-                    if len(parts) >= 2 and parts[1] == "802-11-wireless":
-                        saved_ssids.append(parts)
-            self.saved_connections.extend(saved_ssids)
-            self._on_connections_received()
-
-        except Exception as e:
-            print(f"Failed to parse connections: {e}")
-            self._on_connections_received()
-
-    def _on_connections_received(self):
-        self._populate_networks_ui()
-
-    def _get_saved_connections_async(self):
-        """Get saved connections asynchronously"""
-        try:
-            self.saved_connections = []
-            exec_shell_command_async(
-                ["nmcli", "-t", "-f", "NAME,TYPE", "connection", "show"],
-                self._on_connections_complete,
-            )
-        except Exception as e:
-            print(f"Failed to get connections async: {e}")
-            self._on_connections_received()
+    def _scan_complete_handler(self):
+        self._scanning = False
 
     def _on_popup_enter(self, _, __):
         """Called when mouse enters the popup"""
@@ -241,42 +167,37 @@ class NetworkWidget(Box):
 
     def _toggle_networks_popup(self):
         """Toggle the networks popup"""
+        if not self.wifi_on:
+            return
 
         if self.networks_popup.get_visible():
 
             self.networks_revealer.set_reveal_child(False)
             GLib.timeout_add(250, self.networks_popup.set_visible, False)
         else:
-
-            self._scan_networks_async()
-            self._update_saved_networks_list_async()
+            if self._wifi_device is not None:
+                self._wifi_device.trigger_scan()
+                self._get_saved_connections_async()
 
             self._on_popup_enter(None, None)
-            self.networks_popup.set_visible(True)
-            self.networks_revealer.set_reveal_child(True)
-
-    def _update_saved_networks_list_async(self):
-        """Update networks list asynchronously"""
-
-        self._get_saved_connections_async()
-
-    def _is_wifi_on_callback(self, res):
-        self.wifi_on = "enabled" in res
-
-    def _is_wifi_on(self):
-        """Check if WiFi is enabled"""
-
-        exec_shell_command_async(["nmcli", "radio", "wifi"], self._is_wifi_on_callback)
+            if self._scanning:
+                GLib.timeout_add(250, self._populate_networks_ui)
+                GLib.timeout_add(250, self.networks_popup.set_visible, True)
+                GLib.timeout_add(250, self.networks_revealer.set_reveal_child, True)
 
     def _populate_networks_ui(self):
         """Populate networks UI (called on main thread)"""
+        if self._wifi_device is None:
+            logger.exception("Wifi not available")
+            return
+        self.networks = self._wifi_device.list_all_network()
         logger.debug(f"Updating networks list, {len(self.networks)} networks available")
         logger.debug(self.networks)
 
         for child in self.networks_box.children:
             self.networks_box.remove(child)
 
-        if not self.wifi_on:
+        if not self._wifi_device.wireless_enabled:
             logger.debug("Wifi is Off or not available")
             no_networks = Label(name="wifi-no-networks", label="Wifi is Off")
             self.networks_box.add(no_networks)
@@ -290,62 +211,82 @@ class NetworkWidget(Box):
             self.networks_box.add(no_networks)
             return
 
-        logger.debug(f"Found {len(self.saved_connections)} saved connections")
-
-        # Sort by signal strength
-        self.networks.sort(key=lambda x: x.get("signal", 0), reverse=True)
-
         # Add network buttons (limit to 8)
         network_containers = self._create_network_containers()
         self.networks_box.children = network_containers
+
+    def _on_connections_complete(self, result):
+        try:
+            stdout = result
+
+            saved_ssids = []
+            if stdout:
+                for line in stdout.strip().split("\n"):
+                    if not line:
+                        continue
+                    parts = line.split(":")
+                    if len(parts) >= 2 and parts[1] == "802-11-wireless":
+                        saved_ssids.append(parts[0])
+            self.saved_connections.extend(saved_ssids)
+
+        except Exception as e:
+            print(f"Failed to parse connections: {e}")
+
+    def _on_connections_received(self):
+        self._populate_networks_ui()
+
+    def _get_saved_connections_async(self):
+        """Get saved connections asynchronously"""
+        try:
+            self.saved_connections = []
+            exec_shell_command_async(
+                ["nmcli", "-t", "-f", "NAME,TYPE", "connection", "show"],
+                self._on_connections_complete,
+            )
+        except Exception as e:
+            print(f"Failed to get connections async: {e}")
+            self._on_connections_received()
 
     def _create_network_containers(self):
         network_containers = []
         for network in self.networks[:8]:
             try:
-                ssid, signal, is_secure, connected, is_saved = (
-                    self._get_network_details(network)
-                )
+                ssid, signal, is_secure = self._get_network_details(network)
 
-                logger.debug(
-                    f"Processing network: {ssid}, secure: {is_secure}, \
-                        connected: {connected}, saved: {is_saved}"
-                )
-
-                # Skip connected networks
-                if connected:
+                logger.debug(f"Processing network: {ssid}, secure: {is_secure}")
+                if ssid == "":
                     continue
-
+                is_saved = ssid in self.saved_connections
                 # Create network container
                 network_container, network_button = self._create_network_container(
                     ssid, signal, is_secure, is_saved
                 )
                 # Add password entry if network is secured and not saved
                 # print(ssid,is_saved)
-                self._add_password_entry_box(
-                    ssid, is_secure, is_saved, network_container, network_button
-                )
+                print(self.saved_connections)
+                if not is_saved:
+                    self._add_password_entry_box(
+                        ssid, is_secure, network_container, network_button
+                    )
 
                 network_containers.append(network_container)
                 # print(f"Added network button for: {ssid}")
 
             except Exception as e:
-                print(f"Error adding network {network}: {e}")
+                logger.exception(f"Error adding network {network}: {e}")
                 continue
         return network_containers
 
     def _get_network_details(self, network):
         ssid = network.get("ssid", "")
-        signal = network.get("signal", 0)
+        signal = network.get("strength", 0)
         is_secure = bool(network.get("security", ""))
-        connected = network.get("in_use", False)
-        is_saved = ssid in [i[0] for i in self.saved_connections]
-        return ssid, signal, is_secure, connected, is_saved
+        return ssid, signal, is_secure
 
     def _add_password_entry_box(self, *args):
-        ssid, is_secure, is_saved, network_container, network_button = args
+        ssid, is_secure, network_container, network_button = args
 
-        if is_secure and not is_saved:
+        if is_secure:
             password_box = Box(
                 name="wifi-password-box",
                 orientation="horizontal",
@@ -362,7 +303,9 @@ class NetworkWidget(Box):
             password_entry.get_style_context().add_class("wifi-password-entry")
             password_entry.connect(
                 "activate",
-                lambda entry, s=ssid: self._connect_with_password(s, entry),
+                lambda entry, s=ssid: self._connect_to_network(
+                    s, password_entry.get_text()
+                ),
             )
 
             cancel_btn = Button(
@@ -404,8 +347,8 @@ class NetworkWidget(Box):
             name="wifi-network-available",
             label=label,
             h_align="start",
-            on_clicked=lambda btn, s=ssid, sec=is_secure,
-            saved=is_saved: self._handle_network_click(
+            on_clicked=lambda btn, s=ssid, sec=is_secure, saved=is_saved:
+            self._handle_network_click(
                 s, sec, saved, btn
             ),
         )
@@ -430,11 +373,10 @@ class NetworkWidget(Box):
         if not is_secure:
             # Open network - connect directly
             self._connect_to_network(ssid, None)
-        elif is_saved:
-            # Saved network - try to connect
-            self._connect_to_network(ssid, None)
         else:
-            # Secured network not saved - show password entry
+            if is_saved:
+                self._connect_to_network(ssid, None)
+                logger.debug(f"attempting to connect to {ssid}")
             if hasattr(button, "password_revealer"):
                 # Hide all other password entries first
                 self._hide_all_password_entries()
@@ -457,111 +399,62 @@ class NetworkWidget(Box):
             if isinstance(child, Button) and hasattr(child, "password_revealer"):
                 child.password_revealer.set_reveal_child(False)
 
-    def _connect_with_password(self, ssid, entry):
-        """Connect to network using password from entry"""
-        password = entry.get_text()
-        if password:
-            self._connect_to_network(ssid, password)
-
-    def _connect_to_network_callback(self, res):
-        if "successfully" in res:
-            logger.debug(f"Connected to {self.connected_ssid}")
-            # Hide popup on successful connection
-            self.networks_popup.set_visible(False)
-        else:
-            logger.error(f"Failed to connect to {self.connected_ssid}")
-            self.connected_ssid = ""
+    def _connection_attempt_callback(self, output) -> bool:
+        if "successfully" in output:
+            GLib.idle_add(self.networks_popup.set_visible, False)
+            return True
+        return False
 
     def _connect_to_network(self, ssid, password):
         """Connect to a network with optional password"""
         # print(f"Connecting to {ssid} with {'password' if password else 'no password'}")
-        try:
-            cmd = ["nmcli", "dev", "wifi", "connect", ssid]
-            if password:
-                cmd.extend(["password", password])
-            self.connected_ssid = ssid
-            exec_shell_command_async(cmd, self._connect_to_network_callback)
-
-        except Exception as e:
-            print(f"Connection error: {e}")
+        if self._wifi_device is not None:
+            self._wifi_device.connect_to_ssid(
+                ssid=ssid, password=password, callback=self._connection_attempt_callback
+            )
 
     def _on_hover(self):
         self._refresh()
         self.icon.set_tooltip_text(self.current_tooltip)
 
     def _refresh(self):
-        try:
-            status, strength, tooltip = self._get_active_connection_info()
-            self.current_tooltip = tooltip or "Network"
-            glyph = self._map_glyph(status, strength)
-            self.icon.set_label(glyph)
-        except Exception as e:
-            print(f"Refresh error: {e}")
-        return True
+
+        status, strength, tooltip = self._get_active_connection_info()
+        self.current_tooltip = tooltip or "Network"
+        glyph = self._map_glyph(status, strength)
+        self.icon.set_label(glyph)
 
     def _get_active_connection_info(self):
         """Get active connection info with minimal D-Bus calls"""
-        try:
-            for ac in NM.NetworkManager.ActiveConnections:
-                try:
-                    devices = ac.Devices
-                    if not devices:
-                        continue
-                    dev = devices[0]
+        tooltip = ""
+        status = ""
+        strength = None
+        if self._wifi_device is not None:
+            status = "wifi"
+            strength = None
+            ip = self._wifi_device.ip
+            if self._wifi_device.wireless_enabled:
+                strength = self._wifi_device.strength
+                tooltip += (
+                    f"Wi-Fi: {self._wifi_device.ssid}\nIP: {ip}\nStrength: {strength}%"
+                )
+                return status, strength, tooltip
+            else:
+                status = "off"
+                tooltip += "Wifi disabled\n"
+                strength = 0
+        if self._ethernet_device is not None:
+            status = "ethernet"
+            interface = self._ethernet_device.interface_type
+            ip = self._ethernet_device.ip
+            if interface == "usb":
+                status = "tether"
+            tooltip += f"Ethernet:\nInterface: {interface}\nIP: {ip}"
 
-                    # Try to get device type safely
-                    try:
-                        dtype = int(dev.DeviceType)
-
-                    except Exception as exception:
-                        logger.exception(
-                            f"caught exeception {exception} while getting wifi status"
-                        )
-                        continue
-
-                    logger.debug(f"dtype: {dtype}")
-                    # Get IP safely
-                    ip_addr = "Unknown"
-                    try:
-                        ip4_config = dev.Ip4Config
-                        if (
-                            ip4_config
-                            and hasattr(ip4_config, "AddressData")
-                            and ip4_config.AddressData
-                        ):
-                            ip_addr = str(ip4_config.AddressData[0]["address"])
-                    except:
-                        pass
-
-                    if dtype == 2:  # WIFI
-                        try:
-                            ap = dev.SpecificDevice().ActiveAccessPoint
-                            strength = int(getattr(ap, "Strength", 0))
-                            ssid = str(ap.Ssid) if ap and ap.Ssid else "Unknown"
-                            tooltip = (
-                                f"Wi-Fi: {ssid}\nIP: {ip_addr}\nStrength: {strength}%"
-                            )
-                            return "wifi", strength, tooltip
-                        except:
-                            return "wifi", 0, f"Wi-Fi\nIP: {ip_addr}"
-
-                    elif dtype == 1:  # ETHERNET
-                        try:
-                            iface = str(getattr(dev, "Interface", "")) or ""
-                            mode = "tether" if "usb" in iface.lower() else "ethernet"
-                            tooltip = f"{mode.title()}\nIP: {ip_addr}"
-                            return mode, None, tooltip
-                        except:
-                            return "ethernet", None, f"Ethernet\nIP: {ip_addr}"
-
-                except Exception as e:
-                    logger.debug(f"exception caught: {e}")
-                    continue
-
-        except Exception as e:
-            logger.debug(f"exception caught: {e}")
-
-        return "none", None, "No Connection"
+        if status == "":
+            return "none", None, "No Network devices found"
+        else:
+            return status, strength, tooltip
 
     def _map_glyph(self, status: str, strength: int | None) -> str:
         """
@@ -572,7 +465,8 @@ class NetworkWidget(Box):
         usb = ""
         off = "󰤭"
         logger.debug(f"status: {status}")
-        if status == "wifi" and strength is not None:
+        logger.debug(f"strength: {strength}")
+        if status == "wifi" and strength is not None and self.wifi_on:
             if strength < 25:
                 lvl = "empty"
             elif strength < 50:

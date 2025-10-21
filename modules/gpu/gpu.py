@@ -46,16 +46,14 @@ class GpuWidget(Box):
         self.add(self.icon)
         self.add(self.scales_holder)
 
-        invoke_repeater(1000, self._poll)
+        invoke_repeater(1000, self._process_data)
 
-    def _poll(self):
-        res = exec_shell_command("nvtop -s")
-        if res is not False:
-            self._process_data(res)
-        return True
 
-    def _process_data(self, data: str):
+    def _process_data(self):
         # print("data: ",data)
+        data = exec_shell_command("nvtop -s")
+        if data is False:
+            return
         devices = json.loads(data)
         # print(float(devices[0]["gpu_util"][:-1]))
         self.usage_scale.animate_value(float(devices[0]["gpu_util"][:-1]))
@@ -64,6 +62,8 @@ class GpuWidget(Box):
         self.memory_usage_scale.set_value(float(devices[0]["mem_util"][:-1]))
 
         self._set_tooltip(devices)
+
+        return True
 
     def _set_tooltip(self, devices):
         markup = "<u>GPU Stats</u>\n"

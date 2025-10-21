@@ -4,7 +4,7 @@ from gi.repository import GLib  # type: ignore
 from fabric.widgets.button import Button
 from fabric.utils.helpers import exec_shell_command_async
 from loguru import logger
-
+from services.networkservice import NetworkService
 
 class WifiToggle(Button):
     """
@@ -19,15 +19,14 @@ class WifiToggle(Button):
             label="󰤨",  # Nerd Font WiFi icon
             on_clicked=self._toggle_wifi,
         )
+        self._service = NetworkService()
+        self._service.connect("device_ready",self._init_service)
+        self._wifi_service = None
         self.wifi_available = True
         self.wifi_on = True
-        self._is_wifi_available()
-        self._is_wifi_on()
         self.set_hexpand(True)
         self.set_vexpand(False)
 
-        # Set initial state
-        self._refresh()
         self.connect(
             "state-flags-changed",
             lambda btn, *_: (
@@ -39,22 +38,38 @@ class WifiToggle(Button):
             ),
         )
         # Poll every 5s to keep in sync
-        GLib.timeout_add_seconds(1, self._refresh)
         self.set_tooltip_text("Toggle Wifi")
+    def _init_service(self):
+        logger.debug("device ready")
+        if self._service.wifi_device is not None:
+            self._wifi_service = self._service.wifi_device
+            self._wifi_service.connect("enabled",self._wifi_enabled)
+            self._wifi_service.connect("disabled",self._wifi_disabled)
+            self._is_wifi_on()
+            self._is_wifi_available()
+            self._refresh()
 
-    def _wifi_on_callback(self, output):
-        self.wifi_on = output == "enabled"
+    def _wifi_enabled(self):
+        logger.debug("detected wifi enable")
+        self.wifi_on = True
+        self._refresh()
+    
+    def _wifi_disabled(self):
+        logger.debug("detected wifi disable")
+        self.wifi_on = False
+        self._refresh()
 
     def _is_wifi_on(self):
-        exec_shell_command_async(["nmcli", "radio", "wifi"], self._wifi_on_callback)
+        if self._wifi_service is not None:
+            self.wifi_on = self._wifi_service.wireless_enabled
 
     def _toggle_wifi(self, _):
         """Toggle WiFi on/off"""
         if not self.wifi_available:
             return  # Can't toggle if WiFi hardware isn't available
-
-        cmd = ["off", "on"][not self.wifi_on]
-        exec_shell_command_async(["nmcli", "radio", "wifi", cmd])
+        if self._wifi_service is not None:
+            self._wifi_service.wireless_enabled = not self.wifi_on
+            self._refresh()
 
     def _wifi_check_callback(self, output):
         logger.debug(f"wifi toggle output: {output}")
@@ -71,10 +86,9 @@ class WifiToggle(Button):
 
     def _refresh(self) -> bool:
         """Update WiFi status and icon"""
-
+        logger.debug("refreshing wifi toggle")
+        logger.debug(f"wifi_on: {self.wifi_on}")
         ctx = self.get_style_context()
-        self._is_wifi_on()
-        self._is_wifi_available()
         if not self.wifi_available:
             # WiFi hardware not available - show slash icon
             self.set_label("󰤭")  # WiFi off/slash icon
