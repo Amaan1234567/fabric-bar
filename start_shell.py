@@ -12,6 +12,8 @@ from widgets.top_bar import TopBar
 from widgets.corners import ScreenCorners
 
 if __name__ == "__main__":
+    logger.remove()
+
     # Add a new sink, filtering out messages from 'noisy_module'
     logger.add(
         sys.stderr,
