@@ -1,7 +1,7 @@
 """contains notification Popups widget and the window that it belongs to"""
 
-from os import path
-
+import os
+from venv import logger
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button
@@ -174,9 +174,10 @@ class NotificationPopup(Box):
                 loader.close()
                 return pixbuf_cropping_if_image_is_not_1_1(loader.get_pixbuf())
 
-            if getattr(notification, "image_path", None) and path.exists(
+            if getattr(notification, "image_path", None) and os.path.exists(
                 notification.image_path
             ):
+                logger.info("trying to find image in path")
                 return pixbuf_cropping_if_image_is_not_1_1(
                     GdkPixbuf.Pixbuf.new_from_file_at_scale(
                         notification.image_path,
@@ -189,18 +190,20 @@ class NotificationPopup(Box):
             if getattr(notification, "app_icon", None):
                 app_icon = notification.app_icon
                 # Try as file path first
-                if path.exists(app_icon):
+                if os.path.exists(app_icon):
                     return GdkPixbuf.Pixbuf.new_from_file_at_scale(
                         app_icon,
                         NOTIFICATION_IMAGE_SIZE,
                         NOTIFICATION_IMAGE_SIZE,
                         True,
                     )
+                logger.info("trying to find icon in theme")
                 # Otherwise, try from icon theme
                 theme = Gtk.IconTheme.get_default()
                 info = theme.lookup_icon(app_icon, NOTIFICATION_IMAGE_SIZE, 0)
                 if info:
-                    return info.load_icon()
+                    icon_pixbuf = info.load_icon()
+                    return pixbuf_cropping_if_image_is_not_1_1(icon_pixbuf)
         except Exception as e:
             print(f"Failed to load notification icon: {e}")
         if path := APP_ICON_MAP.get(self._notification.app_name.lower()):

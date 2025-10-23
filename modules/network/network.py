@@ -230,7 +230,7 @@ class NetworkWidget(Box):
             self.saved_connections.extend(saved_ssids)
 
         except Exception as e:
-            print(f"Failed to parse connections: {e}")
+            logger.exception(f"Failed to parse connections: {e}")
 
     def _on_connections_received(self):
         self._populate_networks_ui()
@@ -244,7 +244,7 @@ class NetworkWidget(Box):
                 self._on_connections_complete,
             )
         except Exception as e:
-            print(f"Failed to get connections async: {e}")
+            logger.exception(f"Failed to get connections async: {e}")
             self._on_connections_received()
 
     def _create_network_containers(self):
@@ -263,7 +263,7 @@ class NetworkWidget(Box):
                 )
                 # Add password entry if network is secured and not saved
                 # print(ssid,is_saved)
-                print(self.saved_connections)
+                logger.debug(self.saved_connections)
                 if not is_saved:
                     self._add_password_entry_box(
                         ssid, is_secure, network_container, network_button
@@ -401,6 +401,7 @@ class NetworkWidget(Box):
 
     def _connection_attempt_callback(self, output) -> bool:
         if "successfully" in output:
+            exec_shell_command_async(f"notify-send \"Network Updated\" \"Successfully connected to {self._wifi_device.ssid}\"")
             GLib.idle_add(self.networks_popup.set_visible, False)
             return True
         return False

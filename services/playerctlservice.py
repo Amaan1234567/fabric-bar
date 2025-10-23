@@ -50,7 +50,7 @@ class SimplePlayerctlService(Service):
 
     def _on_player_appeared(self, manager, name):
         """Handle new player"""
-        print(f"add_player {name.name}")
+        logger.info(f"adding_player {name.name}")
 
         if name.name not in self.players:
             try:
@@ -81,7 +81,7 @@ class SimplePlayerctlService(Service):
 
     def _on_player_vanished(self, manager, player):
         """Handle player disappearing"""
-        print(f"player {player.name} vanished")
+        logger.info(f"player {player.name} vanished")
 
         player_name = player.name
         if player_name in self.players.keys():
@@ -100,7 +100,6 @@ class SimplePlayerctlService(Service):
         if len(self.players.keys()) == 0:
             return None
         if player_name is None:
-            print(self.players)
             player_name = list(self.players.keys())[0]
 
         if player_name not in self.players:
