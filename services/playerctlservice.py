@@ -25,7 +25,7 @@ class SimplePlayerctlService(Service):
     def _discover_players(self):
         """Find all available players"""
         for name in self.manager.props.player_names:
-
+            logger.info(f"player found: {name.name}")
             if name.name not in self.players:
                 try:
                     player = Playerctl.Player.new_from_name(name)
@@ -84,8 +84,8 @@ class SimplePlayerctlService(Service):
         print(f"player {player.name} vanished")
 
         player_name = player.name
-        if player_name in self.players:
-            del self.players[player_name]
+        if player_name in self.players.keys():
+            self.players.pop(player_name)
         self.emit("track-change")
 
     def _get_players(self):
@@ -100,7 +100,7 @@ class SimplePlayerctlService(Service):
         if len(self.players.keys()) == 0:
             return None
         if player_name is None:
-            # print(self.players)
+            print(self.players)
             player_name = list(self.players.keys())[0]
 
         if player_name not in self.players:

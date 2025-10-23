@@ -125,8 +125,9 @@ class Mpris(Box):
             logger.exception("encountered_error: ", e)
 
     def _update_widget(self):
+        logger.info("updating mpris widget")
         if data := self.service.get_metadata():
-
+            logger.info(f"mpris metadata: {data}")
             art_url, title, song_length = (
                 data["art_url"],
                 data["title"],

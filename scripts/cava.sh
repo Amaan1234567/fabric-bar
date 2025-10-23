@@ -20,7 +20,7 @@ cat >"$config_file" <<EOF
 [general]
 bars = $1
 autosens = 1
-framerate = 60
+framerate = 144
 [input]
 method = pulse
 source = auto
