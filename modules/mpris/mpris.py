@@ -14,6 +14,7 @@ from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, trunca
 
 from modules.mpris.mpris_popup import MprisPopup
 
+
 class Mpris(Box):
     """mpris widget that is shown in the bar, which shows truncated song name and album art"""
 
@@ -119,7 +120,9 @@ class Mpris(Box):
             pix = GdkPixbuf.Pixbuf.new_from_stream(f.read_finish(res), None)
 
             if pixbuf := pix:
-                self.album_art.set_from_pixbuf(pixbuf_cropping_if_image_is_not_1_1(pixbuf, 30))
+                self.album_art.set_from_pixbuf(
+                    pixbuf_cropping_if_image_is_not_1_1(pixbuf, 30)
+                )
                 self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:
             logger.exception("encountered_error: ", e)
@@ -140,7 +143,7 @@ class Mpris(Box):
             if song_length:
                 self.song_progress.max_value = self.song_length
             self.title_label.set_label(truncate(title.strip() or "—"))
-            if art_url not in (self.temp_url_cache ,""):
+            if art_url not in (self.temp_url_cache, ""):
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
         else:

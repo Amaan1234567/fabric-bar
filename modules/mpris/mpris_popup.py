@@ -186,7 +186,9 @@ class MprisPopup(PopupWindow):
             pix = GdkPixbuf.Pixbuf.new_from_stream(stream, None)
 
             if pixbuf := pix:
-                self.album_art_overlay.set_from_pixbuf(pixbuf_cropping_if_image_is_not_1_1(pixbuf))
+                self.album_art_overlay.set_from_pixbuf(
+                    pixbuf_cropping_if_image_is_not_1_1(pixbuf)
+                )
                 self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:
             logger.exception("encountered error:", e)
@@ -224,7 +226,7 @@ class MprisPopup(PopupWindow):
             self.song_artist.set_label(truncate(artist.strip() or "—", max_len=20))
             self.scale.max_value = self.song_length
 
-            if art_url not in (self.temp_url_cache,""):
+            if art_url not in (self.temp_url_cache, ""):
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
 
