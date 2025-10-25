@@ -65,7 +65,7 @@ class Cpu(Box):
 
         usage_txt = "<tt>Core usage: <span>"
         for core in per_core_usage:
-            usage_txt += bar_length[int((core / 100) * 8) - 1]
+            usage_txt += bar_length[int((core / 100) * (len(bar_length) - 1))]
         usage_txt += "</span></tt>\n"
         if cur_freq.current <= 1000:
             color = "#A3DC9A"
