@@ -27,6 +27,8 @@ class MprisPlayerStack(Stack):
         self.connect("scroll-event", self._on_scroll_handler)
 
     def _create_players(self):
+        self._service.manager.connect("name-appeared", self._add_player)
+        self._service.manager.connect("name-vanished", self._remove_player)
         players: dict[str, Player] = self._service.players
         for _, player in players.items():
             mpris_player = MprisPlayer(player)
@@ -36,8 +38,6 @@ class MprisPlayerStack(Stack):
                 "changed",
                 lambda player: self.set_visible_child(self.players[player.name]),
             )
-            self._service.manager.connect("name-appeared", self._add_player)
-            self._service.manager.connect("name-vanished", self._remove_player)
 
     def _add_player(self, _, player_name: Playerctl.PlayerName):
         name = player_name.name
