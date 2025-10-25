@@ -60,9 +60,8 @@ class AudioWidget(Box):
         speaker = self.audio.speaker
         if not speaker:
             return
-
-        speaker.connect("notify::volume", self._update_ui)
-        speaker.connect("notify::is-muted", self._update_ui)
+        
+        speaker.connect("changed", self._update_ui)
         self._update_ui()
 
     @cooldown(0.1)
