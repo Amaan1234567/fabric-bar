@@ -1,6 +1,10 @@
 # fabric-bar
-custom bar and widgets written in fabric for my fedora hyprland rice
-![demo video](assets/repo_assets/demo.mp4)
+custom
+
+https://github.com/user-attachments/assets/7a3d0675-f824-4df3-b435-bc3348000d30
+
+ bar and widgets written in fabric for my fedora hyprland rice
+
 
 # setup
 ```bash
