@@ -1,113 +1,51 @@
 """holds the playerctl service"""
 
 import os
-from loguru import logger
-from gi.repository import Playerctl
+from fabric import Property
 from fabric.core.service import Service, Signal
+from loguru import logger
+from gi.repository import Playerctl  # type: ignore
 
 
-class SimplePlayerctlService(Service):
-    """Simple, lightweight service for MPRIS players"""
+class Player(Service):
+    """mpris player service"""
 
-    def __init__(self, **kwargs):
+    @Signal
+    def changed(self) -> None:
+        """signal to request focus"""
+
+    def __init__(self, player: Playerctl.Player, **kwargs):
         super().__init__(**kwargs)
-        self.manager = Playerctl.PlayerManager()
+        self._player = player
+        self._connect_player_signals_with_emits(player)
         self.temp_art_path = None
-        self.players = {}  # player_name -> Playerctl.Player
 
-        # Connect manager signals
-        self.manager.connect("name-appeared", self._on_player_appeared)
-        self.manager.connect("name-vanished", self._on_player_vanished)
+    @Property(str, "readable")
+    def name(self):
+        """property to get name of player"""
+        return self._player.props.player_name
 
-        # Discover existing players
-        self._discover_players()
+    def _emit_update(self, _, __):
+        self.emit("changed")
 
-    def _discover_players(self):
-        """Find all available players"""
-        for name in self.manager.props.player_names:
-            logger.info(f"player found: {name.name}")
-            if name.name not in self.players:
-                try:
-                    player = Playerctl.Player.new_from_name(name)
-                    # player.connect("metadata",lambda _: self.emit_update())
-                    self._connect_player_signals_with_emits(player)
-                    self.players[name.name] = player
-                except Exception as exception:
-                    logger.exception(
-                        f"Exception encountered in Playerctl: {exception} "
-                    )
-
-    def _connect_player_signals_with_emits(self, player) -> Playerctl.Player:
-        signals = ["metadata", "loop-status", "seeked", "shuffle"]
-        for signal in signals:
-            player.connect(signal, lambda _: (self._emit_update(), False))
-        for signal in [
+    def _connect_player_signals_with_emits(self, player) -> None:
+        signals = [
+            "metadata",
+            "loop-status",
+            "seeked",
+            "shuffle",
             "playback-status::playing",
             "playback-status::paused",
             "playback-status::ended",
-        ]:
-            player.connect(signal, lambda _: (self._emit_track_status(), False))
+        ]
+        for signal_name in signals:
+            player.connect(signal_name, self._emit_update)
 
-    def _on_player_appeared(self, manager, name):
-        """Handle new player"""
-        logger.info(f"adding_player {name.name}")
-
-        if name.name not in self.players:
-            try:
-                player = Playerctl.Player.new_from_name(name)
-                self._connect_player_signals_with_emits(player)
-
-                self.players[name.name] = player
-            except Exception as exception:
-                logger.exception(f"Exception encountered in Playerctl: {exception} ")
-                pass
-
-    @Signal
-    def track_change(self) -> None:
-        """signal for track change"""
-
-    @Signal
-    def track_status_change(self) -> None:
-        """signal for status change"""
-
-    def _emit_track_status(self):
-        self.emit("track-status-change")
-
-    def _emit_update(self):
-        # print("emitting after recieving metadata signal")
-        self.notify("changed")
-        self.emit("track-change")
-        return False
-
-    def _on_player_vanished(self, manager, player):
-        """Handle player disappearing"""
-        logger.info(f"player {player.name} vanished")
-
-        player_name = player.name
-        if player_name in self.players.keys():
-            self.players.pop(player_name)
-        self.emit("track-change")
-
-    def _get_players(self):
-        """Get list of all player names"""
-        return list(self.players.keys())
-
-    def get_metadata(self, player_name=None):
+    def get_metadata(self):
         """Get metadata for player (or first available player if None)"""
-        if not self.players:
-            return None
 
-        if len(self.players.keys()) == 0:
-            return None
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-
-        if player_name not in self.players:
-            return None
-
-        player = self.players[player_name]
         try:
-            metadata = player.props.metadata
+            metadata = self._player.props.metadata
             if not metadata:
                 return None
 
@@ -131,61 +69,36 @@ class SimplePlayerctlService(Service):
                 "length": (
                     length / 1000000 if length is not None and length > 0 else 0
                 ),  # Convert to seconds
-                "player_name": player_name,
+                "player_name": self._player.props.player_name,
             }
         except Exception as exception:
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return None
 
-    def get_position(self, player_name=None):
+    def get_position(self):
         """Get current position in seconds"""
-        if not self.players:
-            return 0
-
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-
-        if player_name not in self.players:
-            return 0
-
         try:
-            position = self.players[player_name].props.position
+            position = self._player.props.position
             # print("position: ",position)
             return position / 1000000 if position > 0 else 0  # Convert to seconds
         except Exception as exception:
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return 0
 
-    def set_position(self, position, player_name=None):
+    def set_position(self, position):
         """set given position(time in seconds) in player"""
-        if not self.players:
-            return 0
-
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-
-        if player_name not in self.players:
-            return 0
 
         try:
-            player: Playerctl.Player = self.players[player_name]
+            player: Playerctl.Player = self._player
             player.set_position(int(position * 1e6))
         except Exception as exception:
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
 
-    def get_status(self, player_name=None):
+    def get_status(self):
         """Get playback status"""
-        if not self.players:
-            return "stopped"
-
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-
-        if player_name not in self.players:
-            return "stopped"
 
         try:
-            status = self.players[player_name].props.playback_status
+            status = self._player.props.playback_status
             if hasattr(status, "value_nick"):
                 return status.value_nick.lower()
             else:
@@ -194,36 +107,20 @@ class SimplePlayerctlService(Service):
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return "stopped"
 
-    def get_shuffle(self, player_name=None):
+    def get_shuffle(self):
         """Get shuffle status"""
-        if not self.players:
-            return False
+        try:
+            return bool(self._player.props.shuffle)
+        except Exception as exception:
+            logger.exception(f"Exception encountered in Playerctl: {exception} ")
 
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-            try:
-                return bool(self.players[player_name].props.shuffle)
-            except Exception as exception:
-                logger.exception(f"Exception encountered in Playerctl: {exception} ")
-
-        if player_name not in self.players:
-            return False
-
-    def get_loop(self, player_name=None):
+    def get_loop(self):
         """Get loop status"""
-        if not self.players:
-            return "none"
-
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-
-        if player_name not in self.players:
-            return "none"
 
         try:
-            loop_status = self.players[player_name].props.loop_status
+            loop_status = self._player.props.loop_status
             if hasattr(loop_status, "value_nick"):
-                return loop_status.value_nick.lower()
+                return loop_status.value_nick.lower()  # type: ignore
             else:
                 return str(loop_status).rsplit(".", maxsplit=1)[-1].lower()
         except Exception as exception:
@@ -231,92 +128,52 @@ class SimplePlayerctlService(Service):
             return "none"
 
     # Control methods
-    def play_pause(self, player_name=None):
+    def play_pause(self):
         """Toggle play/pause"""
-        if not self.players:
-            return False
-
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-
-        if player_name not in self.players:
-            return False
 
         try:
-            self.players[player_name].play_pause()
+            self._player.play_pause()
             return True
         except Exception as exception:
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return False
 
-    def next_track(self, player_name=None):
+    def next_track(self):
         """Next track"""
-        if not self.players:
-            return False
-
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-
-        if player_name not in self.players:
-            return False
 
         try:
-            self.players[player_name].next()
+            self._player.next()
             return True
         except Exception as exception:
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return False
 
-    def previous_track(self, player_name=None):
+    def previous_track(self):
         """Previous track"""
-        if not self.players:
-            return False
-
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-
-        if player_name not in self.players:
-            return False
 
         try:
-            self.players[player_name].previous()
+            self._player.previous()
             return True
         except Exception as exception:
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return False
 
-    def toggle_shuffle(self, player_name=None):
+    def toggle_shuffle(self):
         """Toggle shuffle"""
-        if not self.players:
-            return False
-
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-
-        if player_name not in self.players:
-            return False
 
         try:
-            current = self.players[player_name].props.shuffle
-            self.players[player_name].set_shuffle(not current)
+            current = self._player.props.shuffle
+            self._player.set_shuffle(not current)
             return True
         except Exception as exception:
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
             return False
 
-    def cycle_loop(self, player_name=None):
+    def cycle_loop(self):
         """Cycle loop mode"""
-        if not self.players:
-            return False
-
-        if player_name is None:
-            player_name = list(self.players.keys())[0]
-
-        if player_name not in self.players:
-            return False
 
         try:
-            current = self.players[player_name].props.loop_status
+            current = self._player.props.loop_status
             if current == Playerctl.LoopStatus.NONE:
                 new_status = Playerctl.LoopStatus.PLAYLIST
             elif current == Playerctl.LoopStatus.PLAYLIST:
@@ -324,7 +181,7 @@ class SimplePlayerctlService(Service):
             else:
                 new_status = Playerctl.LoopStatus.NONE
 
-            self.players[player_name].set_loop_status(new_status)
+            self._player.set_loop_status(new_status)
             return True
         except Exception as exception:
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
@@ -391,3 +248,84 @@ class SimplePlayerctlService(Service):
             except TypeError as type_error:
                 logger.exception(f"Exception encountered in Playerctl: {type_error} ")
                 return 0
+
+
+class SimplePlayerctlService(Service):
+    """Simple, lightweight service for MPRIS players"""
+
+    @Signal
+    def changed(self) -> None:
+        """signal to show state-change"""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.manager: Playerctl.PlayerManager = Playerctl.PlayerManager()
+        self.current_player: None | Player = None
+        self._players: dict[str, Player] = {}
+        # Discover existing players
+        self._discover_players()
+
+        # Connect manager signals
+        self.manager.connect("name-appeared", self._on_player_appeared)
+        self.manager.connect("name-vanished", self._on_player_vanished)
+
+    @Property(dict, "read-write")
+    def players(self) -> dict:
+        """property to access players"""
+        return self._players
+
+    def _discover_players(self):
+        """Find all available players"""
+        for name in self.manager.props.player_names:  # type: ignore
+            logger.info(f"player found: {name.name}")
+            if name.name not in self._players:
+                try:
+                    player = Playerctl.Player.new_from_name(name)
+                    player = Player(player)
+                    self._players[name.name] = player
+                    player.connect("changed", self._update_current_player)
+                except Exception as exception:
+                    logger.debug(f"Exception encountered in Playerctl: {exception} ")
+        if len(self._players) != 0:
+            first_player_name = list(self._players.keys())[0]
+            logger.debug(first_player_name)
+            self.current_player = self._players[first_player_name]
+
+    def _on_player_appeared(self, _, name):
+        """Handle new player"""
+        logger.info(f"adding_player {name.name}")
+
+        if name.name not in self._players:
+            try:
+                player = Playerctl.Player.new_from_name(name)
+                player = Player(player)
+                self._players[name.name] = player
+                self.current_player = player
+                player.connect("changed", self._update_current_player)
+                self.emit("changed")
+            except Exception as exception:
+                logger.exception(f"Exception encountered in Playerctl: {exception} ")
+
+    def _update_current_player(self, player: Player):
+        self.current_player = player
+        logger.info(f"mpris player {player.name} state changed")
+        self.emit("changed")
+
+    def _on_player_vanished(self, _, player):
+        """Handle player disappearing"""
+        logger.info(f"player {player.name} vanished")
+
+        player_name = player.name
+        if player_name in self._players:
+            self._players.pop(player_name)
+        if len(self._players) == 0:
+            self.current_player = None
+            self.emit("changed")
+            return
+        first_player_name = list(self._players.keys())[0]
+        self.current_player = self._players[first_player_name]
+        self.emit("changed")
+
+    def get_players_names(self):
+        """Get list of all player names"""
+        return list(self._players.keys())

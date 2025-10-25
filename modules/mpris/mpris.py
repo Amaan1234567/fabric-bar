@@ -51,10 +51,7 @@ class Mpris(Box):
 
         self.song_length = 0
         self.service = SimplePlayerctlService()
-        self._update_widget()
-        self.service.connect("track-change", self._update_widget)
-        self.service.connect("track-status-change", self._on_status_change)
-
+        self._init_widget_data()
         self.overlay = MprisPopup(parent=window, pointing_to=self)
 
         self.overlay_hide_timeout_id = None
@@ -65,21 +62,28 @@ class Mpris(Box):
         self.overlay.do_reposition("x")
 
         invoke_repeater(2000, self._update_progress)
+
+    def _init_widget_data(self):
+        if self.service.current_player is not None:
+            self.service.connect("changed", self._update_widget)
+            self.service.connect("changed", self._on_status_change)
         self._update_widget()
         self._on_status_change()
 
     def _update_progress(self):
-        position = self.service.get_position()
+        if self.service.current_player is None:
+            return
+        position = self.service.current_player.get_position()  # type: ignore
         # print(self.song_length)
         if self.song_length != 0:
             # print(position)
             if abs(self.song_progress.value - position) / self.song_length > 0.05:
                 self.song_progress.animate_value(position)
-            self.song_progress.set_value(position)
+            self.song_progress.set_value(position)  # type: ignore
         return True
 
     def _hover_trigger(self):
-        self.delay = GLib.timeout_add(500, self._on_hover_enter)
+        self.delay = GLib.timeout_add(300, self._on_hover_enter)
 
     def _on_hover_enter(self, *_):
         # print("triggered")
@@ -124,11 +128,17 @@ class Mpris(Box):
                     pixbuf_cropping_if_image_is_not_1_1(pixbuf, 30)
                 )
                 self.temp_art_pixbuf_cache = pixbuf
-        except Exception as e:
+        except Exception as e:  # type: ignore
             logger.exception("encountered_error: ", e)
 
     def _update_widget(self):
-        if data := self.service.get_metadata():
+        if self.service.current_player is None:
+            self.album_art.set_visible(False)
+            self.song_progress.set_visible(False)
+            self.title_label.set_visible(False)
+            return
+
+        if data := self.service.current_player.get_metadata():  # type: ignore
             logger.info(f"mpris metadata: {data}")
             art_url, title, song_length = (
                 data["art_url"],
@@ -153,5 +163,8 @@ class Mpris(Box):
         return True
 
     def _on_status_change(self):
-        status = self.service.get_status()
+        if self.service.current_player is None:
+            return
+        status = self.service.current_player.get_status()  # type: ignore
         self.pause_icon.set_label("" if status != "playing" else "")
+        self._update_widget()
