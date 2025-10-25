@@ -64,9 +64,8 @@ class Mpris(Box):
         invoke_repeater(2000, self._update_progress)
 
     def _init_widget_data(self):
-        if self.service.current_player is not None:
-            self.service.connect("changed", self._update_widget)
-            self.service.connect("changed", self._on_status_change)
+        self.service.connect("changed", self._update_widget)
+        self.service.connect("changed", self._on_status_change)
         self._update_widget()
         self._on_status_change()
 
