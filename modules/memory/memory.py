@@ -18,7 +18,7 @@ class Memory(Box):
         super().__init__(orientation="h", spacing=1, name="memory")
 
         # Create and pack the label
-        self.icon = Label("", name="memory-label")
+        self.icon = Label("", name="memory-label")
         self.progress_bar = AnimatedCircularProgressBar(
             name="memory-progress-bar",
             child=self.icon,
