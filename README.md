@@ -10,6 +10,7 @@ https://github.com/user-attachments/assets/7a3d0675-f824-4df3-b435-bc3348000d30
 ```bash
 sudo dnf copr enable materka/wallust
 sudo dnf install gtk3-devel cairo-devel gtk-layer-shell-devel glib2 gobject-introspection-devel python3-devel python-pip python3-gobject python3-cairo python3-loguru pkgconf cava NetworkManager-libnm-devel webp-pixbuf-loader blueman blueman-applet playerctl jetbrains-mono-fonts wallust
+sudo dnf remove tuned-ppd && sudo dnf install power-profiles-daemon
 ```
 for other distro's refer to https://wiki.ffpy.org/getting-started/installation-guide/
 ```bash
