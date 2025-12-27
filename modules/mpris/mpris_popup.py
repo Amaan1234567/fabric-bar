@@ -2,7 +2,7 @@
 
 from fabric.widgets.revealer import Revealer
 from modules.mpris.mpris_player_stack import MprisPlayerStack
-from custom_widgets.popwindow import PopupWindow
+from custom_widgets.popup_window import PopupWindow
 
 
 class MprisPopup(PopupWindow):

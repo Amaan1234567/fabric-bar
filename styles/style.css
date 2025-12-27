@@ -727,3 +727,44 @@ tooltip {
 #notification-body {
   font-size: 16px;
 }
+
+#volume-osd-revealer {
+  background-color: transparent;
+}
+
+#volume-osd-box {
+  padding:5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-bottom: 100px;
+  background-color: @backgroundWaybar;
+  border-radius: 10px;
+  border: solid;
+  border-width: 2px;
+  border-color: @color4;
+}
+
+#osd-icon {
+  color: @color4;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+
+#volume-osd-scale trough {
+  padding:0;
+  margin:0;
+  /* border:solid;
+  border-width: 2px; */
+  border-radius: 10px;
+  border-color: @color4;
+  min-width: 150px;
+  min-height: 30px;
+}
+
+
+#volume-osd-scale highlight {
+  border-radius: 10px;
+  background: @color4;
+  
+}

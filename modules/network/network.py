@@ -11,7 +11,7 @@ from fabric.utils.helpers import exec_shell_command_async
 from gi.repository import GLib, Gdk #type: ignore
 
 
-from custom_widgets.popwindow import PopupWindow
+from custom_widgets.popup_window import PopupWindow
 from services.networkservice import NetworkService, WifiService, EthernetService
 
 

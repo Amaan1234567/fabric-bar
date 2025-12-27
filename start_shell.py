@@ -8,8 +8,10 @@ from fabric import Application
 from modules.control_center import control_center
 from modules.notification.notification_window import NotificationPopupWindow
 
+from widgets import volume_osd
 from widgets.top_bar import TopBar
 from widgets.corners import ScreenCorners
+from widgets.volume_osd import VolumeOSD
 
 if __name__ == "__main__":
     logger.remove()
@@ -24,9 +26,10 @@ if __name__ == "__main__":
     status_bar = TopBar()
     corners = ScreenCorners()
     notifications = NotificationPopupWindow()
+    volume_osd = VolumeOSD()
     app = Application(
         "hypr-fabric-bar",
-        windows=[status_bar, corners, control_center, notifications],
+        windows=[status_bar, corners, control_center, notifications, volume_osd],
     )
 
     style_path = get_relative_path("styles/style.css")
