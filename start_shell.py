@@ -21,7 +21,7 @@ if __name__ == "__main__":
     logger.add(
         sys.stderr,
         filter=lambda record: record["name"] != "fabric.widgets.svg",
-        level="DEBUG",
+        level="INFO",
     )
 
     status_bar = TopBar()

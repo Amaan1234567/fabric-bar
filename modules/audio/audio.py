@@ -4,6 +4,7 @@ Module that holds the AudioWidget class which shows the current volume and other
 
 from typing import Any
 from loguru import logger
+from gi.repository import GLib
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.audio.service import Audio
@@ -39,7 +40,6 @@ class AudioWidget(Box):
             value=0,
             h_expand=True,
             v_expand=True,
-            has_origin=True,
             increments=[1, 5],
         )
         self.scale.connect("change-value", self._on_scroll)
@@ -61,15 +61,12 @@ class AudioWidget(Box):
         if not speaker:
             return
         
-        speaker.connect("changed", self._update_ui)
+        speaker.connect("notify::volume", self._update_ui)
         self._update_ui()
         
     def _update_ui(self, *_: Any):
         """Refresh progress, icon, label, and tooltip."""
-
-        if self.scrolling:
-            return
-
+        
         spk = self.audio.speaker
         if not spk:
             return
@@ -78,14 +75,13 @@ class AudioWidget(Box):
         desc: str = (spk.description or "").lower()
         muted: bool = spk.muted
 
-        logger.debug(f"current speaker obj: {spk}")
-        logger.debug(f"speaker desc: {desc}")
-        logger.info(f"speaker-muted: {muted}")
-        logger.debug(f"audio-scale value:{self.scale.value}")
+        # logger.debug(f"current speaker obj: {spk}")
+        # logger.debug(f"speaker desc: {desc}")
+        # logger.info(f"speaker-muted: {muted}")
+        # logger.debug(f"audio-scale value:{self.scale.value}")
 
-        if abs(self.scale.value - vol) > VOLUME_MIN_STEP:
-            self.scale.animate_value(vol)
-        self.scale.set_value(vol)
+        
+        self.scale.animate_value(vol)
 
         if muted or vol == 0:
             icon = self._ICONS["muted"]
@@ -110,17 +106,11 @@ class AudioWidget(Box):
         )
         self.set_tooltip_markup(tip)
 
-    @cooldown(0.01)
+    @cooldown(0.1)
     def _on_scroll(self, _, __, value: float):
         """Scroll on the ring to change volume."""
-        self.scrolling = True
 
         logger.debug(f"audio scale value returned on value change: {value}")
         logger.debug(f"current change in volume: {abs(self.scale.value)}")
-
-        if abs(self.scale.value - value) > VOLUME_MIN_STEP:
-            self.scale.animate_value(value)
-        self.scale.set_value(value)
         self.audio.speaker.volume = value
 
-        self.scrolling = False

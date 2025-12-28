@@ -85,8 +85,8 @@ class VolumeOSD(PopupWindow):
         if not speaker:
             return
 
-        speaker.connect("changed", self._update_ui)
-
+        speaker.connect("notify::volume", self._update_ui)
+    
     def _update_ui(self, *_: Any):
         """Refresh progress, icon, label, and tooltip."""
         self._show_popup()
@@ -98,11 +98,11 @@ class VolumeOSD(PopupWindow):
         desc: str = (spk.description or "").lower()
         muted: bool = spk.muted
 
-        logger.debug(f"current speaker obj: {spk}")
-        logger.debug(f"speaker desc: {desc}")
-        logger.info(f"speaker-muted: {muted}")
-        logger.debug(f"speaker-volume: {vol}")
-        logger.debug(f"audio-scale value:{self.scale.value}")
+        # logger.debug(f"current speaker obj: {spk}")
+        # logger.debug(f"speaker desc: {desc}")
+        # logger.info(f"speaker-muted: {muted}")
+        # logger.debug(f"speaker-volume: {vol}")
+        # logger.debug(f"audio-scale value:{self.scale.value}")
 
         self.scale.animate_value(vol)
         # GLib.timeout_add(10,self.scale.set_value,vol)
