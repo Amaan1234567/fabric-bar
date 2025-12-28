@@ -459,7 +459,7 @@ tooltip {
   margin-left: 2px;
 }
 
-#network-overlay-window {
+#networks-overlay-window {
   background-color: transparent;
   border-radius: 15px;
   
@@ -728,8 +728,13 @@ tooltip {
   font-size: 16px;
 }
 
-#volume-osd-revealer {
+/* #volume-osd-revealer {
   background-color: transparent;
+} */
+
+#volume-osd-window {
+  background-color: transparent;
+
 }
 
 #volume-osd-box {
@@ -737,15 +742,15 @@ tooltip {
   padding-left: 10px;
   padding-right: 10px;
   margin-bottom: 100px;
-  background-color: @backgroundWaybar;
+  background-color:   alpha(@backgroundWaybar, 0.9);
   border-radius: 10px;
   border: solid;
-  border-width: 2px;
-  border-color: @color4;
+  border-width: 1px;
+  border-color: @color3;
 }
 
 #osd-icon {
-  color: @color4;
+  color: @color3;
   font-size: 28px;
   font-weight: 600;
 }
@@ -756,15 +761,15 @@ tooltip {
   margin:0;
   /* border:solid;
   border-width: 2px; */
-  border-radius: 10px;
-  border-color: @color4;
-  min-width: 150px;
-  min-height: 30px;
+  border-radius: 5px;
+  border-color: @color3;
+  min-width: 250px;
+  min-height: 20px;
 }
 
 
 #volume-osd-scale highlight {
-  border-radius: 10px;
-  background: @color4;
+  border-radius: 5px;
+  background: @color3;
   
 }

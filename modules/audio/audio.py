@@ -63,8 +63,7 @@ class AudioWidget(Box):
         
         speaker.connect("changed", self._update_ui)
         self._update_ui()
-
-    @cooldown(0.1)
+        
     def _update_ui(self, *_: Any):
         """Refresh progress, icon, label, and tooltip."""
 
