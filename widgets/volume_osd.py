@@ -1,16 +1,17 @@
+"""Volume on-screen display (OSD) widget."""
 from typing import Any
 
 from loguru import logger
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-from custom_widgets.popup_window import PopupWindow
 from fabric.widgets.revealer import Revealer
 from fabric.widgets.scale import ScaleMark
-from custom_widgets.animated_scale import AnimatedScale
 from fabric.audio.service import Audio
 from fabric.utils import remove_handler
 from gi.repository import GLib
 
+from custom_widgets.popup_window import PopupWindow
+from custom_widgets.animated_scale import AnimatedScale
 
 _ICONS = {
     "muted": "󰖁",
@@ -23,6 +24,7 @@ _ICONS = {
 
 
 class VolumeOSD(PopupWindow):
+    """Volume on-screen display (OSD) widget."""
     def __init__(self, parent, **kwargs):
         super().__init__(
             parent,
@@ -87,7 +89,7 @@ class VolumeOSD(PopupWindow):
 
     def _update_ui(self, *_: Any):
         """Refresh progress, icon, label, and tooltip."""
-        self.show_popup()
+        self._show_popup()
         spk = self.audio.speaker
         if not spk:
             return
@@ -120,16 +122,16 @@ class VolumeOSD(PopupWindow):
                 icon = _ICONS["high"]
 
         self.icon.set_text(icon)
-        self.hide_popup()
+        self._hide_popup()
 
-    def hide_popup(self):
+    def _hide_popup(self):
         self.is_closing = True
         self.last_revealer_handler = GLib.timeout_add(
             3000, self.revealer.set_reveal_child, False
         )
         self.last_window_handler = GLib.timeout_add(3250, self.hide)
 
-    def show_popup(self):
+    def _show_popup(self):
         if self.is_closing:
             if self.last_revealer_handler:
                 remove_handler(self.last_revealer_handler)
