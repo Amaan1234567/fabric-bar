@@ -741,7 +741,7 @@ tooltip {
   padding:5px;
   padding-left: 10px;
   padding-right: 10px;
-  margin-bottom: 100px;
+  margin-bottom: 70px;
   background-color:   alpha(@backgroundWaybar, 0.9);
   border-radius: 10px;
   border: solid;

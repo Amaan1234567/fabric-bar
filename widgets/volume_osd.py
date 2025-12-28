@@ -84,7 +84,6 @@ class VolumeOSD(PopupWindow):
             return
 
         speaker.connect("changed", self._update_ui)
-        self._update_ui()
 
     def _update_ui(self, *_: Any):
         """Refresh progress, icon, label, and tooltip."""
