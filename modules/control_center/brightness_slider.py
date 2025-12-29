@@ -2,11 +2,12 @@
 
 from loguru import logger
 
+from gi.repository import GLib
 from fabric import Fabricator
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
-from fabric.utils import cooldown, exec_shell_command_async
+from fabric.utils import cooldown,exec_shell_command_async
 from custom_widgets.animated_scale import AnimatedScale
 
 # ---------------------------------------------------------------- helpers
@@ -60,8 +61,8 @@ class BrightnessSlider(Box):
         self.overlay = Overlay(child=self.scale, overlays=self.label)
         self.add(self.overlay)
 
-        self.value_changing = True
-        Fabricator(poll_from=lambda E: self._get_brightness(), interval=500).connect(
+        self.value_changing = False
+        Fabricator(poll_from=lambda E: self._get_brightness(), interval=100).connect(
             "changed", self._refresh
         )
 
@@ -87,24 +88,23 @@ class BrightnessSlider(Box):
                 logger.debug(f"current_brightness: {current_brightness}")
                 return current_brightness
 
+    @cooldown(0.1)
     def _on_scroll(self, _, __, value):
         """Mouse wheel sends ±STEP % *relative* increments."""
         self.value_changing = True
         logger.debug("detecting scroll on brightness scale")
 
         self._set_brightness_rel(value)
-        
-        self.scale.animate_value(value)
-        self.scale.set_value(value)
 
-        self.value_changing = False
+        self.scale.animate_value(value)
+
+        GLib.timeout_add(1000, lambda *_: (setattr(self, "value_changing", False) or False))
 
     def _refresh(self, _, value):
         if self.value_changing:
             return
-        
+
         self.scale.animate_value(value)
-        self.scale.set_value(value)
         if value < 15:
             self.label.add_style_class("brightness-icon-low")
         else:

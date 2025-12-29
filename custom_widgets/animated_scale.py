@@ -25,7 +25,7 @@ class AnimatedScale(Scale):
             Animator(
                 # edit the following parameters to customize the animation
                 bezier_curve=(0.8, 1.55, 0.265, 1.25),
-                duration=0.3,
+                duration=0.6,
                 min_value=self.min_value,
                 max_value=self.value,
                 tick_widget=self,
