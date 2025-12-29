@@ -1,7 +1,7 @@
 """Volume on-screen display (OSD) widget."""
+
 from typing import Any
 
-from loguru import logger
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.revealer import Revealer
@@ -25,6 +25,7 @@ _ICONS = {
 
 class VolumeOSD(PopupWindow):
     """Volume on-screen display (OSD) widget."""
+
     def __init__(self, parent, **kwargs):
         super().__init__(
             parent,
@@ -77,8 +78,6 @@ class VolumeOSD(PopupWindow):
         self.audio.connect("notify::speaker", self._on_speaker_changed)
         self.hide()
 
-        # Connect to volume change signal
-
     def _on_speaker_changed(self, *_: Any):
         """When the default sink changes, listen for its volume/mute changes."""
         speaker = self.audio.speaker
@@ -86,7 +85,7 @@ class VolumeOSD(PopupWindow):
             return
 
         speaker.connect("notify::volume", self._update_ui)
-    
+
     def _update_ui(self, *_: Any):
         """Refresh progress, icon, label, and tooltip."""
         self._show_popup()
@@ -98,14 +97,7 @@ class VolumeOSD(PopupWindow):
         desc: str = (spk.description or "").lower()
         muted: bool = spk.muted
 
-        # logger.debug(f"current speaker obj: {spk}")
-        # logger.debug(f"speaker desc: {desc}")
-        # logger.info(f"speaker-muted: {muted}")
-        # logger.debug(f"speaker-volume: {vol}")
-        # logger.debug(f"audio-scale value:{self.scale.value}")
-
         self.scale.animate_value(vol)
-        # GLib.timeout_add(10,self.scale.set_value,vol)
 
         if muted or vol == 0:
             icon = _ICONS["muted"]

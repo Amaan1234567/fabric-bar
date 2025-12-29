@@ -3,10 +3,11 @@ This module defines the AnimatedCircularProgressBar widget, which extends the Ci
 from the fabric library to add animation to the progress updates.
 """
 
+from functools import partial
 from typing import Any
 
 from fabric.widgets.circularprogressbar import CircularProgressBar
-from utils.animator import Animator
+from utils.animator import Animator, cubic_bezier
 
 
 class AnimatedCircularProgressBar(CircularProgressBar):
@@ -18,7 +19,7 @@ class AnimatedCircularProgressBar(CircularProgressBar):
         self.animator: Animator = (
             Animator(
                 # edit the following parameters to customize the animation
-                bezier_curve=(0.34, 1.56, 0.64, 1.0),
+                timing_function=partial(cubic_bezier,0.34, 1.56, 0.64, 1.0),
                 duration=0.4,
                 min_value=self.min_value,
                 max_value=self.max_value,
