@@ -20,8 +20,7 @@ cat >"$config_file" <<EOF
 [general]
 bars = $1
 autosens = 1
-framerate = 60
-mode=waves
+framerate = 144
 [input]
 method = pulse
 source = auto
@@ -30,9 +29,6 @@ method = raw
 raw_target = /dev/stdout
 data_format = ascii
 ascii_max_range = 7
-[smoothing]
-monstercat=0
-waves=1
 EOF
 
 # Kill cava if it's already running

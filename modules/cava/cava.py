@@ -14,7 +14,7 @@ class CavaWidget(Button):
     def __init__(self, **kwargs):
         super().__init__(orientation="h", spacing=0, name="cava", **kwargs)
 
-        self.bars = 12
+        self.bars = 14
 
         self.cava_label = Label(
             label="▁" * self.bars,
