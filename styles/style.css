@@ -773,3 +773,46 @@ tooltip {
   background: @color3;
   
 }
+
+
+#brightness-osd-window {
+  background-color: transparent;
+
+}
+
+#brightness-osd-box {
+  padding:5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-bottom: 70px;
+  background-color:   alpha(@backgroundWaybar, 0.9);
+  border-radius: 10px;
+  border: solid;
+  border-width: 1px;
+  border-color: @color3;
+}
+
+#brightness-osd-icon {
+  color: @color3;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+
+#brightness-osd-scale trough {
+  padding:0;
+  margin:0;
+  /* border:solid;
+  border-width: 2px; */
+  border-radius: 5px;
+  border-color: @color3;
+  min-width: 250px;
+  min-height: 20px;
+}
+
+
+#brightness-osd-scale highlight {
+  border-radius: 5px;
+  background: @color3;
+  
+}

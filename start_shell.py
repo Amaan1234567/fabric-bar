@@ -10,9 +10,11 @@ from modules.control_center import control_center
 from modules.notification.notification_window import NotificationPopupWindow
 
 from widgets import volume_osd
+from widgets import brightness_osd
 from widgets.top_bar import TopBar
 from widgets.corners import ScreenCorners
 from widgets.volume_osd import VolumeOSD
+from widgets.brightness_osd import BrightnessOSD
 
 if __name__ == "__main__":
     logger.remove()
@@ -28,9 +30,10 @@ if __name__ == "__main__":
     corners = ScreenCorners()
     notifications = NotificationPopupWindow()
     volume_osd = VolumeOSD(status_bar)
+    brightness_osd = BrightnessOSD(status_bar)
     app = Application(
         "hypr-fabric-bar",
-        windows=[status_bar, corners, control_center, notifications, volume_osd],
+        windows=[status_bar, corners, control_center, notifications, volume_osd, brightness_osd],
     )
 
     style_path = get_relative_path("styles/style.css")
