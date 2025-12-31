@@ -1,6 +1,5 @@
 """main python file that initialised the whole UI"""
 
-import stat
 import sys
 from loguru import logger
 
@@ -29,8 +28,8 @@ if __name__ == "__main__":
     status_bar = TopBar()
     corners = ScreenCorners()
     notifications = NotificationPopupWindow()
-    volume_osd = VolumeOSD(status_bar)
-    brightness_osd = BrightnessOSD(status_bar)
+    volume_osd = VolumeOSD(status_bar,status_bar.logout_btn)
+    brightness_osd = BrightnessOSD(status_bar,status_bar.logout_btn)
     app = Application(
         "hypr-fabric-bar",
         windows=[status_bar, corners, control_center, notifications, volume_osd, brightness_osd],

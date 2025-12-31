@@ -1,5 +1,6 @@
 """Volume on-screen display (OSD) widget."""
 
+from operator import invert
 from typing import Any
 
 from fabric.widgets.box import Box
@@ -26,9 +27,10 @@ _ICONS = {
 class VolumeOSD(PopupWindow):
     """Volume on-screen display (OSD) widget."""
 
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent,pointing_to, **kwargs):
         super().__init__(
             parent,
+            pointing_to,
             layer="top",
             title="volume_osd",
             name="volume-osd-window",
@@ -48,29 +50,28 @@ class VolumeOSD(PopupWindow):
 
         self.icon = Label(name="osd-icon", label=_ICONS["medium"])
         self.scale = AnimatedScale(
-            orientation="h",
+            orientation="vertical",
             name="volume-osd-scale",
-            marks=(ScaleMark(value=i) for i in range(1, 100, 10)),
             min_value=0,
             max_value=100,
-            inverted=False,
-            value=0,
+            value=50,
+            inverted=True,
             h_expand=True,
             v_expand=True,
             has_origin=True,
         )
 
         self.box = Box(
-            orientation="h",
+            orientation="v",
             spacing=10,
-            children=[self.icon, self.scale],
+            children=[self.scale, self.icon],
             name="volume-osd-box",
         )
 
         self.revealer = Revealer(
             child=self.box,
             name="volume-osd-revealer",
-            transition_type="slide-up",
+            transition_type="slide-left",
             transition_duration=200,
         )
 

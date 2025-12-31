@@ -12,9 +12,10 @@ from custom_widgets.popup_window import PopupWindow as Window
 
 class BrightnessOSD(Window):
     """Brightness on-screen display (OSD) widget."""
-    def __init__(self, parent, **kwargs):
+    def __init__(self, parent,pointing_to, **kwargs):
         super().__init__(
             parent,
+            pointing_to,
             layer="top",
             title="volume_osd",
             name="brightness-osd-window",
@@ -31,10 +32,10 @@ class BrightnessOSD(Window):
 
         self.scale = AnimatedScale(
             name="brightness-osd-scale",
-            orientation="h",
+            orientation="v",
             min_value=0,
             max_value=100,
-            inverted=False,
+            inverted=True,
             value=0,
             h_expand=True,
             v_expand=True,
@@ -42,15 +43,15 @@ class BrightnessOSD(Window):
         )
         self.content = Box(
             name="brightness-osd-box",
-            orientation="horizontal",
+            orientation="vertical",
             spacing=10,
-            children=[self.icon, self.scale],
+            children=[self.scale,self.icon],
         )
 
         self.revealer = Revealer(
             child=self.content,
             transition_duration=200,
-            transition_type="slide-up",
+            transition_type="slide-left",
             name="brightness-osd-revealer",
         )
         self.add(self.revealer)
