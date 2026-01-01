@@ -6,8 +6,12 @@ from loguru import logger
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
 from modules.control_center import control_center
+from modules.control_center.control_center import ControlCenter
 from modules.notification.notification_window import NotificationPopupWindow
-
+from utils.application_data_holder import Data
+from services.notification_service import NotificationService
+from services.playerctlservice import SimplePlayerctlService
+from services.networkservice import NetworkService
 from widgets import volume_osd
 from widgets import brightness_osd
 from widgets.top_bar import TopBar
@@ -24,15 +28,29 @@ if __name__ == "__main__":
         filter=lambda record: record["name"] != "fabric.widgets.svg",
         level="INFO",
     )
-
-    status_bar = TopBar()
+    app_data = Data(
+        notification_service=NotificationService(),
+        playerctl_service=SimplePlayerctlService(),
+        network_service=NetworkService(),
+        control_center=None,
+    )
+    control_center = ControlCenter(app_data=app_data)
+    app_data.control_center = control_center
+    status_bar = TopBar(app_data)
     corners = ScreenCorners()
-    notifications = NotificationPopupWindow()
-    volume_osd = VolumeOSD(status_bar,status_bar.logout_btn)
-    brightness_osd = BrightnessOSD(status_bar,status_bar.logout_btn)
+    notifications = NotificationPopupWindow(app_data)
+    volume_osd = VolumeOSD(status_bar, status_bar.logout_btn)
+    brightness_osd = BrightnessOSD(status_bar, status_bar.logout_btn)
     app = Application(
         "hypr-fabric-bar",
-        windows=[status_bar, corners, control_center, notifications, volume_osd, brightness_osd],
+        windows=[
+            status_bar,
+            corners,
+            control_center,
+            notifications,
+            volume_osd,
+            brightness_osd,
+        ],
     )
 
     style_path = get_relative_path("styles/style.css")

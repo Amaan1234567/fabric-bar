@@ -814,3 +814,32 @@ tooltip {
   background: @color3;
   
 }
+
+
+#notification-item {
+background: @background;
+border: solid 2px @color4;
+border-radius:10px;
+}
+
+#notification-item-thumbnail{
+border-radius: 10px;
+}
+
+#notification-item-content{
+  padding-top: 5px;
+   padding-right: 10px;
+   padding-bottom: 5px;
+}
+
+#notification-item-title {
+  font-size: 16px;
+  color: @color4;
+  font-weight: 900;
+}
+
+#notification-item-body {
+  font-size: 14px;
+  color: @color4;
+  font-weight: 900;
+}
