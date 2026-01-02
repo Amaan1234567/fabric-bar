@@ -25,7 +25,7 @@ class BrightnessSlider(Box):
         super().__init__(
             orientation="vertical",
             spacing=0,
-            size=[145, 30],
+            size=[1,-1],
             name=name,
             v_expand=True,
             h_expand=True,

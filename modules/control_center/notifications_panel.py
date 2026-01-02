@@ -4,17 +4,18 @@ from fabric.widgets.box import Box
 from fabric.widgets.scrolledwindow import ScrolledWindow
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button
-from fabric.notifications.service import Notification
+from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.revealer import Revealer
-from fabric.utils import invoke_repeater, get_relative_path
-from gi.repository import GdkPixbuf, GLib, Gtk
+from fabric.notifications.service import Notification
+from fabric.utils import get_relative_path
+from gi.repository import GdkPixbuf, Gtk, GLib
 from custom_widgets.image_rounded import CustomImage
 from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 from utils.variables import APP_ICON_MAP
 from services.notification_service import NotificationService
 
-NOTIFICATION_IMAGE_SIZE = 100
-
+NOTIFICATION_IMAGE_SIZE = 120
+NOTIFICATION_BUTTONS_WRAP_THRESHOLD = 2
 
 class NotificationItem(Box):
     """the notification item in the notifications panel"""
@@ -22,12 +23,13 @@ class NotificationItem(Box):
     def __init__(self, notification: Notification, **kwargs):
         super().__init__(
             name="notification-item",
-            orientation="h",
-            spacing=20,
+            orientation="v",
+            spacing=0,
             h_align="fill",
         )
         self._notification = notification
         self.image = None
+        self.top_content = Box(orientation='h',h_align="fill",spacing=10)
         if image_pixbuf := self._load_notification_pixbuf(self._notification):
             self.image = CustomImage(
                 name="notification-item-thumbnail",
@@ -37,13 +39,15 @@ class NotificationItem(Box):
                     GdkPixbuf.InterpType.BILINEAR,
                 ),
             )
-            self.add(self.image)
+            self.top_content.add(self.image)
 
         self.column_content = Box(
             name="notification-item-content",
             orientation="v",
             spacing=5,
             h_align="fill",
+            h_expand=True,
+            v_expand=True,
         )
 
         self.title_label = Label(
@@ -51,8 +55,8 @@ class NotificationItem(Box):
             label=truncate(self._notification.summary,25),
             ellipsize=True,
             line_wrap="word-char",
-            max_chars_width=25,
-            h_align="center",
+            max_chars_width=15,
+            h_align="start",
         )
         self.column_content.add(self.title_label)
 
@@ -60,13 +64,99 @@ class NotificationItem(Box):
             name="notification-item-body",
             label=truncate(self._notification.body,40),
             ellipsize=True,
-            line_wrap="word-char",
-            max_chars_width=25,
-            h_align="center",
+            line_wrap="char",
+            max_chars_width=15,
+            h_align="fill",
         )
         self.column_content.add(self.body_label)
+        self.top_content.add(self.column_content)
+        self.buttons_box = Box(
+            name="notification-item-buttons",
+            orientation="v",
+            spacing=0,
+            h_align="center",
+            v_align="fill",
+        )
+        self.close_button = Button(
+            name="notification-item-close-button",
+            label="󰅙",
+            v_align="start",
+            h_align="end",
+            on_clicked=self._dismiss_notification,
+        )
+        self.revealer_button = Button(
+            name="notification-item-revealer-button",
+            label="",
+            v_align="end",
+            h_align="center",
+            on_clicked=self._reveal_action_buttons
+        )
+        self.buttons_box.add(self.close_button)
+        self.buttons_box.add(Box(v_expand=True))
+        self.action_buttons_container = Box(
+            name="notification-action-buttons-container",
+            orientation="h",
+            h_align="fill",
+            h_expand=True
+        )
+        self.top_content.add(self.buttons_box)
+        self.add(self.top_content)
+        self.revealer_widget = Revealer(child=self.action_buttons_container,transition_type="slide-down",transition_duration=200, size=[1,-1])
+        if actions := self._notification.actions:
+            self.action_buttons_container.add(
+                Box(
+                    name="action-buttons",
+                    spacing=4,
+                    orientation="v",
+                    h_expand=True,
+                    children=[
+                        Box(
+                            spacing=4,
+                            orientation="h",
+                            children=[
+                                Button(
+                                    h_expand=True,
+                                    v_expand=True,
+                                    label=action.label,
+                                    on_clicked=lambda *_, action=action: action.invoke(),
+                                )
+                                for action in actions[
+                                    i : i + NOTIFICATION_BUTTONS_WRAP_THRESHOLD
+                                ]
+                            ],
+                        )
+                        for i in range(
+                            0, len(actions), NOTIFICATION_BUTTONS_WRAP_THRESHOLD
+                        )
+                    ],
+                )
+            )
+            self.buttons_box.add(self.revealer_button)
+            self.add(self.revealer_widget)
+            
+    
+    def _reveal_action_buttons(self):
+        if self.revealer_widget.get_child_revealed():
+            self.revealer_button.set_label("")
+            self.revealer_widget.set_reveal_child(False)
+        else:
+            self.revealer_button.set_label("")
+            self.revealer_widget.set_reveal_child(True)
 
-        self.add(self.column_content)
+    def _delete_self(self):
+        parent.remove(self) if (parent := self.get_parent()) else None
+
+    def _close_notification(self):
+
+        GLib.timeout_add(300, self._delete_self)
+        GLib.timeout_add(300, self.destroy)
+
+    def _dismiss_notification(self, _):
+        """Dismiss the notification."""
+        logger.info("dismissing notification from notifications panel")
+        self._notification.close('dismissed-by-user')
+        self._close_notification()
+
 
     def _load_notification_pixbuf(
         self, notification: Notification
@@ -150,7 +240,7 @@ class NotificationsPanel(ScrolledWindow):
             "notification-dismissed", self._load_notifications
         )
 
-        self.content = Box(
+        self.notifications_box = Box(
             name="notifications-panel-content",
             orientation="v",
             spacing=15,
@@ -158,19 +248,54 @@ class NotificationsPanel(ScrolledWindow):
         )
         self._load_notifications()
 
-        self.add(self.content)
+        self.heading = Label(
+            name="notifications-panel-heading",
+            label="Notifications",
+            h_align="fill",
+        )
+        self.dnd_button = Button(label="DND", name="dnd-button",on_clicked=self.toggle_dnd)
+        self.dnd_button_enabled=False
 
+        self.title_bar = CenterBox(
+            name="notifications-panel-title-bar",
+            orientation="h",
+            spacing=10,
+            h_align="fill",
+            h_expand=True,
+            start_children=self.heading,
+            center_children=Box(h_expand=True),
+            end_children=self.dnd_button,
+        )
+        self.content = Box(
+            name="notifications-panel-container",
+            orientation="v",
+            spacing=10,
+            h_align="fill",
+        )
+
+        self.content.add(self.title_bar)
+        self.content.add(self.notifications_box)
+        self.add(self.content)
+    def toggle_dnd(self, button):
+        """Toggle Do Not Disturb mode."""
+        ctx = self.dnd_button.get_style_context()
+        if self.dnd_button_enabled:
+            self.dnd_button_enabled = False
+            ctx.remove_class("active")
+        else:
+            self.dnd_button_enabled = True
+            ctx.add_class("active")
     def _load_notifications(self):
         """Load existing notifications into the panel."""
-        self.content.children = []
+        self.notifications_box.children = []
         # logger.debug(self.notifications_service.notifications.values())
         for notification in self.notifications_service.notifications.values():
-            logger.info(notification.serialize())
+            
             notif_item = NotificationItem(notification)
-            self.content.add(notif_item)
+            self.notifications_box.add(notif_item)
 
     def _add_notification(self, _, notification):
         """Add a new notification item to the panel."""
         logger.info("adding notification to notifications panel")
         notif_item = NotificationItem(notification)
-        self.content.add(notif_item)
+        self.notifications_box.add(notif_item)

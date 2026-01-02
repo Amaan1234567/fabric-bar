@@ -69,7 +69,6 @@ class NotificationService(Service):
             notification_id in self._notifications.keys()
             and close_reason == NotificationCloseReason.DISMISSED_BY_USER
         ):
-            print("inside")
             self._notifications.pop(notification_id)
             self.notification_dismissed.emit(notification_id)
 

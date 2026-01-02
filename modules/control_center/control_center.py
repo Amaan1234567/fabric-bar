@@ -42,13 +42,15 @@ class ControlCenter(Window):
                 MicToggle(),
             ],
         )
+        self.small_toggles.set_homogeneous(True)
         self.med_toggles = Box(
             orientation="h",
-            h_align="center",
+            h_align="fill",
             spacing=10,
             children=[PerformanceToggle(), BrightnessSlider()],
             h_expand=True,
         )
+        self.med_toggles.set_homogeneous(True)
         self.control_center_content = Box(
             name="control-center", orientation="v", h_align="center", spacing=20
         )
