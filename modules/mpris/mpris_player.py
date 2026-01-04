@@ -66,7 +66,7 @@ class MprisPlayer(Box):
             h_expand=True,
             v_expand=True,
             has_origin=True,
-            increments=(0.3, 0.1),
+            increments=(3, 1),
             min_value=0,
         )
         self.scale.connect("change-value", self._on_scroll)
@@ -180,9 +180,8 @@ class MprisPlayer(Box):
 
         if self.song_length != 0:
 
-            if (position - self.scale.value) / self.song_length > 0.1:
-                self.scale.animate_value(position)
-            self.scale.set_value(position)
+            self.scale.animate_value(position)
+            
         return True
 
     @cooldown(0.4)
@@ -191,7 +190,6 @@ class MprisPlayer(Box):
         self._player.set_position(value)
 
         self.scale.animate_value(value)
-        self.scale.set_value(value)
 
     def _update_widget(self):
         data = self._player.get_metadata()
