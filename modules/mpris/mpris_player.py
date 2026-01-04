@@ -179,9 +179,8 @@ class MprisPlayer(Box):
         position = self._player.get_position()
 
         if self.song_length != 0:
-
             self.scale.animate_value(position)
-            
+
         return True
 
     @cooldown(0.4)
