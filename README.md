@@ -18,7 +18,7 @@ python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
-You can download and setup wallust or matugen to create a colors.css, or create a custom one for yourself, This UI is intended to work with [mydotfiles](https://github.com/Amaan1234567/mydotfiles) so you will have a better time if you setup that first
+You can download and setup wallust or matugen to create a colors.css, or create a custom one for yourself, This UI is intended to work with [mydotfiles](https://github.com/Amaan1234567/mydotfiles) so you will have a better time if you setup that first or if you dont want that setup, then atleast install the dependencies given there, cause you will need them.
 
 # Running the bar and widget 
 ```bash
