@@ -1,5 +1,6 @@
 """contains the control center widget"""
 
+
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.box import Box
 from fabric.widgets.revealer import Revealer
@@ -11,12 +12,13 @@ from modules.control_center.wallpaper_change_button import WallpaperChangeButton
 from modules.control_center.mic_toggle_button import MicToggle
 from modules.control_center.performance_toggle import PerformanceToggle
 from modules.control_center.brightness_slider import BrightnessSlider
+from modules.control_center.notifications_panel import NotificationsPanel
 
 
 class ControlCenter(Window):
     """control center widget"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, app_data, **kwargs):
         super().__init__(
             layer="top",
             title="control_center",
@@ -40,18 +42,21 @@ class ControlCenter(Window):
                 MicToggle(),
             ],
         )
+        self.small_toggles.set_homogeneous(True)
         self.med_toggles = Box(
             orientation="h",
-            h_align="center",
+            h_align="fill",
             spacing=10,
             children=[PerformanceToggle(), BrightnessSlider()],
             h_expand=True,
         )
+        self.med_toggles.set_homogeneous(True)
         self.control_center_content = Box(
             name="control-center", orientation="v", h_align="center", spacing=20
         )
         self.control_center_content.add(self.small_toggles)
         self.control_center_content.add(self.med_toggles)
+        self.control_center_content.add(NotificationsPanel(app_data=app_data))
         self.revealer = Revealer(
             child=self.control_center_content,
             child_revealed=False,

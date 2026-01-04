@@ -6,15 +6,16 @@ from fabric.widgets.button import Button
 
 from modules.control_center.control_center import ControlCenter
 
-control_center = ControlCenter()
+
 
 
 class ControlCenterButton(Box):
     """control center trigger button"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, app_data, **kwargs):
         super().__init__(**kwargs, name="notification-button")
-
+        self.app_data = app_data
+        self.control_center = app_data.control_center
         self.content = EventBox(on_button_release_event=self._trigger_control_center)
         self.container_box = Box(orientation="h", spacing=4)
         self.notifcations = Button(label="")
@@ -34,4 +35,4 @@ class ControlCenterButton(Box):
         self.add(self.content)
 
     def _trigger_control_center(self, _, __):
-        control_center.toggle_control_center()
+        self.control_center.toggle_control_center()

@@ -1,7 +1,7 @@
 """contains notification Popups widget and the window that it belongs to"""
 
 import os
-from venv import logger
+from loguru import logger
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button

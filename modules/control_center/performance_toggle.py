@@ -15,7 +15,7 @@ class PerformanceToggle(Button):
             name="performance-toggle",
             v_expand=False,
             h_expand=False,
-            size=[147, 10],
+            size=[1, -1],
             **kwargs,
         )
         self.service = PowerProfiles()

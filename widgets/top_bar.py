@@ -27,7 +27,7 @@ from modules.network_speed.network_speed import NetworkSpeed
 class TopBar(Window):
     """top bar of UI"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, app_data,**kwargs):
         super().__init__(
             layer="top",
             name="bar-window",
@@ -37,7 +37,7 @@ class TopBar(Window):
             all_visible=False,
             **kwargs
         )
-
+        self.app_data = app_data
         self.cpu = Cpu()
         self.workspaces = CustomWorkspaces()
         self.memory = Memory()
@@ -54,7 +54,7 @@ class TopBar(Window):
         )
         self.active_window = WindowName()
         self.cava = CavaWidget()
-        self.right_module = ControlCenterButton()
+        self.right_module = ControlCenterButton(app_data=app_data)
         left_box = Box(
             orientation="h",
             spacing=10,

@@ -28,7 +28,7 @@ class CavaWidget(Button):
         self.update_service = Fabricator(
             poll_from=f"bash -c '{script_path} {self.bars}'",
             stream=True,
-            interval=40,
+            interval=10,
             on_changed=self._update_label
         )
 

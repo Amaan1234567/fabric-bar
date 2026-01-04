@@ -1,15 +1,17 @@
 """holds the notification window widget"""
 
 from typing import cast
-from fabric.notifications.service import Notifications, Notification
+from fabric.notifications.service import Notification
 from fabric.widgets.wayland import WaylandWindow
 from fabric.widgets.box import Box
 from modules.notification.notification_popup import NotificationPopup
+from services.notification_service import NotificationService
+
 
 class NotificationPopupWindow(WaylandWindow):
     """The window that holds all the Notification Popups"""
 
-    def __init__(self, **kwargs):
+    def __init__(self, app_data, **kwargs):
         super().__init__(
             title="fabric-notifications",
             name="notifications-popup",
@@ -21,8 +23,8 @@ class NotificationPopupWindow(WaylandWindow):
             v_expand=True,
             **kwargs,
         )
-
-        self.notifications_service = Notifications()
+        self.app_data = app_data
+        self.notifications_service: NotificationService = app_data.notification_service
         self.notifications_service.connect("notification-added", self._add_notification)
 
         self.content = Box(
@@ -34,12 +36,22 @@ class NotificationPopupWindow(WaylandWindow):
             size=2,
         )
         self.add(self.content)
+        self._dnd_on = self.notifications_service.dnd
+        self.notifications_service.connect("dnd_toggled", self._set_dnd_status)
 
-    def _add_notification(self, notifs_service, nid):
+    def _set_dnd_status(self, _, is_dnd_on):
+        print(is_dnd_on)
+        self._dnd_on = is_dnd_on
+        print(self._dnd_on)
+
+    def _add_notification(self, _, notification):
+        if self._dnd_on:
+            return
+
         notification = NotificationPopup(
             cast(
                 Notification,
-                notifs_service.get_notification_from_id(nid),
+                notification,
             )
         )
         self.content.add(notification)

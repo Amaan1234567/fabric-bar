@@ -514,8 +514,6 @@ tooltip {
 }
 
 #bluetooth-toggle {
-  padding-left: 17px;
-  padding-right: 17px;
   border-radius: 10px;
   border-width: 2px;
   border-color: @color4;
@@ -540,8 +538,6 @@ tooltip {
 }
 
 #wifi-toggle {
-  padding-left: 15px;
-  padding-right: 15px;
   border-radius: 10px;
 }
 
@@ -563,8 +559,8 @@ tooltip {
 }
 
 #rog-button {
-  padding-left: 10px;
-  padding-right: 6px;
+  padding-left: 16px;
+  padding-right: 16px;
   border-radius: 10px;
   background-color: @color4;
   color: @color2;
@@ -584,8 +580,6 @@ tooltip {
 }
 
 #mic-toggle {
-  padding-left: 16px;
-  padding-right: 16px;
   border-radius: 10px;
 }
 
@@ -813,4 +807,98 @@ tooltip {
   border-radius: 5px;
   background: @color3;
   
+}
+
+
+#notification-item {
+background: @background;
+/* border: solid 2px @color4; */
+border-radius:12px;
+}
+
+#notification-item-thumbnail{
+border-radius: 10px;
+}
+
+#notifications-scrolled-window{
+  border-radius: 10px;
+  transition: all 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682);
+}
+
+#notification-item-content{
+  padding-top: 5px;
+   padding-right: 10px;
+   padding-bottom: 5px;
+}
+
+#notification-item-title {
+  font-size: 16px;
+  color: @color4;
+  font-weight: 900;
+}
+
+#notification-item-body {
+  font-size: 14px;
+  color: @color4;
+  font-weight: 900;
+}
+
+#dnd-button {
+  font-size: 16px;
+  font-weight: 900;
+  color: @color4;
+  background-color: @background;
+  border-radius: 7px;
+  border: solid 2px @color4;
+  padding: 4px 8px;
+}
+
+#dnd-button.active {
+  background-color: @color4;
+  color: @background;
+}
+
+#notifications-panel-title-bar {
+  border: solid @color4;
+  /* border-width: 0px 0px 2px 0px; */
+  padding-bottom: 10px;
+  border-radius: 0px;
+}
+
+#notification-item-close-button {
+  font-size: 20px;
+  padding-top:2px;
+  padding-bottom:2px;
+  padding-right: 7px;
+  color:@color5;
+  background-color: transparent;
+}
+
+#notification-item-revealer-button {
+  font-size: 20px;
+  padding-top:2px;
+  padding-bottom:2px;
+  padding-right: 7px;
+  color:@color5;
+  background-color: transparent;
+}
+
+#notification-action-buttons-container {
+  padding: 0px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-bottom: 5px;;
+}
+
+#dismiss-all-button {
+  color: @color4;
+  
+  border: solid 2px;
+  border-radius: 7px;
+  padding: 4px 8px;
+}
+
+#dismiss-all-button label{
+  font-size:20px;
+  font-weight:900;
 }
