@@ -6,6 +6,7 @@ from fabric.utils.helpers import exec_shell_command_async
 from loguru import logger
 from services.networkservice import NetworkService
 
+
 class WifiToggle(Button):
     """
     Simple WiFi toggle button.
@@ -20,7 +21,7 @@ class WifiToggle(Button):
             on_clicked=self._toggle_wifi,
         )
         self._service = NetworkService()
-        self._service.connect("device_ready",self._init_service)
+        self._service.connect("device_ready", self._init_service)
         self._wifi_service = None
         self.wifi_available = True
         self.wifi_on = True
@@ -39,12 +40,13 @@ class WifiToggle(Button):
         )
         # Poll every 5s to keep in sync
         self.set_tooltip_text("Toggle Wifi")
+
     def _init_service(self):
         logger.debug("device ready")
         if self._service.wifi_device is not None:
             self._wifi_service = self._service.wifi_device
-            self._wifi_service.connect("enabled",self._wifi_enabled)
-            self._wifi_service.connect("disabled",self._wifi_disabled)
+            self._wifi_service.connect("enabled", self._wifi_enabled)
+            self._wifi_service.connect("disabled", self._wifi_disabled)
             self._is_wifi_on()
             self._is_wifi_available()
             self._refresh()
@@ -53,7 +55,7 @@ class WifiToggle(Button):
         logger.debug("detected wifi enable")
         self.wifi_on = True
         self._refresh()
-    
+
     def _wifi_disabled(self):
         logger.debug("detected wifi disable")
         self.wifi_on = False

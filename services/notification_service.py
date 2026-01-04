@@ -29,7 +29,8 @@ class NotificationService(Service):
         self.notify("notifications")
 
     @Signal
-    def dnd_toggled(self, dnd_is_on: bool) -> None:...
+    def dnd_toggled(self, dnd_is_on: bool) -> None:
+        """dnd toggle signal"""
 
     @Property(Dict[int, Notification], "readable")
     def notifications(self) -> Dict[int, Notification]:
@@ -81,7 +82,7 @@ class NotificationService(Service):
         )
         logger.info(f"Notification {notification_id} closed with reason {close_reason}")
         if (
-            notification_id in self._notifications.keys()
+            notification_id in self._notifications.keys()  # type : ignore
             and close_reason == NotificationCloseReason.DISMISSED_BY_USER
         ):
             self._notifications.pop(notification_id)
@@ -108,5 +109,5 @@ class NotificationService(Service):
         """function to toggle dnd"""
         print("toggling")
         self._is_dnd_on = not self._is_dnd_on
-        print("dnd: ",self._is_dnd_on)
+        print("dnd: ", self._is_dnd_on)
         self.dnd_toggled.emit(self._is_dnd_on)

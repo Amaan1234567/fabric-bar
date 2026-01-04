@@ -8,7 +8,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
 from fabric.widgets.eventbox import EventBox
-from fabric.utils import cooldown,exec_shell_command_async
+from fabric.utils import cooldown, exec_shell_command_async
 from fabric.bluetooth.service import BluetoothClient, BluetoothDevice
 from gi.repository import Gdk  # type: ignore
 
@@ -124,10 +124,10 @@ class BluetoothWidget(Box):
             logger.exception(f"Bluetooth status error: {e}")
             self._tooltip_text = f"Bluetooth error: {e}"
 
-    def _process_devices(self, connected_devices : List[BluetoothDevice]):
+    def _process_devices(self, connected_devices: List[BluetoothDevice]):
         device_info = []
         first_device_battery = None
-        connected_devices = sorted(connected_devices,key = lambda data: data.icon_name)
+        connected_devices = sorted(connected_devices, key=lambda data: data.icon_name)
         for device in connected_devices:
             name = device.name or device.alias or device.address or "Unknown"
             battery_level = None

@@ -1,15 +1,18 @@
 """holds the wallpaper change button"""
+
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
 from fabric.utils import cooldown, exec_shell_command_async
 
+
 class WallpaperChangeButton(Button):
     """widget that triggers wallpaper change"""
+
     def __init__(self):
         # Let Fabric handle SVG scaling automatically
         self.icon = Label(
             name="wallpaper-icon",
-            label = "",  # This will scale the SVG properly
+            label="",  # This will scale the SVG properly
             h_align="center",
             v_align="center",
         )
@@ -35,8 +38,7 @@ class WallpaperChangeButton(Button):
             ),
         )
 
-
     @cooldown(1)
     def _change_wallpaper(self, _):
         """Launch ROG Control Center"""
-        exec_shell_command_async("bash -c \"~/Scripts/wallpaper_change.sh\"")
+        exec_shell_command_async('bash -c "~/Scripts/wallpaper_change.sh"')

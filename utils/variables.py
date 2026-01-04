@@ -1,4 +1,5 @@
 """holds all constants used all over the code"""
+
 WINDOW_TITLE_MAP = [
     # Original Entries
     ["discord", "", "Discord"],
@@ -102,6 +103,5 @@ WINDOW_TITLE_MAP = [
 ]
 
 APP_ICON_MAP = {
-    "spotify" : "assets/spotify.png",
-    
+    "spotify": "assets/spotify.png",
 }

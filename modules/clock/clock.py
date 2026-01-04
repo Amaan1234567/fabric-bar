@@ -1,12 +1,12 @@
-"""simple clock widget
-"""
+"""simple clock widget"""
+
 from fabric.widgets.datetime import DateTime
 from fabric.widgets.box import Box
 
 
 class Clock(Box):
-    """simple clock widget
-    """
+    """simple clock widget"""
+
     def __init__(self, **kwargs):
         super().__init__(name="clock", **kwargs)
 

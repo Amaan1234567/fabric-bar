@@ -19,7 +19,7 @@ class AnimatedCircularProgressBar(CircularProgressBar):
         self.animator: Animator = (
             Animator(
                 # edit the following parameters to customize the animation
-                timing_function=partial(cubic_bezier,0.34, 1.56, 0.64, 1.0),
+                timing_function=partial(cubic_bezier, 0.34, 1.56, 0.64, 1.0),
                 duration=0.4,
                 min_value=self.min_value,
                 max_value=self.max_value,

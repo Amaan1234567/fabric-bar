@@ -29,7 +29,7 @@ class CavaWidget(Button):
             poll_from=f"bash -c '{script_path} {self.bars}'",
             stream=True,
             interval=10,
-            on_changed=self._update_label
+            on_changed=self._update_label,
         )
 
         ctx = self.get_style_context()

@@ -27,7 +27,7 @@ from modules.network_speed.network_speed import NetworkSpeed
 class TopBar(Window):
     """top bar of UI"""
 
-    def __init__(self, app_data,**kwargs):
+    def __init__(self, app_data, **kwargs):
         super().__init__(
             layer="top",
             name="bar-window",
@@ -58,9 +58,7 @@ class TopBar(Window):
         left_box = Box(
             orientation="h",
             spacing=10,
-            children=[self.cpu, self.memory, self.gpu, 
-                      self.network_speed
-                      ],
+            children=[self.cpu, self.memory, self.gpu, self.network_speed],
         )
 
         self.mpris = Mpris(window=self)

@@ -31,9 +31,11 @@ def get_bars(file_path):
     config.read(file_path)
     return 12
 
+
 CAVA_CONFIG = get_relative_path("../config/cavalcade/cava.ini")
 
 bars = get_bars(CAVA_CONFIG)
+
 
 def set_death_signal():
     """
@@ -44,11 +46,13 @@ def set_death_signal():
     PR_SET_PDEATHSIG = 1
     libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
 
+
 class Cava:
     """
     CAVA wrapper.
     Launch cava process with certain settings and read output.
     """
+
     NONE = 0
     RUNNING = 1
     RESTARTING = 2
@@ -68,7 +72,9 @@ class Cava:
         self.env["LC_ALL"] = "en_US.UTF-8"  # not sure if it's necessary
 
         is_16bit = True
-        self.byte_type, self.byte_size, self.byte_norm = ("H", 2, 65535) if is_16bit else ("B", 1, 255)
+        self.byte_type, self.byte_size, self.byte_norm = (
+            ("H", 2, 65535) if is_16bit else ("B", 1, 255)
+        )
 
         if not os.path.exists(self.path):
             os.mkfifo(self.path)
@@ -84,7 +90,7 @@ class Cava:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 env=self.env,
-                preexec_fn=set_death_signal  # Ensure cava gets killed when the parent dies.
+                preexec_fn=set_death_signal,  # Ensure cava gets killed when the parent dies.
             )
             self.state = self.RUNNING
         except Exception:
@@ -95,14 +101,16 @@ class Cava:
         self.fifo_fd = os.open(self.path, os.O_RDONLY | os.O_NONBLOCK)
         # Open dummy write end to prevent getting an EOF on our FIFO
         self.fifo_dummy_fd = os.open(self.path, os.O_WRONLY | os.O_NONBLOCK)
-        self.io_watch_id = GLib.io_add_watch(self.fifo_fd, GLib.IO_IN, self._io_callback)
+        self.io_watch_id = GLib.io_add_watch(
+            self.fifo_fd, GLib.IO_IN, self._io_callback
+        )
 
     def _io_callback(self, source, condition):
         chunk = self.byte_size * self.bars  # number of bytes for given format
         try:
             if self.fifo_fd is None:
                 return False
-                
+
             data = os.read(self.fifo_fd, chunk)
         except OSError as e:
             if e.errno == 11:  # EAGAIN - would block, normal for non-blocking
@@ -129,7 +137,7 @@ class Cava:
             GLib.idle_add(self.data_handler, sample)
         except (struct.error, Exception):
             return True
-            
+
         return True
 
     def _on_stop(self):
@@ -155,12 +163,12 @@ class Cava:
     def close(self):
         """Stop cava process"""
         self.state = self.CLOSING
-        
+
         # Stop IO watch first
         if self.io_watch_id:
             GLib.source_remove(self.io_watch_id)
             self.io_watch_id = None
-            
+
         # Close file descriptors safely
         if self.fifo_fd is not None:
             try:
@@ -169,7 +177,7 @@ class Cava:
                 pass
             finally:
                 self.fifo_fd = None
-                
+
         if self.fifo_dummy_fd is not None:
             try:
                 os.close(self.fifo_dummy_fd)
@@ -177,7 +185,7 @@ class Cava:
                 pass
             finally:
                 self.fifo_dummy_fd = None
-        
+
         # Kill process if still running
         if self.process and self.process.poll() is None:
             try:
@@ -187,7 +195,7 @@ class Cava:
                 self.process.kill()
             except Exception:
                 pass
-        
+
         # Remove FIFO file
         if os.path.exists(self.path):
             try:
@@ -195,16 +203,20 @@ class Cava:
             except OSError:
                 pass
 
+
 class AttributeDict(dict):
     """Dictionary with keys as attributes. Does nothing but easy reading"""
+
     def __getattr__(self, attr):
         return self.get(attr, 3)
 
     def __setattr__(self, attr, value):
         self[attr] = value
 
+
 class Spectrum:
     """Spectrum drawing"""
+
     def __init__(self):
         self.silence_value = 0
         self.audio_sample = []
@@ -286,24 +298,28 @@ class Spectrum:
             current_mtime = os.path.getmtime(color_file)
             if current_mtime != self._color_file_mtime or self._cached_color is None:
                 self._color_file_mtime = current_mtime
-                
+
                 color = "#a5c8ff"  # default value
                 with open(color_file, "r") as f:
                     content = f.read()
                     m = re.search(r"--primary:\s*(#[0-9a-fA-F]{6})", content)
                     if m:
                         color = m.group(1)
-                
+
                 red = int(color[1:3], 16) / 255
                 green = int(color[3:5], 16) / 255
                 blue = int(color[5:7], 16) / 255
-                self._cached_color = Gdk.RGBA(red=red, green=green, blue=blue, alpha=1.0)
-                
+                self._cached_color = Gdk.RGBA(
+                    red=red, green=green, blue=blue, alpha=1.0
+                )
+
             self.color = self._cached_color
         except Exception:
             if self._cached_color is None:
                 # Fallback to default color
-                self._cached_color = Gdk.RGBA(red=0.647, green=0.784, blue=1.0, alpha=1.0)
+                self._cached_color = Gdk.RGBA(
+                    red=0.647, green=0.784, blue=1.0, alpha=1.0
+                )
                 self.color = self._cached_color
 
     def color_update(self):
@@ -322,6 +338,7 @@ class Spectrum:
         blue = int(color[5:7], 16) / 255
         self.color = Gdk.RGBA(red=red, green=green, blue=blue, alpha=1.0)
 
+
 class SpectrumRender:
     def __init__(self, mode=None, **kwargs):
         super().__init__(**kwargs)
@@ -333,11 +350,11 @@ class SpectrumRender:
 
     def get_spectrum_box(self):
         # Get the spectrum box
-        box = Overlay(name="cavalcade", h_align='center', v_align='center')
+        box = Overlay(name="cavalcade", h_align="center", v_align="center")
         box.set_size_request(180, 40)
         box.add_overlay(self.draw.area)
         return box
-    
+
 
 if __name__ == "__main__":
     app = Application(
@@ -349,7 +366,7 @@ if __name__ == "__main__":
                 size=2,  # so it's not ignored by the compositor
                 spacing=4,
                 orientation="v",
-                children=[SpectrumRender().get_spectrum_box()]
+                children=[SpectrumRender().get_spectrum_box()],
             ),
             visible=True,
             all_visible=True,

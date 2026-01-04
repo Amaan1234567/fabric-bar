@@ -6,7 +6,7 @@ from typing import Protocol, cast
 from fabric.core.service import Service, Property, Signal
 from fabric.utils import clamp
 
-from gi.repository import GLib, Gtk # type: ignore
+from gi.repository import GLib, Gtk  # type: ignore
 
 
 @cache

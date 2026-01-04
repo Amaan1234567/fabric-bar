@@ -81,14 +81,16 @@ class Shadertoy(Gtk.GLArea, Widget):
     def __init__(
         self,
         shader_buffer: str,
-        shader_uniforms: list[
-            tuple[
-                str,
-                ShadertoyUniformType,
-                bool | float | int | tuple[float, ...] | GdkPixbuf.Pixbuf,
+        shader_uniforms: (
+            list[
+                tuple[
+                    str,
+                    ShadertoyUniformType,
+                    bool | float | int | tuple[float, ...] | GdkPixbuf.Pixbuf,
+                ]
             ]
-        ]
-        | None = None,
+            | None
+        ) = None,
         name: str | None = None,
         visible: bool = True,
         all_visible: bool = False,
@@ -96,20 +98,18 @@ class Shadertoy(Gtk.GLArea, Widget):
         style_classes: Iterable[str] | str | None = None,
         tooltip_text: str | None = None,
         tooltip_markup: str | None = None,
-        h_align: Literal["fill", "start", "end", "center", "baseline"]
-        | Gtk.Align
-        | None = None,
-        v_align: Literal["fill", "start", "end", "center", "baseline"]
-        | Gtk.Align
-        | None = None,
+        h_align: (
+            Literal["fill", "start", "end", "center", "baseline"] | Gtk.Align | None
+        ) = None,
+        v_align: (
+            Literal["fill", "start", "end", "center", "baseline"] | Gtk.Align | None
+        ) = None,
         h_expand: bool = False,
         v_expand: bool = False,
         size: Iterable[int] | int | None = None,
         **kwargs,
     ):
-        Gtk.GLArea.__init__(
-            self  # type: ignore
-        )
+        Gtk.GLArea.__init__(self)  # type: ignore
         Widget.__init__(
             self,
             name,
@@ -317,9 +317,7 @@ class Shadertoy(Gtk.GLArea, Widget):
                 (
                     GL.glUniform2f
                     if (vlen := len(value)) == 2
-                    else GL.glUniform3f
-                    if vlen == 3
-                    else GL.glUniform4f
+                    else GL.glUniform3f if vlen == 3 else GL.glUniform4f
                 )(location, *value)
             case ShadertoyUniformType.FLOAT:
                 GL.glUniform1f(location, value)
@@ -366,12 +364,14 @@ class Shadertoy(Gtk.GLArea, Widget):
                 # all aboard...
                 GL.glUniform1i(location, texture_unit)
 
+
 def make_window_transparent(win):
     screen = win.get_screen()
     visual = screen.get_rgba_visual()
     if visual is not None and screen.is_composited():
         win.set_visual(visual)
     win.set_app_paintable(True)
+
 
 SHADER = """
 float colormap_red(float x) {
@@ -481,7 +481,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 """
 
 if __name__ == "__main__":
-    tex = GdkPixbuf.Pixbuf.new_from_file("/home/amaan/Pictures/backgrounds/Lofi-Urban-Nightscape.png")
+    tex = GdkPixbuf.Pixbuf.new_from_file(
+        "/home/amaan/Pictures/backgrounds/Lofi-Urban-Nightscape.png"
+    )
 
     shader_bg = Shadertoy(
         shader_buffer=SHADER,
@@ -500,7 +502,7 @@ if __name__ == "__main__":
     # Window setup
     win = Gtk.Window()
     win.connect("destroy", Gtk.main_quit)
-    #make_window_transparent(win)  # Enable transparency
+    # make_window_transparent(win)  # Enable transparency
     win.add(overlay)
     win.set_default_size(800, 600)
     win.show_all()

@@ -1,6 +1,5 @@
 """contains the control center widget"""
 
-
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.box import Box
 from fabric.widgets.revealer import Revealer
@@ -61,18 +60,19 @@ class ControlCenter(Window):
             child=self.control_center_content,
             child_revealed=False,
             transition_duration=100,
-            transition_type="slide-left",size=[1,-1]
+            transition_type="slide-left",
+            size=[1, -1],
         )
         self.add(self.revealer)
         # self.show()
 
     def toggle_control_center(self):
         """toggles control center"""
-        #self.set_visible(not self.get_visible())
+        # self.set_visible(not self.get_visible())
 
         if self.revealer.get_reveal_child():
-            #GLib.timeout_add(300, self.set_visible, not self.get_visible())
+            # GLib.timeout_add(300, self.set_visible, not self.get_visible())
             self.revealer.set_reveal_child(False)
         else:
-            #self.set_visible(True)
+            # self.set_visible(True)
             self.revealer.set_reveal_child(True)

@@ -27,7 +27,7 @@ _ICONS = {
 class VolumeOSD(PopupWindow):
     """Volume on-screen display (OSD) widget."""
 
-    def __init__(self, parent,pointing_to, **kwargs):
+    def __init__(self, parent, pointing_to, **kwargs):
         super().__init__(
             parent,
             pointing_to,

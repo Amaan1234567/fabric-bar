@@ -8,7 +8,7 @@ from fabric.widgets.revealer import Revealer
 from fabric.widgets.button import Button
 from fabric.widgets.entry import Entry
 from fabric.utils.helpers import exec_shell_command_async
-from gi.repository import GLib, Gdk #type: ignore
+from gi.repository import GLib, Gdk  # type: ignore
 
 
 from custom_widgets.popup_window import PopupWindow
@@ -347,8 +347,7 @@ class NetworkWidget(Box):
             name="wifi-network-available",
             label=label,
             h_align="start",
-            on_clicked=lambda btn, s=ssid, sec=is_secure, saved=is_saved:
-            self._handle_network_click(
+            on_clicked=lambda btn, s=ssid, sec=is_secure, saved=is_saved: self._handle_network_click(
                 s, sec, saved, btn
             ),
         )
@@ -401,7 +400,9 @@ class NetworkWidget(Box):
 
     def _connection_attempt_callback(self, output) -> bool:
         if "successfully" in output:
-            exec_shell_command_async(f"notify-send \"Network Updated\" \"Successfully connected to {self._wifi_device.ssid}\"")
+            exec_shell_command_async(
+                f'notify-send "Network Updated" "Successfully connected to {self._wifi_device.ssid}"'
+            )
             GLib.idle_add(self.networks_popup.set_visible, False)
             return True
         return False

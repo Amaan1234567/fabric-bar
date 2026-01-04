@@ -74,7 +74,10 @@ class ScreenCorners(Window):
                 Box(name="screen-padding-bottom", size=[-1, 1]),
             ],
         )
-        self.overlay = Overlay(child=self.all_corners,overlays=Box(name="corners-overlay",h_expand=True,v_expand=True))
+        self.overlay = Overlay(
+            child=self.all_corners,
+            overlays=Box(name="corners-overlay", h_expand=True, v_expand=True),
+        )
         # self.add(self.all_corners)
         self.add(self.overlay)
 

@@ -60,13 +60,13 @@ class AudioWidget(Box):
         speaker = self.audio.speaker
         if not speaker:
             return
-        
+
         speaker.connect("notify::volume", self._update_ui)
         self._update_ui()
-        
+
     def _update_ui(self, *_: Any):
         """Refresh progress, icon, label, and tooltip."""
-        
+
         spk = self.audio.speaker
         if not spk:
             return
@@ -80,7 +80,6 @@ class AudioWidget(Box):
         # logger.info(f"speaker-muted: {muted}")
         # logger.debug(f"audio-scale value:{self.scale.value}")
 
-        
         self.scale.animate_value(vol)
 
         if muted or vol == 0:
@@ -113,4 +112,3 @@ class AudioWidget(Box):
         logger.debug(f"audio scale value returned on value change: {value}")
         logger.debug(f"current change in volume: {abs(self.scale.value)}")
         self.audio.speaker.volume = value
-

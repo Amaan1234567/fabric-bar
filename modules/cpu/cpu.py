@@ -56,7 +56,7 @@ class Cpu(Box):
             psutil.cpu_freq(),
             psutil.cpu_percent(percpu=True),
             psutil.sensors_temperatures()["coretemp"][0],
-            psutil.sensors_fans()['asus'][0]
+            psutil.sensors_fans()["asus"][0],
         )
 
     def _set_tooltip(self):
@@ -85,10 +85,18 @@ class Cpu(Box):
         else:
             temp_color = "#FF5454"
 
-        temp_txt = f'Temp: <span foreground="{temp_color}">{cpu_temp.current}°C</span>\n'
+        temp_txt = (
+            f'Temp: <span foreground="{temp_color}">{cpu_temp.current}°C</span>\n'
+        )
 
         fan_speed_txt = f"CPU Fan Speed: {cpu_fan_speed.current}"
-        markup = "<u><b>CPU Stats</b></u>\n" + cpu_freq + usage_txt + temp_txt + fan_speed_txt
+        markup = (
+            "<u><b>CPU Stats</b></u>\n"
+            + cpu_freq
+            + usage_txt
+            + temp_txt
+            + fan_speed_txt
+        )
 
         self.set_tooltip_markup(markup=markup)
 

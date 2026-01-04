@@ -33,7 +33,6 @@ class WifiService(Service):
     def disabled(self) -> None:
         """signal to show wifi disabled"""
 
-
     @Signal
     def changed(self):
         """signal to show any other change of state in service"""
@@ -295,7 +294,7 @@ class EthernetService(Service):
     @Property(str, "readable")
     def ip(self):
         """ip address of current connection"""
-        
+
         if active_connection := self._client.get_active_connections()[0]:
             if ip_config := active_connection.get_ip4_config():
                 return ip_config.get_addresses()[0].get_address()

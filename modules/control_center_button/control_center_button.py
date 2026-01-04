@@ -7,8 +7,6 @@ from fabric.widgets.button import Button
 from modules.control_center.control_center import ControlCenter
 
 
-
-
 class ControlCenterButton(Box):
     """control center trigger button"""
 

@@ -7,7 +7,7 @@ from fabric import Fabricator
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
-from fabric.utils import cooldown,exec_shell_command_async
+from fabric.utils import cooldown, exec_shell_command_async
 from custom_widgets.animated_scale import AnimatedScale
 
 # ---------------------------------------------------------------- helpers
@@ -25,7 +25,7 @@ class BrightnessSlider(Box):
         super().__init__(
             orientation="vertical",
             spacing=0,
-            size=[1,-1],
+            size=[1, -1],
             name=name,
             v_expand=True,
             h_expand=True,
@@ -98,7 +98,9 @@ class BrightnessSlider(Box):
 
         self.scale.animate_value(value)
 
-        GLib.timeout_add(1000, lambda *_: (setattr(self, "value_changing", False) or False))
+        GLib.timeout_add(
+            1000, lambda *_: (setattr(self, "value_changing", False) or False)
+        )
 
     def _refresh(self, _, value):
         if self.value_changing:

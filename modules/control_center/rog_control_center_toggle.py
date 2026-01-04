@@ -1,11 +1,13 @@
 """hold rog app trigger button"""
+
 from fabric.widgets.button import Button
 from fabric.widgets.svg import Svg
 from fabric.utils import cooldown, exec_shell_command_async
 
 
 class ROGButton(Button):
-    """ widget that hold the button to trigger ROG app"""
+    """widget that hold the button to trigger ROG app"""
+
     def __init__(self):
         # Let Fabric handle SVG scaling automatically
         rog_icon = Svg(

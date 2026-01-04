@@ -1,4 +1,3 @@
-
 from os import name
 from loguru import logger
 from fabric import Fabricator
@@ -10,9 +9,11 @@ from gi.repository import GLib
 from custom_widgets.animated_scale import AnimatedScale
 from custom_widgets.popup_window import PopupWindow as Window
 
+
 class BrightnessOSD(Window):
     """Brightness on-screen display (OSD) widget."""
-    def __init__(self, parent,pointing_to, **kwargs):
+
+    def __init__(self, parent, pointing_to, **kwargs):
         super().__init__(
             parent,
             pointing_to,
@@ -45,7 +46,7 @@ class BrightnessOSD(Window):
             name="brightness-osd-box",
             orientation="vertical",
             spacing=10,
-            children=[self.scale,self.icon],
+            children=[self.scale, self.icon],
         )
 
         self.revealer = Revealer(
@@ -59,7 +60,9 @@ class BrightnessOSD(Window):
         self.last_revealer_handler = None
         self.last_window_handler = None
         self.max_brightness_file = "/sys/class/backlight/intel_backlight/max_brightness"
-        self.actual_brightness_file = "/sys/class/backlight/intel_backlight/actual_brightness"
+        self.actual_brightness_file = (
+            "/sys/class/backlight/intel_backlight/actual_brightness"
+        )
 
         with open(self.max_brightness_file, "r", encoding="utf8") as max_brightness:
             self.max_brightness = int(max_brightness.read())

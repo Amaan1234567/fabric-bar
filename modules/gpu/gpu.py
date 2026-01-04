@@ -48,7 +48,6 @@ class GpuWidget(Box):
 
         invoke_repeater(1000, self._process_data)
 
-
     def _process_data(self):
         # print("data: ",data)
         data = exec_shell_command("nvtop -s")
