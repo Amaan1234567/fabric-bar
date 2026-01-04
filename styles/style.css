@@ -6,7 +6,7 @@
   font-weight: 900;
   font-size: 16px;
   background: transparent;
-  /* transition: background 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682); */
+  transition: background 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682);
 }
 
 
@@ -559,8 +559,8 @@ tooltip {
 }
 
 #rog-button {
-  padding-left: 10px;
-  padding-right: 6px;
+  padding-left: 16px;
+  padding-right: 16px;
   border-radius: 10px;
   background-color: @color4;
   color: @color2;
@@ -812,12 +812,17 @@ tooltip {
 
 #notification-item {
 background: @background;
-border: solid 2px @color4;
+/* border: solid 2px @color4; */
 border-radius:12px;
 }
 
 #notification-item-thumbnail{
 border-radius: 10px;
+}
+
+#notifications-scrolled-window{
+  border-radius: 10px;
+  transition: all 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682);
 }
 
 #notification-item-content{
@@ -855,7 +860,7 @@ border-radius: 10px;
 
 #notifications-panel-title-bar {
   border: solid @color4;
-  border-width: 0px 0px 2px 0px;
+  /* border-width: 0px 0px 2px 0px; */
   padding-bottom: 10px;
   border-radius: 0px;
 }
@@ -883,4 +888,17 @@ border-radius: 10px;
   padding-left: 5px;
   padding-right: 5px;
   padding-bottom: 5px;;
+}
+
+#dismiss-all-button {
+  color: @color4;
+  
+  border: solid 2px;
+  border-radius: 7px;
+  padding: 4px 8px;
+}
+
+#dismiss-all-button label{
+  font-size:20px;
+  font-weight:900;
 }

@@ -28,6 +28,9 @@ class NotificationService(Service):
         """Emitted when a notification is removed."""
         self.notify("notifications")
 
+    @Signal
+    def dnd_toggled(self, dnd_is_on: bool) -> None:...
+
     @Property(Dict[int, Notification], "readable")
     def notifications(self) -> Dict[int, Notification]:
         """Get the current list of notifications."""
@@ -46,6 +49,18 @@ class NotificationService(Service):
         self._notifications_service.connect(
             "notification-closed", self._on_notification_closed
         )
+
+        self._is_dnd_on = False
+
+    @property
+    def dnd(self):
+        """dnd property"""
+        return self._is_dnd_on
+
+    @dnd.setter
+    def dnd(self, dnd):
+        self.dnd_toggled.emit(dnd)
+        self._is_dnd_on = dnd
 
     def _on_notification_added(self, _, notification_id: int) -> None:
         notification: Notification = (
@@ -88,3 +103,10 @@ class NotificationService(Service):
         """Get a notification by its ID."""
         print(notification_id)
         return self._notifications[notification_id]
+
+    def toggle_dnd(self):
+        """function to toggle dnd"""
+        print("toggling")
+        self._is_dnd_on = not self._is_dnd_on
+        print("dnd: ",self._is_dnd_on)
+        self.dnd_toggled.emit(self._is_dnd_on)
