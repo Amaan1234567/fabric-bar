@@ -1,32 +1,6 @@
-certifi==2025.7.14
-charset-normalizer==3.4.2
-click==8.1.7
-colorist==1.8.5
-dbus-python==1.4.0
-fabric @ git+https://github.com/Fabric-Development/fabric.git@91caa4e8e88f777acdf6b1e426d54c74a9c8bde3
-idna==3.10
-ijson==3.4.0
-joblib==1.5.1
-loguru==0.7.2
-numpy==2.3.2
-pillow==11.3.0
-psutil==6.1.0
-pycairo==1.27.0
+click==8.3.1
+fabric @ git+https://github.com/Fabric-Development/fabric.git@8633df172a3ceee9222e7e583e93717f733d5618
+loguru==0.7.3
+psutil==7.2.1
+pycairo==1.29.0
 PyGObject==3.50.0
-PyGObject-stubs==2.10.0
-pyinstrument==5.1.1
-pyjson5==1.6.8
-PyOpenGL==3.1.9
-python-networkmanager==2.2
-pytomlpp==1.0.13
-qrcode==8.2
-requests==2.32.4
-rlottie-python==1.3.6
-scikit-learn==1.7.1
-scipy==1.16.1
-setproctitle==1.3.4
-six==1.17.0
-snakeviz==2.2.2
-threadpoolctl==3.6.0
-tornado==6.5.2
-urllib3==2.5.0
