@@ -91,9 +91,8 @@ class NotificationService(Service):
     def dismiss_notification(self, notification_id: int) -> None:
         """Dismiss a notification by its ID."""
         if notification_id in self._notifications:
-            self._notifications_service.close_notification(
-                notification_id, NotificationCloseReason.DISMISSED_BY_USER
-            )
+            self._notifications = {}
+            self.notification_dismissed.emit(notification_id)
 
     def dismiss_all_notifications(self) -> None:
         """Dismiss all notifications."""
