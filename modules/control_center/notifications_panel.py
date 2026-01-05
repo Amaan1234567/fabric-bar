@@ -127,7 +127,8 @@ class NotificationItem(Box):
                                     h_expand=True,
                                     v_expand=True,
                                     label=action.label,
-                                    on_clicked=lambda *_, action=action: action.invoke(),
+                                    on_clicked=lambda *_,
+                                    action=action: action.invoke(),
                                 )
                                 for action in actions[
                                     i : i + NOTIFICATION_BUTTONS_WRAP_THRESHOLD
@@ -245,6 +246,9 @@ class NotificationsPanel(Box):
         self.notifications_service.connect("notification-added", self._add_notification)
         self.notifications_service.connect(
             "notification-dismissed", self._load_notifications
+        )
+        self.notifications_service.connect(
+            "all-notifications-dismissed", self._load_notifications
         )
 
         self.notifications_box = Box(

@@ -2,6 +2,7 @@
 
 from typing import Dict, cast
 from loguru import logger
+from gi.repository import GLib  # type: ignore
 from fabric import Property
 from fabric.notifications.service import (
     Notifications,
@@ -27,6 +28,9 @@ class NotificationService(Service):
     def notification_dismissed(self, notification_id: int) -> None:
         """Emitted when a notification is removed."""
         self.notify("notifications")
+
+    @Signal
+    def all_notifications_dismissed(self) -> None: ...
 
     @Signal
     def dnd_toggled(self, dnd_is_on: bool) -> None:
@@ -91,13 +95,16 @@ class NotificationService(Service):
     def dismiss_notification(self, notification_id: int) -> None:
         """Dismiss a notification by its ID."""
         if notification_id in self._notifications:
-            self._notifications = {}
-            self.notification_dismissed.emit(notification_id)
+            GLib.idle_add(
+                self._notifications_service.close_notification,
+                notification_id,
+                NotificationCloseReason.DISMISSED_BY_USER,
+            )
 
     def dismiss_all_notifications(self) -> None:
         """Dismiss all notifications."""
-        for notification_id in list(self._notifications.keys()):
-            self.dismiss_notification(notification_id)
+        self._notifications = {}
+        self.all_notifications_dismissed.emit()
 
     def get_notification_from_id(self, notification_id: int) -> Notification:
         """Get a notification by its ID."""
