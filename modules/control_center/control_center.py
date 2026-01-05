@@ -12,6 +12,7 @@ from modules.control_center.mic_toggle_button import MicToggle
 from modules.control_center.performance_toggle import PerformanceToggle
 from modules.control_center.brightness_slider import BrightnessSlider
 from modules.control_center.notifications_panel import NotificationsPanel
+from modules.control_center.gamemode_toggle import GamemodeToggleButton
 
 
 class ControlCenter(Window):
@@ -39,6 +40,7 @@ class ControlCenter(Window):
                 ROGButton(),
                 WallpaperChangeButton(),
                 MicToggle(),
+                GamemodeToggleButton()
             ],
         )
         self.small_toggles.set_homogeneous(True)

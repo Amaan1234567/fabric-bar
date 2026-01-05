@@ -531,9 +531,9 @@ tooltip {
   border-color: @color4;
 }
 
-/* highlighted background when on */
+
 .bluetooth-on {
-  background-color: @color4; /* or any colour you want */
+  background-color: @color4; 
   color: @background;
 }
 
@@ -559,8 +559,8 @@ tooltip {
 }
 
 #rog-button {
-  padding-left: 16px;
-  padding-right: 16px;
+  padding-left: 8px;
+  padding-right: 8px;
   border-radius: 10px;
   background-color: @color4;
   color: @color2;
@@ -608,6 +608,22 @@ tooltip {
   padding: 5px;
   border-radius: 10px;
   background-color: @color4;
+  color: @background;
+}
+
+#gamemode-toggle-button{
+  border-radius: 10px;
+}
+
+.gamemode-off {
+  background-color: @background;
+  color: @color4;
+  border: solid 1px @color4;
+  
+}
+
+.gamemode-on {
+  background: @color4;
   color: @background;
 }
 
