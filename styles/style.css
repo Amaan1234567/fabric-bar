@@ -918,3 +918,17 @@ border-radius: 10px;
   font-size:20px;
   font-weight:900;
 }
+
+#wallpaper-selector-window * {
+  transition: all 0.2s cubic-bezier(0.55, 0.68, 0.48, 1.682);
+}
+
+#wallpaper-selector-window button:focus{
+  border: solid @color4 4px;
+}
+
+#wallpaper-selector-container {
+  background-color: @backgroundWaybar;
+  border-radius: 10px;
+}
+
