@@ -1,3 +1,4 @@
+from encodings.punycode import T
 import os
 from screeninfo import get_monitors
 from PIL import Image
@@ -38,7 +39,7 @@ class WallpaperSelector(Window):
         )
 
         self.content = Box(name="main-wallpaper-container",h_expand=True,v_expand=True,
-            size=[self.preview_target_width * 5,self.preview_target_height + 90],
+            size=[self.preview_target_width * 5,self.preview_target_height+46],
             
         )
         self.wallpaper_folder = f"{os.environ.get('HOME')}/Pictures/backgrounds/"
@@ -49,13 +50,13 @@ class WallpaperSelector(Window):
 
         self.scrolling_container = ScrolledWindow(
             name="wallpaper-scroll-container",
-            max_content_size=[
-                self.preview_target_width * 5,
-                self.preview_target_height + 300,
-            ],
+            # max_content_size=[
+            #     self.preview_target_width * 5,
+            #     self.preview_target_height,
+            # ],
         )
 
-        self.buttons_box = Box(name="wallpapers-container",orientation="h",h_expand=True,v_expand=True, spacing=20)
+        self.buttons_box = Box(name="wallpapers-container",orientation="h", spacing=20)
         self._create_buttons()
 
         self.scrolling_container.children = [self.buttons_box]
@@ -93,10 +94,12 @@ class WallpaperSelector(Window):
             print(image_file_name)
             image = Box(
                 name="wallpaper-thumnail",
-                size=[self.preview_target_width, self.preview_target_height],
+                # size=[self.preview_target_width, self.preview_target_height],
+                h_expand=True,v_expand=True
             )
             image.set_style(
                 f"""border-radius: 10px;
+                padding:0px;
                 background-image: url('file://{self.cache_folder + image_file_name}');""",
                 compile=False
             )
@@ -105,11 +108,12 @@ class WallpaperSelector(Window):
                 name="wallpaper-container",
                 orientation="v",
                 children=[image, label],
+                spacing=5,
                 h_align="center",
                 v_align="center",
-                h_expand=True,v_expand=True
+                
             )
-            button = Button(name="wallpaper-button", child=box,h_expand=True,v_expand=True)
+            button = Button(name="wallpaper-button", child=box)
             self.buttons_box.add(button)
 
     def toggle_window(self):

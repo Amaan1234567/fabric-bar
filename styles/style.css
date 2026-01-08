@@ -919,10 +919,15 @@ border-radius: 10px;
   font-weight:900;
 }
 
+#wallpaper-selector-window button{
+  padding:0;
+  margin:0;
+  
+}
 
 #wallpaper-selector-window button:focus{
   border: solid @color4 2px;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 #main-wallpaper-container{
@@ -932,15 +937,11 @@ border-radius: 10px;
 #wallpaper-scroll-container{
   margin:20px;
 }
-#wallpapers-container {
-  padding:10px;
-}
 
 #wallpaper-container {
   background-size: cover;
   min-width: 256px;
   min-height: 720px;
-  
 }
 
 
