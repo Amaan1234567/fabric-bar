@@ -919,16 +919,28 @@ border-radius: 10px;
   font-weight:900;
 }
 
-#wallpaper-selector-window * {
-  transition: all 0.2s cubic-bezier(0.55, 0.68, 0.48, 1.682);
-}
 
 #wallpaper-selector-window button:focus{
-  border: solid @color4 4px;
-}
-
-#wallpaper-selector-container {
-  background-color: @backgroundWaybar;
+  border: solid @color4 2px;
   border-radius: 10px;
 }
+
+#main-wallpaper-container{
+  background-color: @backgroundWaybar;
+  border-radius:20px;
+}
+#wallpaper-scroll-container{
+  margin:20px;
+}
+#wallpapers-container {
+  padding:10px;
+}
+
+#wallpaper-container {
+  background-size: cover;
+  min-width: 256px;
+  min-height: 720px;
+  
+}
+
 
