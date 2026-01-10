@@ -57,7 +57,7 @@ class WallpaperSelector(Window):
             name="main-wallpaper-container",
             h_expand=True,
             v_expand=True,
-            size=[self.preview_target_width * 5, self.preview_target_height + 55],
+            size=[self.preview_target_width * 6, self.preview_target_height + 55],
         )
         self.wallpaper_folder = f"{os.environ.get('HOME')}/Pictures/backgrounds/"
         self.cache_folder = f"{os.environ.get('HOME')}/.cache/wallpapers_cache/"
@@ -125,11 +125,10 @@ class WallpaperSelector(Window):
                 background-image: url('file://{self.cache_folder + image_file_name}');""",
                 compile=False,
             )
-            label = Label(label=truncate(image_file_name), name="wallpaper-label")
             box = Box(
                 name="wallpaper-container",
                 orientation="v",
-                children=[image, label],
+                children=[image],
                 spacing=5,
                 h_align="center",
                 v_align="center",
