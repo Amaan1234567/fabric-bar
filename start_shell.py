@@ -60,7 +60,8 @@ if __name__ == "__main__":
 
     @Application.action()
     def toggle_wallpaper_selector():
-        wallpaper_selector.toggle_window()
+        """function to toggle wallpaper selector"""
+        wallpaper_selector.toggle_window()  # type: ignore
 
     style_path = get_relative_path("styles/style.css")
     if style_path:
