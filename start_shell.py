@@ -14,10 +14,13 @@ from services.playerctlservice import SimplePlayerctlService
 from services.networkservice import NetworkService
 from widgets import volume_osd
 from widgets import brightness_osd
+from widgets import wallpaper_selector
 from widgets.top_bar import TopBar
 from widgets.corners import ScreenCorners
 from widgets.volume_osd import VolumeOSD
 from widgets.brightness_osd import BrightnessOSD
+from widgets.wallpaper_selector import WallpaperSelector
+
 
 if __name__ == "__main__":
     logger.remove()
@@ -41,6 +44,7 @@ if __name__ == "__main__":
     notifications = NotificationPopupWindow(app_data)
     volume_osd = VolumeOSD(status_bar, status_bar.logout_btn)
     brightness_osd = BrightnessOSD(status_bar, status_bar.logout_btn)
+    wallpaper_selector = WallpaperSelector()
     app = Application(
         "hypr-fabric-bar",
         windows=[
@@ -50,8 +54,14 @@ if __name__ == "__main__":
             notifications,
             volume_osd,
             brightness_osd,
+            wallpaper_selector,
         ],
     )
+
+    @Application.action()
+    def toggle_wallpaper_selector():
+        """function to toggle wallpaper selector"""
+        wallpaper_selector.toggle_window()  # type: ignore
 
     style_path = get_relative_path("styles/style.css")
     if style_path:

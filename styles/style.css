@@ -918,3 +918,31 @@ border-radius: 10px;
   font-size:20px;
   font-weight:900;
 }
+
+#wallpaper-selector-window button{
+  padding:0;
+  margin:0;
+  transition: margin 0.3s cubic-bezier(0.09, -0.02, 0.21, 1.50);
+}
+
+#wallpaper-selector-window button:focus{
+  border: solid @color4 2px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+#main-wallpaper-container{
+  background-color: @backgroundWaybar;
+  border-radius:20px;
+}
+#wallpaper-scroll-container{
+  margin:20px;
+}
+
+#wallpaper-container {
+  background-size: cover;
+  min-width: 256px;
+  min-height: 720px;
+}
+
+
