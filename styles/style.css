@@ -515,7 +515,7 @@ tooltip {
 
 #bluetooth-toggle {
   border-radius: 10px;
-  border-width: 2px;
+  border-width: 1px;
   border-color: @color4;
 }
 
@@ -535,6 +535,9 @@ tooltip {
 .bluetooth-on {
   background-color: @color4; 
   color: @background;
+  border-width: 1px;
+  border-color: @color4;
+  border:solid;
 }
 
 #wifi-toggle {
@@ -549,7 +552,7 @@ tooltip {
   color: @color4;
   border: solid;
   background-color: transparent;
-  border-width: 2px;
+  border-width: 1px;
   border-color: @color4;
 }
 

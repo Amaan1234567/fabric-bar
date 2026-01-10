@@ -57,7 +57,7 @@ class WallpaperSelector(Window):
             name="main-wallpaper-container",
             h_expand=True,
             v_expand=True,
-            size=[self.preview_target_width * 6, self.preview_target_height + 55],
+            size=[self.preview_target_width * 5 + 130, self.preview_target_height + 55],
         )
         self.wallpaper_folder = f"{os.environ.get('HOME')}/Pictures/backgrounds/"
         self.cache_folder = f"{os.environ.get('HOME')}/.cache/wallpapers_cache/"
