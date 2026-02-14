@@ -5,24 +5,23 @@ from loguru import logger
 
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
-from modules.control_center import control_center
-from modules.control_center.control_center import ControlCenter
 from modules.notification.notification_window import NotificationPopupWindow
 from utils.application_data_holder import Data
 from services.notification_service import NotificationService
 from services.playerctlservice import SimplePlayerctlService
 from services.networkservice import NetworkService
-from widgets import volume_osd
-from widgets import brightness_osd
-from widgets import wallpaper_selector
-from widgets.top_bar import TopBar
 from widgets.corners import ScreenCorners
-from widgets.volume_osd import VolumeOSD
-from widgets.brightness_osd import BrightnessOSD
-from widgets.wallpaper_selector import WallpaperSelector
 
 
 if __name__ == "__main__":
+    script_name = sys.argv[0]
+
+    if len(sys.argv) <= 1 or sys.argv[1] != "--monitor-id":
+        print(f"Usage: {script_name} [--monitor-id <monitor_id>]")
+        exit(1)
+
+    monitor_id = int(sys.argv[2]) if len(sys.argv) >= 2 else 0
+    logger.info(f"Starting in side monitors mode on monitor {monitor_id}")
     logger.remove()
 
     # Add a new sink, filtering out messages from 'noisy_module'
@@ -31,37 +30,15 @@ if __name__ == "__main__":
         filter=lambda record: record["name"] != "fabric.widgets.svg",
         level="INFO",
     )
-    app_data = Data(
-        notification_service=NotificationService(),
-        playerctl_service=SimplePlayerctlService(),
-        network_service=NetworkService(),
-        control_center=None,
-    )
-    control_center = ControlCenter(app_data=app_data,monitor=0)
-    app_data.control_center = control_center
-    status_bar = TopBar(app_data,monitor=0)
-    corners = ScreenCorners(monitor=0)
-    notifications = NotificationPopupWindow(app_data,monitor=0)
-    volume_osd = VolumeOSD(status_bar, status_bar.logout_btn,monitor=0)
-    brightness_osd = BrightnessOSD(status_bar, status_bar.logout_btn,monitor=0)
-    wallpaper_selector = WallpaperSelector()
+    
+    corners = ScreenCorners(monitor=monitor_id)
     app = Application(
-        "hypr-fabric-bar-main",
+        f"hypr-fabric-bar-side-monitor-{monitor_id}",
         windows=[
-            status_bar,
             corners,
-            control_center,
-            notifications,
-            volume_osd,
-            brightness_osd,
-            wallpaper_selector,
         ],
     )
 
-    @Application.action()
-    def toggle_wallpaper_selector():
-        """function to toggle wallpaper selector"""
-        wallpaper_selector.toggle_window()  # type: ignore
 
     style_path = get_relative_path("styles/style.css")
     if style_path:
