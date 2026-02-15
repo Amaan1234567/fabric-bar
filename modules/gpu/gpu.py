@@ -1,6 +1,7 @@
 """holds the gpu stats widget"""
 
 import json
+from typing import Any, Dict
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.utils.helpers import exec_shell_command, invoke_repeater
@@ -54,11 +55,16 @@ class GpuWidget(Box):
         if data is False:
             return
         devices = json.loads(data)
-        # print(float(devices[0]["gpu_util"][:-1]))
-        self.usage_scale.animate_value(float(devices[0]["gpu_util"][:-1]))
-        self.usage_scale.set_value(float(devices[0]["gpu_util"][:-1]))
-        self.memory_usage_scale.animate_value(float(devices[0]["mem_util"][:-1]))
-        self.memory_usage_scale.set_value(float(devices[0]["mem_util"][:-1]))
+        dedicated_gpu: None | Dict[Any:Any]=None
+        for device in devices:
+            GPU_VENDORS = ["NVIDIA", "AMD", "INTEL"]
+            for vendor in GPU_VENDORS:
+                if vendor in device["device_name"]:
+                    dedicated_gpu=device
+        self.usage_scale.animate_value(float(dedicated_gpu["gpu_util"][:-1]))
+        self.usage_scale.set_value(float(dedicated_gpu["gpu_util"][:-1]))
+        self.memory_usage_scale.animate_value(float(dedicated_gpu["mem_util"][:-1]))
+        self.memory_usage_scale.set_value(float(dedicated_gpu["mem_util"][:-1]))
 
         self._set_tooltip(devices)
 
