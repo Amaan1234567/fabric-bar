@@ -922,16 +922,19 @@ border-radius: 10px;
   font-weight:900;
 }
 
+
+
 #wallpaper-selector-window button{
   padding:0;
   margin:0;
-  transition: margin 0.3s cubic-bezier(0.09, -0.02, 0.21, 1.50);
+  transition: all 0.3s cubic-bezier(0.00,0.00,0.20,1.00);
 }
 
 #wallpaper-selector-window button:focus{
   border: solid @color4 2px;
   border-radius: 12px;
-  margin-bottom: 20px;
+  min-width: 384px;
+  background-size: cover;
 }
 
 #main-wallpaper-container{
@@ -942,10 +945,15 @@ border-radius: 10px;
   margin:20px;
 }
 
-#wallpaper-container {
+#wallpaper-button:focus #wallpaper-container{
+  min-width: 512px;
   background-size: cover;
+}
+
+#wallpaper-container {
   min-width: 256px;
   min-height: 720px;
+  transition: all 0.3s cubic-bezier(0.00,0.00,0.20,1.00);
 }
 
 

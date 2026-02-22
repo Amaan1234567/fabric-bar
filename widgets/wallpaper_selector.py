@@ -100,8 +100,8 @@ class WallpaperSelector(Window):
             ),
             Image.Resampling.BILINEAR,
         )
-        left = scaled_wallpaper.size[0] // 2 - int(scaled_wallpaper.size[0] * 0.1)
-        right = scaled_wallpaper.size[0] // 2 + int(scaled_wallpaper.size[0] * 0.1)
+        left = scaled_wallpaper.size[0] // 2 - int(scaled_wallpaper.size[0] * 0.2)
+        right = scaled_wallpaper.size[0] // 2 + int(scaled_wallpaper.size[0] * 0.2)
         bottom = scaled_wallpaper.size[1]
         top = 0
         cropped_image = scaled_wallpaper.crop((left, top, right, bottom))
@@ -129,7 +129,8 @@ class WallpaperSelector(Window):
                 name="wallpaper-container",
                 orientation="v",
                 children=[image],
-                spacing=5,
+                h_expand=True,
+                v_expand=True,
                 h_align="center",
                 v_align="center",
             )
