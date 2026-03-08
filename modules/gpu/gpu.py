@@ -1,10 +1,12 @@
 """holds the gpu stats widget"""
 
 import json
+import threading
+import time
 from typing import Any, Dict
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-from fabric.utils.helpers import exec_shell_command, invoke_repeater
+from fabric.utils.helpers import exec_shell_command
 
 from custom_widgets.animated_scale import AnimatedScale
 
@@ -47,28 +49,30 @@ class GpuWidget(Box):
         self.add(self.icon)
         self.add(self.scales_holder)
 
-        invoke_repeater(1000, self._process_data)
+        self._trigger_data_process()
+
+    def _trigger_data_process(self):
+        threading.Thread(target=self._process_data).start()
 
     def _process_data(self):
-        # print("data: ",data)
-        data = exec_shell_command("nvtop -s")
-        if data is False:
-            return
-        devices = json.loads(data)
-        dedicated_gpu: None | Dict[Any:Any]=None
-        for device in devices:
-            GPU_VENDORS = ["NVIDIA", "AMD", "INTEL"]
-            for vendor in GPU_VENDORS:
-                if vendor in device["device_name"]:
-                    dedicated_gpu=device
-        self.usage_scale.animate_value(float(dedicated_gpu["gpu_util"][:-1]))
-        self.usage_scale.set_value(float(dedicated_gpu["gpu_util"][:-1]))
-        self.memory_usage_scale.animate_value(float(dedicated_gpu["mem_util"][:-1]))
-        self.memory_usage_scale.set_value(float(dedicated_gpu["mem_util"][:-1]))
+        while True:
+            data = exec_shell_command("nvtop -s")
+            if data is False:
+                return
+            devices = json.loads(data)
+            dedicated_gpu={}
+            for device in devices:
+                GPU_VENDORS = ["NVIDIA", "AMD", "INTEL"]
+                for vendor in GPU_VENDORS:
+                    if vendor in device["device_name"]:
+                        dedicated_gpu=device
+            self.usage_scale.animate_value(float(dedicated_gpu["gpu_util"][:-1]))
+            self.usage_scale.set_value(float(dedicated_gpu["gpu_util"][:-1]))
+            self.memory_usage_scale.animate_value(float(dedicated_gpu["mem_util"][:-1]))
+            self.memory_usage_scale.set_value(float(dedicated_gpu["mem_util"][:-1]))
 
-        self._set_tooltip(devices)
-
-        return True
+            self._set_tooltip(devices)
+            time.sleep(1)
 
     def _set_tooltip(self, devices):
         markup = "<u>GPU Stats</u>\n"
