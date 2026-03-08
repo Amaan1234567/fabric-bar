@@ -76,8 +76,7 @@ class Mpris(Box):
         # print(self.song_length)
         if self.song_length != 0:
             # print(position)
-            if abs(self.song_progress.value - position) / self.song_length > 0.05:
-                self.song_progress.animate_value(position)
+            self.song_progress.animate_value(position)
             self.song_progress.set_value(position)  # type: ignore
 
         return True
