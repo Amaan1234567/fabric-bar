@@ -4,12 +4,10 @@ from gi.repository import Gdk
 from PIL import Image
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.box import Box
-from fabric.widgets.label import Label
 from fabric.widgets.button import Button
 from fabric.widgets.scrolledwindow import ScrolledWindow
 from fabric.widgets.eventbox import EventBox
 from fabric.utils.helpers import exec_shell_command_async
-from helpers.helper_functions import truncate
 
 scale_map = {
     1920: 1280,
@@ -17,20 +15,27 @@ scale_map = {
     3840: 2560,
 }
 
-class wallpaperButton(Button):
-    def __init__(self,wallpaper_folder,child,wallpaper_name,parent, **kwargs):
-        super().__init__(name="wallpaper-button",
-                child=child,
-                on_clicked=self._change_wallpaper,**kwargs)
-        
+
+class WallpaperButton(Button):
+    """button widget for wallpapers"""
+    def __init__(self, wallpaper_folder, child, wallpaper_name, **kwargs):
+        super().__init__(
+            name="wallpaper-button",
+            child=child,
+            on_clicked=self._change_wallpaper,
+            **kwargs,
+        )
+
         self.wallpaper_folder = wallpaper_folder
         self.wallpaper_name = wallpaper_name
-        self.parent = parent
 
-    def _change_wallpaper(self,*args):
+    def _change_wallpaper(self):
         print(f"changing wallpaper: {self.wallpaper_name}")
-        exec_shell_command_async(f"bash -c 'scripts/switch_wallpaper.sh {self.wallpaper_folder+self.wallpaper_name}'")
-        self.parent.toggle_window()    
+        exec_shell_command_async(
+            f"bash -c 'scripts/switch_wallpaper.sh {self.wallpaper_folder + self.wallpaper_name}'"
+        )
+
+
 class WallpaperSelector(Window):
     """wallpaper selector widget"""
 
@@ -86,7 +91,7 @@ class WallpaperSelector(Window):
     def _handle_key_press(self, _, key: Gdk.EventKey):
         if key.keyval == Gdk.KEY_Escape:  # type: ignore
             self.toggle_window()
-
+            
     def _process_new_wallpapers(self):
         for wallpaper in self.wallpapers:
             if wallpaper not in self.cache:
@@ -109,7 +114,9 @@ class WallpaperSelector(Window):
 
     def _create_buttons(self):
         # print(os.listdir(self.cache_folder))
-        images = sorted(filter(lambda name: ".gif" not in name, os.listdir(self.cache_folder)))
+        images = sorted(
+            filter(lambda name: ".gif" not in name, os.listdir(self.cache_folder))
+        )
 
         for image_file_name in images:
             print(image_file_name)
@@ -134,12 +141,12 @@ class WallpaperSelector(Window):
                 h_align="center",
                 v_align="center",
             )
-            button = wallpaperButton(
+            button = WallpaperButton(
                 wallpaper_folder=self.wallpaper_folder,
                 wallpaper_name=image_file_name,
                 child=box,
-                parent=self
             )
+            button.connect("clicked", lambda _: self.toggle_window())
             self.buttons_box.add(button)
 
     def toggle_window(self):
