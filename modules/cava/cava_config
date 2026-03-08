@@ -1,5 +1,5 @@
 [general]
-bars = 24
+bars = 14
 
 framerate = 144
 lower_cutoff_freq = 50
@@ -21,11 +21,11 @@ raw_target = /tmp/cava.fifo
 bit_format = 16bit
 channels = stereo
 
-[smoothing]
-gravity = 200
-integral = 70
-ignore = 0
-monstercat = 1
+# [smoothing]
+# gravity = 200
+# integral = 70
+# ignore = 0
+# monstercat = 1
 
 [eq]
 1 = 1.00

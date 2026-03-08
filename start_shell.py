@@ -2,6 +2,7 @@
 
 import sys
 from loguru import logger
+from memory_profiler import profile
 
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
@@ -12,17 +13,15 @@ from utils.application_data_holder import Data
 from services.notification_service import NotificationService
 from services.playerctlservice import SimplePlayerctlService
 from services.networkservice import NetworkService
-from widgets import volume_osd
-from widgets import brightness_osd
-from widgets import wallpaper_selector
 from widgets.top_bar import TopBar
 from widgets.corners import ScreenCorners
 from widgets.volume_osd import VolumeOSD
 from widgets.brightness_osd import BrightnessOSD
 from widgets.wallpaper_selector import WallpaperSelector
 
+@profile
 
-if __name__ == "__main__":
+def main():
     logger.remove()
 
     # Add a new sink, filtering out messages from 'noisy_module'
@@ -82,3 +81,6 @@ if __name__ == "__main__":
             ),
         )
     app.run()
+
+if __name__ == "__main__":
+    main()

@@ -1,42 +1,371 @@
 """holds cava widget"""
 
-from fabric import Fabricator
+import configparser
+import ctypes
+import os
+import re
+import signal
+import struct
+import subprocess
+
+
+from fabric.widgets.box import Box
 from fabric.utils import get_relative_path
-from fabric.widgets.button import Button
-from fabric.widgets.label import Label
+from fabric.widgets.overlay import Overlay
+
+from gi.repository import Gdk, GLib, Gtk
+from loguru import logger
 
 
-class CavaWidget(Button):
+class CavaWidget(Box):
     """music visualiser widget, uses unicode bar symbols to visualise music
     decibel level at different frequencies
     """
 
     def __init__(self, **kwargs):
-        super().__init__(orientation="h", spacing=0, name="cava", **kwargs)
+        super().__init__(orientation="v",size=2,  # so it's not ignored by the compositor
+                spacing=4,
+                name="cava", visible=True,
+            all_visible=True,**kwargs)
 
         self.bars = 14
 
-        self.cava_label = Label(
-            label="▁" * self.bars,
-            v_align="center",
-            h_align="center",
+        self.add(SpectrumRender().get_spectrum_box())
+
+        
+
+
+def get_bars(file_path):
+    config = configparser.ConfigParser()
+    config.read(file_path)
+    return 14
+
+
+CAVA_CONFIG = get_relative_path("../config/cavalcade/cava.ini")
+
+bars = get_bars(CAVA_CONFIG)
+
+
+def set_death_signal():
+    """
+    Set the death signal of the child process to SIGTERM so that if the parent
+    process is killed, the child (cava) is automatically terminated.
+    """
+    libc = ctypes.CDLL("libc.so.6")
+    PR_SET_PDEATHSIG = 1
+    libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
+
+
+class Cava:
+    """
+    CAVA wrapper.
+    Launch cava process with certain settings and read output.
+    """
+
+    NONE = 0
+    RUNNING = 1
+    RESTARTING = 2
+    CLOSING = 3
+
+    def __init__(self, mainapp):
+        self.bars = 14
+        self.path = "/tmp/cava.fifo"
+
+        self.cava_config_file = "modules/cava/cava_config"
+        self.data_handler = mainapp.draw.update
+        self.command = ["cava", "-p", self.cava_config_file]
+        self.state = self.NONE
+        self.process = None
+
+        self.env = dict(os.environ)
+        self.env["LC_ALL"] = "en_US.UTF-8"  # not sure if it's necessary
+
+        is_16bit = True
+        self.byte_type, self.byte_size, self.byte_norm = (
+            ("H", 2, 65535) if is_16bit else ("B", 1, 255)
         )
 
-        script_path = get_relative_path("../../scripts/cava.sh")
+        if not os.path.exists(self.path):
+            os.mkfifo(self.path)
 
-        self.children = self.cava_label
-        self.update_service = Fabricator(
-            poll_from=f"bash -c '{script_path} {self.bars}'",
-            stream=True,
-            interval=10,
-            on_changed=self._update_label,
+        self.fifo_fd = None
+        self.fifo_dummy_fd = None
+        self.io_watch_id = None
+
+    def _run_process(self):
+        try:
+            self.process = subprocess.Popen(
+                self.command,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                env=self.env,
+                preexec_fn=set_death_signal,  # Ensure cava gets killed when the parent dies.
+            )
+            self.state = self.RUNNING
+        except Exception:
+            logger.exception("Fail to launch cava")
+
+    def _start_io_reader(self):
+        # Open FIFO in non-blocking mode for reading
+        self.fifo_fd = os.open(self.path, os.O_RDONLY | os.O_NONBLOCK)
+        # Open dummy write end to prevent getting an EOF on our FIFO
+        self.fifo_dummy_fd = os.open(self.path, os.O_WRONLY | os.O_NONBLOCK)
+        self.io_watch_id = GLib.io_add_watch(
+            self.fifo_fd, GLib.IO_IN, self._io_callback
         )
 
-        ctx = self.get_style_context()
-        ctx.add_class("cava-active")
+    def _io_callback(self, source, condition):
+        chunk = self.byte_size * self.bars  # number of bytes for given format
+        try:
+            if self.fifo_fd is None:
+                return False
 
-    def _update_label(self, _, label):
-        if self.cava_label.get_label() == label:
+            data = os.read(self.fifo_fd, chunk)
+        except OSError as e:
+            if e.errno == 11:  # EAGAIN - would block, normal for non-blocking
+                return True
+            elif e.errno == 9:  # EBADF - bad file descriptor
+                GLib.idle_add(self.restart)
+                return False
+            else:
+                return False
+        except Exception:
+            return False
+
+        # When no data is read, do not remove the IO watch immediately.
+        if len(data) < chunk:
+            if len(data) == 0:
+                # No data available, continue watching
+                return True
+            else:
+                return True
+
+        try:
+            fmt = self.byte_type * self.bars  # format string for struct.unpack
+            sample = [i / self.byte_norm for i in struct.unpack(fmt, data)]
+            GLib.idle_add(self.data_handler, sample)
+        except (struct.error, Exception):
             return True
-        self.cava_label.set_label(label)
+
         return True
+
+    def _on_stop(self):
+        if self.state == self.RESTARTING:
+            self.start()
+        elif self.state == self.RUNNING:
+            self.state = self.NONE
+
+    def start(self):
+        """Launch cava"""
+        self._start_io_reader()
+        self._run_process()
+
+    def restart(self):
+        """Restart cava process"""
+        if self.state == self.RUNNING:
+            self.state = self.RESTARTING
+            if self.process and self.process.poll() is None:
+                self.process.kill()
+        elif self.state == self.NONE:
+            self.start()
+
+    def close(self):
+        """Stop cava process"""
+        self.state = self.CLOSING
+
+        # Stop IO watch first
+        if self.io_watch_id:
+            GLib.source_remove(self.io_watch_id)
+            self.io_watch_id = None
+
+        # Close file descriptors safely
+        if self.fifo_fd is not None:
+            try:
+                os.close(self.fifo_fd)
+            except OSError:
+                pass
+            finally:
+                self.fifo_fd = None
+
+        if self.fifo_dummy_fd is not None:
+            try:
+                os.close(self.fifo_dummy_fd)
+            except OSError:
+                pass
+            finally:
+                self.fifo_dummy_fd = None
+
+        # Kill process if still running
+        if self.process and self.process.poll() is None:
+            try:
+                self.process.kill()
+                self.process.wait(timeout=2.0)  # Wait up to 2 seconds
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+            except Exception:
+                pass
+
+        # Remove FIFO file
+        if os.path.exists(self.path):
+            try:
+                os.remove(self.path)
+            except OSError:
+                pass
+
+
+class AttributeDict(dict):
+    """Dictionary with keys as attributes. Does nothing but easy reading"""
+
+    def __getattr__(self, attr):
+        return self.get(attr, 3)
+
+    def __setattr__(self, attr, value):
+        self[attr] = value
+
+
+class Spectrum:
+    """Spectrum drawing"""
+
+    def __init__(self):
+        self.silence_value = 0
+        self.audio_sample = []
+        self.color = None
+        self._cached_color = None
+        self._color_file_mtime = 0
+
+        self.area = Gtk.DrawingArea()
+        self.area.set_visible(True)
+        self.area.connect("draw", self.redraw)
+        self.area.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
+
+        self.sizes = AttributeDict()
+        self.sizes.area = AttributeDict()
+        self.sizes.bar = AttributeDict()
+
+        self.silence = 10
+        self.max_height = 16
+
+        self.area.connect("configure-event", self.size_update)
+        self.color_update()
+
+    def is_silence(self, value):
+        """Check if volume level critically low during last iterations"""
+        self.silence_value = 0 if value > 0 else self.silence_value + 1
+        return self.silence_value > self.silence
+
+    def update(self, data):
+        """Audio data processing"""
+        self.color_update_cached()
+        self.audio_sample = data
+        if not self.is_silence(self.audio_sample[0]):
+            self.area.queue_draw()
+        elif self.silence_value == (self.silence + 1):
+            self.audio_sample = [0] * self.sizes.number
+            self.area.queue_draw()
+
+    def redraw(self, widget, cr):
+        """Draw spectrum graph"""
+        cr.set_source_rgba(*self.color)
+        dx = 0
+
+        center_y = self.sizes.area.height  # center vertical of the drawing area
+        for i, value in enumerate(self.audio_sample):
+            width = self.sizes.area.width / self.sizes.number - self.sizes.padding
+            radius = width / 2
+            height = self.sizes.area.height * value
+            # if height == self.sizes.zero / 2 + 1:
+            #     height *= 0.5
+
+            height = min(height, self.max_height)
+
+            # Draw rectangle and arcs for rounded ends
+            cr.rectangle(dx, center_y - height, width, height * 2)
+            # cr.arc(dx + radius, center_y - height, radius, 0, 2 * pi)
+            # cr.arc(dx + radius, center_y + height, radius, 0, 2 * pi)
+
+            cr.close_path()
+            dx += width + self.sizes.padding
+        cr.fill()
+
+    def size_update(self, *args):
+        """Update drawing geometry"""
+        self.sizes.number = bars
+        self.sizes.padding = 0
+        self.sizes.zero = 0
+
+        self.sizes.area.width = self.area.get_allocated_width()
+        self.sizes.area.height = self.area.get_allocated_height() - 2
+
+        tw = self.sizes.area.width - self.sizes.padding * (self.sizes.number - 1)
+        self.sizes.bar.width = max(int(tw / self.sizes.number), 1)
+        self.sizes.bar.height = self.sizes.area.height
+
+    def color_update_cached(self):
+        """Set drawing color with caching to avoid file reads on every frame"""
+        color_file = get_relative_path("../../styles/colors.css")
+        try:
+            # Check if file has been modified
+            current_mtime = os.path.getmtime(color_file)
+            if current_mtime != self._color_file_mtime or self._cached_color is None:
+                self._color_file_mtime = current_mtime
+
+                hex_string = "#a5c8ff"  # default value
+                with open(color_file, "r") as f:
+                    content = f.read()
+                    m = re.findall(r"background \s*(#[0-9a-fA-F]{6})", content)
+                if m:
+                    # print("string:", m.string)
+                    hex_string= m[0]
+                    print(hex_string)
+
+                    red = int(hex_string[1:3], 16) / 255
+                    green = int(hex_string[3:5], 16) / 255
+                    blue = int(hex_string[5:7], 16) / 255
+                    self._cached_color = Gdk.RGBA(
+                        red=red, green=green, blue=blue, alpha=1.0
+                    )
+
+            self.color = self._cached_color
+        except Exception as e:
+            print(e)
+            if self._cached_color is None:
+                # Fallback to default color
+                self._cached_color = Gdk.RGBA(
+                    red=0.647, green=0.784, blue=1.0, alpha=1.0
+                )
+                self.color = self._cached_color
+
+    def color_update(self):
+        """Set drawing color according to current settings by reading primary color from CSS"""
+        hex_string = "#a5c8ff"  # default value
+        try:
+            with open(get_relative_path("../../styles/colors.css"), "r") as f:
+                content = f.read()
+                m = re.findall(r"background \s*(#[0-9a-fA-F]{6})", content)
+                if m:
+                    hex_string= m[0]
+                
+        except Exception as e:
+            print(e)
+            pass
+        red = int(hex_string[1:3], 16) / 255
+        green = int(hex_string[3:5], 16) / 255
+        blue = int(hex_string[5:7], 16) / 255
+        self.color = Gdk.RGBA(red=red, green=green, blue=blue, alpha=1.0)
+
+
+class SpectrumRender:
+    def __init__(self, mode=None, **kwargs):
+        super().__init__(**kwargs)
+        self.mode = mode
+
+        self.draw = Spectrum()
+        self.cava = Cava(self)
+        self.cava.start()
+
+    def get_spectrum_box(self):
+        # Get the spectrum box
+        box = Overlay(h_align="center", v_align="center",visible_all=True,h_expand=True,v_expand=True)
+        box.set_size_request(120, 20)
+        box.add_overlay(self.draw.area)
+        return box

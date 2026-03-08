@@ -44,12 +44,12 @@ class WallpaperSelector(Window):
         super().__init__(
             name="wallpaper-selector-window",
             title="wallpaper-selector",
-            layer="overlay",
+            layer="top",
             anchor="center",
             exclusivity="auto",
             keyboard_mode="on-demand",
             visible=False,
-            type="popup",
+            type="top-level",
             **kwargs,
         )
 
@@ -145,7 +145,7 @@ class WallpaperSelector(Window):
     def toggle_window(self):
         """function to toggle window"""
         if self.is_hidden:
-            self.show_all()
+            self.show()
             self.grab_focus()
         else:
             self.hide()
