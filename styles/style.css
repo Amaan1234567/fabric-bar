@@ -6,6 +6,7 @@
   font-weight: 900;
   font-size: 16px;
   background: transparent;
+  transition: background 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682);
 }
 
 
@@ -758,11 +759,12 @@ tooltip {
 } */
 
 #volume-osd-window {
+  all: unset;
   background-color: transparent;
-
 }
 
 #volume-osd-box {
+  all: unset;
   padding:10px;
   margin-right: 300px;
   margin-top: 100px;
@@ -781,6 +783,7 @@ tooltip {
 
 
 #volume-osd-scale trough {
+  all: unset;
   padding:0;
   margin:0;
   /* border:solid;
@@ -793,6 +796,7 @@ tooltip {
 
 
 #volume-osd-scale highlight {
+  all: unset;
   border-radius: 5px;
   background: @color3;
   
@@ -800,15 +804,16 @@ tooltip {
 
 
 #brightness-osd-window {
+  all: unset;
   background-color: transparent;
-
 }
 
 #brightness-osd-box {
+  all: unset;
   padding:10px;
   margin-right: 300px;
   margin-top: 600px;
-  background-color:   alpha(@backgroundWaybar, 0.9);
+  background-color: alpha(@backgroundWaybar, 0.9);
   border-radius: 10px;
   border: solid;
   border-width: 1px;
@@ -823,6 +828,7 @@ tooltip {
 
 
 #brightness-osd-scale trough {
+  all: unset;
   padding:0;
   margin:0;
   /* border:solid;
@@ -835,6 +841,7 @@ tooltip {
 
 
 #brightness-osd-scale highlight {
+  all: unset;
   border-radius: 5px;
   background: @color3;
   
