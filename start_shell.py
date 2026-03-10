@@ -2,7 +2,6 @@
 
 import sys
 from loguru import logger
-from memory_profiler import profile
 
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
@@ -18,8 +17,6 @@ from widgets.corners import ScreenCorners
 from widgets.volume_osd import VolumeOSD
 from widgets.brightness_osd import BrightnessOSD
 from widgets.wallpaper_selector import WallpaperSelector
-
-@profile
 
 def main():
     logger.remove()
