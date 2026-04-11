@@ -10,5 +10,5 @@ swww img -o eDP-1 --transition-type outer --transition-pos "$x","$y" --transitio
 pywalfox update
 swww img -o HDMI-A-1 --transition-type outer --transition-pos "$x","$y" --transition-step 30 --transition-duration 0.9 --transition-fps 144 "$WALLPAPER"
 convert "$WALLPAPER" -resize 1280x720 "$THUMBNAIL"
-asusctl aura static -c $(cat ~/rog_colors.txt)
+asusctl aura effect static -c $(cat ~/rog_colors.txt)
 notify-send --hint=string:image-path:"$WALLPAPER"  "Wallpaper changed" "Wallpaper changed to $(basename "$WALLPAPER")"
