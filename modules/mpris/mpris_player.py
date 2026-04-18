@@ -44,13 +44,13 @@ class MprisPlayer(Box):
             justification="center",
         )
 
-        self.prev_button = Button(label="󰒮", name="prev-button")
+        self.prev_button = Button(label="", name="prev-button")
         self.prev_button.connect("clicked", self._prev_track)
 
         self.play_button = Button(label="", name="play-button")
         self.play_button.connect("clicked", self._toggle_play)
 
-        self.next_button = Button(label="󰒭", name="next-button")
+        self.next_button = Button(label="", name="next-button")
         self.next_button.connect("clicked", self._next_track)
 
         self.shuffle_button = Button(label="󰒞", name="shuffle-button")

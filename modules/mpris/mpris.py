@@ -30,7 +30,7 @@ class Mpris(Box):
         self.album_art = CustomImage(name="album-art")
         self.album_art.set_size_request(30, 30)
 
-        self.title_label = ScrollingLabel(name="song-title", text="", max_width=120)
+        self.title_label = ScrollingLabel(name="song-title", text="")
         self.pause_icon = Label(label="", name="pause-icon")
         self.song_progress = AnimatedCircularProgressBar(
             name="cpu-progress-bar",
