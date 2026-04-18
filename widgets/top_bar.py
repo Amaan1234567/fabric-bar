@@ -68,7 +68,7 @@ class TopBar(Window):
         self.bluetooth = BluetoothWidget(interval=1)
         center_box = Box(
             orientation="h",
-            spacing=30,
+            spacing=20,
             h_align="center",
             children=[
                 self.mpris,

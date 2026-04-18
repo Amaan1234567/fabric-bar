@@ -2,47 +2,72 @@ from fabric import Application
 from fabric.widgets.wayland import WaylandWindow
 from fabric.widgets.box import Box
 from fabric.utils import get_relative_path
-from fabric.widgets.scrolledwindow import ScrolledWindow
-from fabric.widgets.label import Label
-from fabric.widgets.button import Button
-from fabric.widgets.entry import Entry
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk, GLib
+import cairo
+
+class MarqueeLabel(Gtk.DrawingArea):
+    def __init__(self, text="Media Title - Artist - Album", speed=0.01):
+        super().__init__()
+        self.text = text
+        self.x_offset = 0
+        self.speed = speed
+        self.direction = -1  # -1 for moving left, 1 for moving right
+        self.pause_counter = 0
+        self.set_size_request(200, 40)
+        GLib.timeout_add(10, self.update_position)
+
+    def do_draw(self, cr):
+        width = self.get_allocated_width()
+        height = self.get_allocated_height()
+
+        # 1. Mask/Clip (keeps text inside the widget)
+        cr.rectangle(0, 0, width, height)
+        cr.clip()
+
+        # 2. Text Setup
+        cr.set_source_rgb(0, 0, 0)
+        cr.select_font_face("Sans", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
+        cr.set_font_size(14)
+
+        extents = cr.text_extents(self.text)
+        text_w = extents.width
+        y_pos = (height / 2) + (extents.height / 2)
+
+        # 3. Bounce Logic
+        if text_w > width:
+            # Maximum distance the text can scroll to the left
+            max_scroll = width - text_w - 5 # 10px padding
+
+            if self.pause_counter <= 0:
+                self.x_offset += (self.speed * self.direction)
+                # print(f"Offset: {self.x_offset:.2f}, Direction: {self.direction}, Pause: {self.pause_counter}")
+                # Hit left boundary (scrolled all the way to the end)
+                if self.x_offset <= max_scroll:
+                    self.x_offset = max_scroll
+                    self.direction = 1
+                    self.pause_counter = 50 # Pause for ~1 second
+
+                # Hit right boundary (returned to start)
+                elif self.x_offset >= 0:
+                    self.x_offset = 0
+                    self.direction = -1
+                    self.pause_counter = 50
+            else:
+                self.pause_counter -= 1
+        else:
+            self.x_offset = 0 # Center/Align if short enough
+
+        # 4. Render
+        cr.move_to(self.x_offset, y_pos)
+        cr.show_text(self.text)
+
+    def update_position(self):
+        self.queue_draw()
+        return True
 
 
-class TextScollBox(Box):
-    def __init__(self, **kwargs):
-        super().__init__(orientation="v", **kwargs)
-        self.scrolled_window = ScrolledWindow(name="scroll-window",h_scrollbar_policy="automatic",v_scrollbar_policy="never")
-        self.text_box = Label(name="text",orientation="h", spacing=10,label="testing label label testing 12 3 4 54 ")
-        self.scrolled_window.children=[self.text_box]
-        self.entry = Entry()
-        self.add(self.scrolled_window)
-        self.add(Button(label="start-scroll",on_clicked=self.start_scroll))
-        self.add(Button(label="end-scroll",on_clicked=self.end_scroll))
-        self.add(self.entry)
-        self.add(Button(label="change label",on_clicked=self.change_label))
-        print(6/len("testing label label testing 12 3 4 54 "))
-        
-        self.set_css(self.text_box.get_label())
-    
-    def change_label(self):
-        self.text_box.set_label(self.entry.get_text())
-        self.set_css(self.entry.get_text())
-
-    def set_css(self,label):
-        ctx = self.text_box.get_style_context()
-        
-        self.text_box.set_style("transition: "+"margin "+str(0.01*self.text_box.get_allocated_width())+"s "+" linear;")
-
-
-    def start_scroll(self, button):
-        print("adding class scrolling")
-        self.text_box.set_style("transition: "+"margin "+str(0.01*self.text_box.get_allocated_width())+"s "+" linear;\n"+"margin-left: "+str(self.get_allocated_width()-self.text_box.get_allocated_width())+"px;")
-        # self.text_box.get_style_context().set_property("margin-left",str(200-self.text_box.get_allocated_width()))
-    def end_scroll(self, button):
-        print(0.01*self.text_box.get_allocated_width())
-        print("removing class scrolling")
-        self.text_box.set_style("transition: "+"margin "+str(0.01*self.text_box.get_allocated_width())+"s "+" linear;\n"+"margin-left: "+"10"+"px;")
-        # self.text_box.get_style_context().remove_class("scrolling")
 
 if __name__ == "__main__":
     app = Application(
@@ -54,7 +79,7 @@ if __name__ == "__main__":
                 size=(200,200),  # so it's not ignored by the compositor
                 spacing=4,
                 orientation="v",
-                children=[TextScollBox()],
+                children=[MarqueeLabel(text="Scrolling ", speed=0.4)],
             ),
             visible=True,
             all_visible=True,

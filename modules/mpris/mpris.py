@@ -7,6 +7,7 @@ from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from fabric.utils import invoke_repeater
 
+from custom_widgets.scolling_text_widget import ScrollingLabel
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
 from services.playerctlservice import SimplePlayerctlService
@@ -29,7 +30,7 @@ class Mpris(Box):
         self.album_art = CustomImage(name="album-art")
         self.album_art.set_size_request(30, 30)
 
-        self.title_label = Label(name="song-title", label="")
+        self.title_label = ScrollingLabel(name="song-title", text="", max_width=120)
         self.pause_icon = Label(label="", name="pause-icon")
         self.song_progress = AnimatedCircularProgressBar(
             name="cpu-progress-bar",
@@ -86,7 +87,7 @@ class Mpris(Box):
 
     def _on_hover_enter(self, *_):
         # print("triggered")
-        if len(self.title_label.get_label()) != 0:
+        if len(self.title_label.get_text()) != 0:
             self._cancel_hide_timeout()
             self.overlay.set_visible(True)
             self.overlay.overlay_revealer.set_reveal_child(True)
@@ -151,7 +152,7 @@ class Mpris(Box):
             self.song_length = song_length
             if song_length:
                 self.song_progress.max_value = self.song_length
-            self.title_label.set_label(truncate(title.strip() or "—"))
+            self.title_label.set_text(title.strip())
             if art_url not in (self.temp_url_cache, ""):
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
