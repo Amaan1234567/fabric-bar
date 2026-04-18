@@ -31,10 +31,7 @@ def main():
         notification_service=NotificationService(),
         playerctl_service=SimplePlayerctlService(),
         network_service=NetworkService(),
-        control_center=None,
     )
-    control_center = ControlCenter(app_data=app_data,monitor=0)
-    app_data.control_center = control_center
     status_bar = TopBar(app_data,monitor=0)
     corners = ScreenCorners(monitor=0)
     notifications = NotificationPopupWindow(app_data,monitor=0)

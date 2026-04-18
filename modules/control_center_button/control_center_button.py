@@ -12,8 +12,8 @@ class ControlCenterButton(Box):
 
     def __init__(self, app_data, **kwargs):
         super().__init__(**kwargs, name="notification-button")
+        self.control_center = ControlCenter(app_data=app_data,monitor=0,parent=self.get_parent())
         self.app_data = app_data
-        self.control_center = app_data.control_center
         self.content = EventBox(on_button_release_event=self._trigger_control_center)
         self.container_box = Box(orientation="h", spacing=4)
         self.notifcations = Button(label="")

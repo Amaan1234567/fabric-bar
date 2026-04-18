@@ -12,4 +12,3 @@ class Data:
     notification_service: NotificationService
     playerctl_service: SimplePlayerctlService
     network_service: NetworkService
-    control_center: ControlCenter

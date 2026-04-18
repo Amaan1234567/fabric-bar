@@ -19,7 +19,8 @@ class ScrollingLabel(Gtk.DrawingArea):
         self.direction = -1
         self.pause_counter = 0
         
-        GLib.timeout_add(16, self.update_position)
+        # GLib.timeout_add(16, self.update_position)
+        self.add_tick_callback(self.update_position)
 
     def get_text(self):
         """ Returns the current text string. """
@@ -92,6 +93,7 @@ class ScrollingLabel(Gtk.DrawingArea):
         cr.move_to(self.x_offset, y_pos)
         PangoCairo.show_layout(cr, layout)
 
-    def update_position(self):
+    def update_position(self, widget, frame_clock):
         self.queue_draw()
-        return True
+        # 3. Return Continue to keep the loop going
+        return GLib.SOURCE_CONTINUE

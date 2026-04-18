@@ -522,7 +522,12 @@ tooltip {
 
 
 #control-center {
-  background-color: @background;
+  border-radius: 20px;
+  border: solid;
+  border-width: 2px;
+  border-color: @color4;
+  background-color: @backgroundWaybar;
+  margin-right:30px;
   padding: 20px;
 }
 

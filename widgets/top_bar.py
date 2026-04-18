@@ -27,7 +27,7 @@ from modules.network_speed.network_speed import NetworkSpeed
 class TopBar(Window):
     """top bar of UI"""
 
-    def __init__(self, app_data, **kwargs):
+    def __init__(self, app_data, monitor=0, **kwargs):
         super().__init__(
             layer="top",
             name="bar-window",
@@ -35,6 +35,7 @@ class TopBar(Window):
             pass_through=False,
             exclusivity="auto",
             all_visible=False,
+            monitor=monitor,
             **kwargs
         )
         self.app_data = app_data

@@ -4,6 +4,7 @@ from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.box import Box
 from fabric.widgets.revealer import Revealer
 
+from custom_widgets.popup_window import PopupWindow
 from modules.control_center.bluetooth_toggle import BluetoothToggle
 from modules.control_center.wifi_toggle_button import WifiToggle
 from modules.control_center.rog_control_center_toggle import ROGButton
@@ -15,18 +16,19 @@ from modules.control_center.notifications_panel import NotificationsPanel
 from modules.control_center.gamemode_toggle import GamemodeToggleButton
 
 
-class ControlCenter(Window):
+class ControlCenter(PopupWindow):
     """control center widget"""
 
-    def __init__(self, app_data, **kwargs):
+    def __init__(self, app_data,parent,**kwargs):
         super().__init__(
             layer="top",
             title="control_center",
             anchor="right top bottom",
-            exclusivity="auto",
+            exclusivity="none",
             visible=True,
             type="top-level",
-            margin="0px 0px 0px -1px",
+            margin="30px 0px 40px 0px",
+            parent=parent,
             **kwargs
         )
 
@@ -61,7 +63,7 @@ class ControlCenter(Window):
         self.revealer = Revealer(
             child=self.control_center_content,
             child_revealed=False,
-            transition_duration=100,
+            transition_duration=300,
             transition_type="slide-left",
             size=[1, -1],
         )
