@@ -775,11 +775,11 @@ tooltip {
   border-radius: 10px;
   border: solid;
   border-width: 1px;
-  border-color: @color3;
+  border-color: @color4;
 }
 
 #osd-icon {
-  color: @color3;
+  color: @color4;
   font-size: 28px;
   font-weight: 600;
 }
@@ -792,7 +792,7 @@ tooltip {
   /* border:solid;
   border-width: 2px; */
   border-radius: 5px;
-  border-color: @color3;
+  border-color: @color4;
   min-height: 250px;
   min-width: 20px;
 }
@@ -801,7 +801,7 @@ tooltip {
 #volume-osd-scale highlight {
   all: unset;
   border-radius: 5px;
-  background: @color3;
+  background: @color4;
   
 }
 
@@ -820,11 +820,11 @@ tooltip {
   border-radius: 10px;
   border: solid;
   border-width: 1px;
-  border-color: @color3;
+  border-color: @color4;
 }
 
 #brightness-osd-icon {
-  color: @color3;
+  color: @color4;
   font-size: 28px;
   font-weight: 600;
 }
@@ -837,7 +837,7 @@ tooltip {
   /* border:solid;
   border-width: 2px; */
   border-radius: 5px;
-  border-color: @color3;
+  border-color: @color4;
   min-height: 250px;
   min-width: 20px;
 }
@@ -846,7 +846,7 @@ tooltip {
 #brightness-osd-scale highlight {
   all: unset;
   border-radius: 5px;
-  background: @color3;
+  background: @color4;
   
 }
 
