@@ -22,7 +22,7 @@ class ControlCenter(PopupWindow):
 
     def __init__(self, app_data,parent,**kwargs):
         super().__init__(
-            layer="top",
+            layer="overlay",
             title="control_center",
             anchor="top bottom right",
             exclusivity="none",
