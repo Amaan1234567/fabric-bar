@@ -13,10 +13,13 @@ from custom_widgets.image_rounded import CustomImage
 from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 from utils.variables import APP_ICON_MAP
 
+from custom_widgets.HackedStackRevealer import HackedRevealer
+
 NOTIFICATION_TIMEOUT = 3 * 1000
 NOTIFICATION_TIMEOUT_WITH_ACTIONS = 5 * 1000
 NOTIFICATION_IMAGE_SIZE = 160
 NOTIFICATION_BUTTONS_WRAP_THRESHOLD = 2
+NOTIFICATION_TRANSITION_DURATION = 700
 
 
 class NotificationPopup(Box):
@@ -112,7 +115,9 @@ class NotificationPopup(Box):
                                     h_expand=True,
                                     v_expand=True,
                                     label=action.label,
-                                    on_clicked=lambda *_, action=action: action.invoke(),
+                                    on_clicked=lambda *_, action=action: (
+                                        action.invoke()
+                                    ),
                                 )
                                 for action in actions[
                                     i : i + NOTIFICATION_BUTTONS_WRAP_THRESHOLD
@@ -125,10 +130,12 @@ class NotificationPopup(Box):
                     ],
                 )
             )
-        self.revealer = Revealer(
+        self.revealer = HackedRevealer(
+            bezier_curve=(0.3, -0.06, 0, 1.02),
+            duration=NOTIFICATION_TRANSITION_DURATION / 1000,
             child=self.column_content,
             child_revealed=False,
-            transition_duration=250,
+            # transition_duration=250,
             transition_type="slide-down",
         )
         self.add(self.revealer)
@@ -158,8 +165,8 @@ class NotificationPopup(Box):
     def _close_notification(self):
         self.revealer.set_reveal_child(False)
 
-        GLib.timeout_add(300, self._delete_self)
-        GLib.timeout_add(300, self.destroy)
+        GLib.timeout_add(NOTIFICATION_TRANSITION_DURATION, self._delete_self)
+        GLib.timeout_add(NOTIFICATION_TRANSITION_DURATION, self.destroy)
 
     def _load_notification_pixbuf(
         self, notification: Notification

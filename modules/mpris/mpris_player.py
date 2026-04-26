@@ -59,6 +59,7 @@ class MprisPlayer(Box):
         self.repeat_button = Button(label="󰑗", name="repeat-button")
         self.repeat_button.connect("clicked", self._toggle_repeat)
         self.scale = AnimatedScale(
+            bezier=(0.3, -0.06, 0, 1.02),
             name="mpris-popup-scale",
             orientation="horizontal",
             value=0,
@@ -123,7 +124,7 @@ class MprisPlayer(Box):
         self.add(self.column)
         self._update_widget()
         self._on_status_change()
-        invoke_repeater(1000, self._update_progress)
+        invoke_repeater(1000 , self._update_progress)
 
     def _prev_track(self, *_):
         self._player.previous_track()

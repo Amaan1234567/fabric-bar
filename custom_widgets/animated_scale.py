@@ -14,7 +14,7 @@ class AnimatedScale(Scale):
     A scale widget with animated value changes.
     """
 
-    def __init__(self, **kwargs: Any):
+    def __init__(self, bezier = (0.8, 1.55, 0.265, 1.25),**kwargs: Any):
         """
         Initializes the AnimatedScale with optional keyword arguments.
 
@@ -24,7 +24,7 @@ class AnimatedScale(Scale):
         self.animator: Animator = (
             Animator(
                 # edit the following parameters to customize the animation
-                timing_function=partial(cubic_bezier, 0.8, 1.55, 0.265, 1.25),
+                timing_function=partial(cubic_bezier, *bezier),
                 duration=0.3,
                 min_value=self.min_value,
                 max_value=self.value,

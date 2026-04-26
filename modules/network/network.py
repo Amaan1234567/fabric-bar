@@ -12,6 +12,7 @@ from gi.repository import GLib, Gdk  # type: ignore
 
 
 from custom_widgets.popup_window import PopupWindow
+from custom_widgets.HackedStackRevealer import HackedRevealer
 from services.networkservice import NetworkService, WifiService, EthernetService
 
 
@@ -66,10 +67,10 @@ class NetworkWidget(Box):
         )
 
         # Revealer for slide animation
-        self.networks_revealer = Revealer(
+        self.networks_revealer = HackedRevealer(
             name="wifi-networks-revealer",
-            transition_type="slide-down",
-            transition_duration=200,
+            bezier_curve=(0.3, -0.06, 0, 1.02),
+            duration=.400,
             child_revealed=True,  # Always revealed inside popup
         )
         self.networks_revealer.add(self.networks_box)
@@ -155,7 +156,7 @@ class NetworkWidget(Box):
         """Hide the popup automatically (called by timer)"""
         if not self._is_hovering and self.networks_popup.get_visible():
             self.networks_revealer.set_reveal_child(False)
-            GLib.timeout_add(250, self.networks_popup.set_visible, False)
+            GLib.timeout_add(400, self.networks_popup.set_visible, False)
 
         self._auto_hide_timer = None
         return False  # Don't repeat timer

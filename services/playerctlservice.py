@@ -282,6 +282,8 @@ class SimplePlayerctlService(Service):
                 try:
                     player = Playerctl.Player.new_from_name(name)
                     player = Player(player)
+                    if player.get_metadata()['title'] == "" or player.get_metadata()['length'] == 0.0:
+                        continue
                     self._players[name.name] = player
                     player.connect("changed", self._update_current_player)
                 except Exception as exception:

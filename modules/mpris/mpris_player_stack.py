@@ -6,7 +6,7 @@ from fabric.widgets.stack import Stack
 from fabric.utils.helpers import cooldown
 from modules.mpris.mpris_player import MprisPlayer
 from services.playerctlservice import SimplePlayerctlService, Player
-
+from custom_widgets.HackedStackRevealer import HackedStack
 
 class MprisPlayerStack(Stack):
     """mpris popup widget which shows more song details,progressbar and controls"""
@@ -14,9 +14,10 @@ class MprisPlayerStack(Stack):
     def __init__(self, **kwargs):
         super().__init__(
             name="mpris-stack",
+            # bezier_curve=(0.34, 1.56, 0.64, 1.0),
+            # duration=0.45,
             transition_type="slide-left-right",
-            transition_duration=200,
-            **kwargs,
+            # transition_duration=200,
         )
         self.add_events("scroll")
         self._service = SimplePlayerctlService()
@@ -42,6 +43,7 @@ class MprisPlayerStack(Stack):
     def _add_player(self, _, player_name: Playerctl.PlayerName):
         name = player_name.name
         new_player = MprisPlayer(self._service.players[name])
+        logger.info(f"added {name} player")
         self.players[name] = new_player
         self.set_visible_child(new_player)
         self.add(new_player)
@@ -59,6 +61,7 @@ class MprisPlayerStack(Stack):
 
         if len(self.players) == 0:
             return
+        print("player: ",self.players)
         self._visible_child_index = (
             self._visible_child_index + (-1 if event.direction == 0 else 1)
         ) % len(self.children)

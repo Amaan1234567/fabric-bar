@@ -63,7 +63,7 @@ class ControlCenter(PopupWindow):
         self.revealer = Revealer(
             child=self.control_center_content,
             child_revealed=False,
-            transition_duration=300,
+            transition_duration=200,
             transition_type="slide-left",
             size=[1, -1],
         )
