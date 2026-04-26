@@ -3,8 +3,9 @@
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.box import Box
 from fabric.widgets.revealer import Revealer
-
+from fabric.utils import cooldown
 from custom_widgets.popup_window import PopupWindow
+from experimental.hacktk import HackedRevealer
 from modules.control_center.bluetooth_toggle import BluetoothToggle
 from modules.control_center.wifi_toggle_button import WifiToggle
 from modules.control_center.rog_control_center_toggle import ROGButton
@@ -23,10 +24,10 @@ class ControlCenter(PopupWindow):
         super().__init__(
             layer="top",
             title="control_center",
-            anchor="right top bottom",
+            anchor="top bottom right",
             exclusivity="none",
             visible=True,
-            type="top-level",
+            type="popup",
             margin="30px 0px 40px 0px",
             parent=parent,
             **kwargs
@@ -60,16 +61,19 @@ class ControlCenter(PopupWindow):
         self.control_center_content.add(self.small_toggles)
         self.control_center_content.add(self.med_toggles)
         self.control_center_content.add(NotificationsPanel(app_data=app_data))
-        self.revealer = Revealer(
+        self.revealer = HackedRevealer(
+            bezier_curve=(0.3, -0.06, 0, 1.02),
+            duration=.350,
             child=self.control_center_content,
             child_revealed=False,
-            transition_duration=200,
+            # transition_duration=200,
             transition_type="slide-left",
-            size=[1, -1],
+            # sizde=[1, -1],
         )
         self.add(self.revealer)
         # self.show()
 
+    @cooldown(0.35)
     def toggle_control_center(self):
         """toggles control center"""
         # self.set_visible(not self.get_visible())
@@ -77,6 +81,7 @@ class ControlCenter(PopupWindow):
         if self.revealer.get_reveal_child():
             # GLib.timeout_add(300, self.set_visible, not self.get_visible())
             self.revealer.set_reveal_child(False)
+            # self.set_visible(False)
         else:
-            # self.set_visible(True)
             self.revealer.set_reveal_child(True)
+            # self.set_visible(True)
