@@ -1,21 +1,19 @@
 from gi.repository import GLib
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-from fabric.widgets.revealer import Revealer
 from fabric.utils import remove_handler
 from custom_widgets.animated_scale import AnimatedScale
 from fabric.widgets.wayland import WaylandWindow as Window # <--- Add this!
 from services.brightnessservice import BrightnessService
 from utils.monitor import get_monitor_info
+from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
 
 class BrightnessOSD(Window):
-    def __init__(self, parent, pointing_to, monitor_id=0, **kwargs):
+    def __init__(self,monitor_id=0, **kwargs):
         # Determine if this OSD is internal or external
         self.device_type, self.hardware_id = get_monitor_info(monitor_id)
         
         super().__init__(
-            # parent,
-            # pointing_to,
             layer="top",
             title="brightness_osd",
             name="brightness-osd-window",
@@ -48,7 +46,8 @@ class BrightnessOSD(Window):
                 spacing=10,
                 children=[self.scale, self.icon],
             ),
-            transition_duration=200,
+            bezier_curve=(0.3, -0.06, 0, 1.02),
+            duration=.350,
             transition_type="slide-left",
         )
         
@@ -56,6 +55,7 @@ class BrightnessOSD(Window):
         self.hide_timer = None
         self.window_timer = None
         self._last_val = -1
+        self.is_closing = False
 
         self.service.connect("changed", self._on_brightness_changed)
         self.hide()
@@ -70,15 +70,26 @@ class BrightnessOSD(Window):
             return
 
         self._last_val = value
-        self.scale.animate_value(value)
         self._show_popup()
+        self.scale.animate_value(value)
+        self._hide_popup()
+
+    def _hide_popup(self):
+        self.hide_timer = GLib.timeout_add(2500, self.revealer.set_reveal_child, False)
+        self.window_timer = GLib.timeout_add(2750, self.hide)
+        self.is_closing = True
 
     def _show_popup(self):
-        if self.hide_timer: remove_handler(self.hide_timer)
-        if self.window_timer: remove_handler(self.window_timer)
-        
+        if self.is_closing:
+            if self.hide_timer:
+                remove_handler(self.hide_timer)
+            if self.window_timer:
+                remove_handler(self.window_timer)
+            self.is_closing = False
+        if self.is_visible():
+            return
         self.show()
         self.revealer.set_reveal_child(True)
         
-        self.hide_timer = GLib.timeout_add(2500, self.revealer.set_reveal_child, False)
-        self.window_timer = GLib.timeout_add(2750, self.hide)
+        
+        

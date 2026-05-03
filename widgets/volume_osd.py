@@ -5,14 +5,15 @@ from typing import Any
 
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-from fabric.widgets.revealer import Revealer
 from fabric.widgets.scale import ScaleMark
 from fabric.audio.service import Audio
+from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.utils import remove_handler
 from gi.repository import GLib
 
 from custom_widgets.popup_window import PopupWindow
 from custom_widgets.animated_scale import AnimatedScale
+from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
 
 _ICONS = {
     "muted": "󰖁",
@@ -24,18 +25,15 @@ _ICONS = {
 }
 
 
-class VolumeOSD(PopupWindow):
+class VolumeOSD(Window):
     """Volume on-screen display (OSD) widget."""
 
-    def __init__(self, parent, pointing_to, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(
-            parent,
-            pointing_to,
             layer="top",
             title="volume_osd",
             name="volume-osd-window",
-            anchor="bottom",
-            margin="0 0 0 100",
+            anchor="top right",
             type="popup",
             pass_through=True,
             exclusivity="none",
@@ -72,7 +70,8 @@ class VolumeOSD(PopupWindow):
             child=self.box,
             name="volume-osd-revealer",
             transition_type="slide-left",
-            transition_duration=200,
+            bezier_curve=(0.3, -0.06, 0, 1.02),
+            duration=.350,
         )
 
         self.add(self.revealer)
@@ -122,7 +121,7 @@ class VolumeOSD(PopupWindow):
         self.last_revealer_handler = GLib.timeout_add(
             3000, self.revealer.set_reveal_child, False
         )
-        self.last_window_handler = GLib.timeout_add(3250, self.hide)
+        self.last_window_handler = GLib.timeout_add(3350, self.hide)
 
     def _show_popup(self):
         if self.is_closing:
@@ -131,5 +130,7 @@ class VolumeOSD(PopupWindow):
             if self.last_window_handler:
                 remove_handler(self.last_window_handler)
             self.is_closing = False
+        if self.is_visible():
+            return
         self.show()
         self.revealer.set_reveal_child(True)

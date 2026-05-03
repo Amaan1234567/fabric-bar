@@ -37,10 +37,10 @@ def main():
     status_bar = TopBar(app_data, monitor=primary_monitor)
     corners = ScreenCorners(monitor=primary_monitor)
     notifications = NotificationPopupWindow(app_data, monitor=primary_monitor)
-    volume_osd = VolumeOSD(status_bar, status_bar.logout_btn, monitor=primary_monitor)
+    volume_osd = VolumeOSD(monitor=primary_monitor)
     
     # Updated: Passing monitor_id so it can detect if it's internal or external
-    brightness_osd = BrightnessOSD(status_bar, status_bar.logout_btn, monitor_id=primary_monitor)
+    brightness_osd = BrightnessOSD(monitor_id=primary_monitor)
     
     wallpaper_selector = WallpaperSelector()
     
