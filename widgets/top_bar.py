@@ -22,7 +22,7 @@ from modules.network.network import NetworkWidget
 from modules.bluetooth.bluetooth import BluetoothWidget
 from modules.gpu.gpu import GpuWidget
 from modules.network_speed.network_speed import NetworkSpeed
-
+from modules.system_tray.system_tray import barSystemTray as SystemTray
 
 class TopBar(Window):
     """top bar of UI"""
@@ -61,7 +61,8 @@ class TopBar(Window):
             spacing=10,
             children=[self.cpu, self.memory, self.gpu, self.network_speed],
         )
-
+        
+        self.system_tray = SystemTray()
         self.mpris = Mpris(window=self)
         self.volume = AudioWidget()
         self.battery = BatteryWidget()
@@ -83,6 +84,7 @@ class TopBar(Window):
             orientation="h",
             spacing=20,
             children=[
+                self.system_tray,
                 self.clock,
                 Box(
                     name="system-controls",

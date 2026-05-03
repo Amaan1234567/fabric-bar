@@ -11,6 +11,7 @@ from services.notification_service import NotificationService
 from services.playerctlservice import SimplePlayerctlService
 from services.networkservice import NetworkService
 from widgets.corners import ScreenCorners
+from widgets.brightness_osd import BrightnessOSD # Added Import
 
 
 if __name__ == "__main__":
@@ -24,7 +25,6 @@ if __name__ == "__main__":
     logger.info(f"Starting in side monitors mode on monitor {monitor_id}")
     logger.remove()
 
-    # Add a new sink, filtering out messages from 'noisy_module'
     logger.add(
         sys.stderr,
         filter=lambda record: record["name"] != "fabric.widgets.svg",
@@ -32,21 +32,24 @@ if __name__ == "__main__":
     )
     
     corners = ScreenCorners(monitor=monitor_id)
+    
+    # Added: Brightness OSD for side monitors.
+    # It will automatically detect if this monitor_id is eDP (internal) or HDMI (external)
+    brightness_osd = BrightnessOSD(corners, corners, monitor_id=monitor_id)
+    
     app = Application(
         f"hypr-fabric-bar-side-monitor-{monitor_id}",
         windows=[
             corners,
+            brightness_osd, # Added to windows list
         ],
     )
-
 
     style_path = get_relative_path("styles/style.css")
     if style_path:
         app.set_stylesheet_from_file(style_path)
         style_monitor = monitor_file(style_path)
-        style_monitor.connect(
-            "changed", lambda *a: app.set_stylesheet_from_file(style_path)
-        )
+        style_monitor.connect("changed", lambda *a: app.set_stylesheet_from_file(style_path))
 
     colors_path = get_relative_path("styles/colors.css")
     if colors_path:

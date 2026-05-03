@@ -814,9 +814,9 @@ tooltip {
 #brightness-osd-box {
   all: unset;
   padding:10px;
-  margin-right: 300px;
-  margin-top: 600px;
-  background-color: alpha(@backgroundWaybar, 0.9);
+  margin-right: 40px;
+  margin-bottom: 80px;
+  background-color: alpha(@backgroundWaybar, 0.8);
   border-radius: 10px;
   border: solid;
   border-width: 1px;
