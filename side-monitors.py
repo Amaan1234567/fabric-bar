@@ -35,7 +35,7 @@ if __name__ == "__main__":
     
     # Added: Brightness OSD for side monitors.
     # It will automatically detect if this monitor_id is eDP (internal) or HDMI (external)
-    brightness_osd = BrightnessOSD(corners, corners, monitor_id=monitor_id)
+    brightness_osd = BrightnessOSD(monitor_id=monitor_id)
     
     app = Application(
         f"hypr-fabric-bar-side-monitor-{monitor_id}",
