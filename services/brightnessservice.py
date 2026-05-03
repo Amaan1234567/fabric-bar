@@ -69,13 +69,12 @@ class BrightnessService(Service):
             try:
                 res = subprocess.run(
                     ["ddcutil", "getvcp", "10", "--bus", self.external_bus, "--terse"],
-                    capture_output=True, text=True, timeout=0.1 # Slightly longer timeout
+                    capture_output=True, text=True # Slightly longer timeout
                 )
                 if res.returncode == 0:
                     parts = res.stdout.split()
                     if len(parts) >= 4:
                         val = int(parts[3])
-                        print(val)
                         # Only emit if the hardware value actually changed from what we last saw
                         if val != self._external_values.get(self.external_bus):
                             self._external_values[self.external_bus] = val
