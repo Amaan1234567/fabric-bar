@@ -1,10 +1,20 @@
+certifi==2026.4.22
 cffi==2.0.0
+charset-normalizer==3.4.7
 click==8.3.1
+dasbus==1.7
 fabric @ git+https://github.com/Fabric-Development/fabric.git@8633df172a3ceee9222e7e583e93717f733d5618
+idna==3.13
 loguru==0.7.3
 pillow==12.2.0
+playsound==1.2.2
 psutil==7.2.1
 pycairo==1.29.0
 pycparser==3.0
 PyGObject==3.50.0
+RapidFuzz==3.14.5
+requests==2.33.1
+screen_brightness_control==0.27.1
 screeninfo==0.8.1
+thefuzz==0.22.1
+urllib3==2.6.3
