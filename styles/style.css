@@ -12,43 +12,45 @@
 
 
 /* @keyframes gradient-border {
-  0%   { border-image-source: linear-gradient(45deg, @color2, @color4, @color5, @color3, @color6); }
-  5%   { border-image-source: linear-gradient(63deg, @color4, @color5, @color3, @color6, @color7); }
-  10%  { border-image-source: linear-gradient(81deg, @color5, @color3, @color6, @color7, @color8); }
-  15%  { border-image-source: linear-gradient(99deg, @color3, @color6, @color7, @color8, @color9); }
-  20%  { border-image-source: linear-gradient(117deg, @color6, @color7, @color8, @color9, @color10); }
-  25%  { border-image-source: linear-gradient(135deg, @color7, @color8, @color9, @color10, @color11); }
-  30%  { border-image-source: linear-gradient(153deg, @color8, @color9, @color10, @color11, @color12); }
-  35%  { border-image-source: linear-gradient(171deg, @color9, @color10, @color11, @color12, @color13); }
-  40%  { border-image-source: linear-gradient(189deg, @color10, @color11, @color12, @color13, @color14); }
-  45%  { border-image-source: linear-gradient(207deg, @color11, @color12, @color13, @color14, @color15); }
-  50%  { border-image-source: linear-gradient(225deg, @color12, @color13, @color14, @color15, @color2); }
-  55%  { border-image-source: linear-gradient(243deg, @color13, @color14, @color15, @color2, @color4); }
-  60%  { border-image-source: linear-gradient(261deg, @color14, @color15, @color2, @color4, @color5); }
-  65%  { border-image-source: linear-gradient(279deg, @color15, @color2, @color4, @color5, @color3); }
-  70%  { border-image-source: linear-gradient(297deg, @color2, @color4, @color5, @color3, @color6); }
-  75%  { border-image-source: linear-gradient(315deg, @color4, @color5, @color3, @color6, @color7); }
-  80%  { border-image-source: linear-gradient(333deg, @color5, @color3, @color6, @color7, @color8); }
-  85%  { border-image-source: linear-gradient(351deg, @color3, @color6, @color7, @color8, @color9); }
-  90%  { border-image-source: linear-gradient(9deg, @color6, @color7, @color8, @color9, @color10); }
-  95%  { border-image-source: linear-gradient(27deg, @color7, @color8, @color9, @color10, @color11); }
-  100% { border-image-source: linear-gradient(45deg, @color2, @color4, @color5, @color3, @color6); }
+  0%   { border-image-source: linear-gradient(45deg, var(--color2), var(--color4), var(--color5), var(--color3), var(--color6)); }
+  5%   { border-image-source: linear-gradient(63deg, var(--color4), var(--color5), var(--color3), var(--color6), var(--color7)); }
+  10%  { border-image-source: linear-gradient(81deg, var(--color5), var(--color3), var(--color6), var(--color7), var(--color8)); }
+  15%  { border-image-source: linear-gradient(99deg, var(--color3), var(--color6), var(--color7), var(--color8), var(--color9)); }
+  20%  { border-image-source: linear-gradient(117deg, var(--color6), var(--color7), var(--color8), var(--color9), var(--color10)); }
+  25%  { border-image-source: linear-gradient(135deg, var(--color7), var(--color8), var(--color9), var(--color10), var(--color11)); }
+  30%  { border-image-source: linear-gradient(153deg, var(--color8), var(--color9), var(--color10), var(--color11), var(--color12)); }
+  35%  { border-image-source: linear-gradient(171deg, var(--color9), var(--color10), var(--color11), var(--color12), var(--color13)); }
+  40%  { border-image-source: linear-gradient(189deg, var(--color10), var(--color11), var(--color12), var(--color13), var(--color14)); }
+  45%  { border-image-source: linear-gradient(207deg, var(--color11), var(--color12), var(--color13), var(--color14), var(--color15)); }
+  50%  { border-image-source: linear-gradient(225deg, var(--color12), var(--color13), var(--color14), var(--color15), var(--color2)); }
+  55%  { border-image-source: linear-gradient(243deg, var(--color13), var(--color14), var(--color15), var(--color2), var(--color4)); }
+  60%  { border-image-source: linear-gradient(261deg, var(--color14), var(--color15), var(--color2), var(--color4), var(--color5)); }
+  65%  { border-image-source: linear-gradient(279deg, var(--color15), var(--color2), var(--color4), var(--color5), var(--color3)); }
+  70%  { border-image-source: linear-gradient(297deg, var(--color2), var(--color4), var(--color5), var(--color3), var(--color6)); }
+  75%  { border-image-source: linear-gradient(315deg, var(--color4), var(--color5), var(--color3), var(--color6), var(--color7)); }
+  80%  { border-image-source: linear-gradient(333deg, var(--color5), var(--color3), var(--color6), var(--color7), var(--color8)); }
+  85%  { border-image-source: linear-gradient(351deg, var(--color3), var(--color6), var(--color7), var(--color8), var(--color9)); }
+  90%  { border-image-source: linear-gradient(9deg, var(--color6), var(--color7), var(--color8), var(--color9), var(--color10)); }
+  95%  { border-image-source: linear-gradient(27deg, var(--color7), var(--color8), var(--color9), var(--color10), var(--color11)); }
+  100% { border-image-source: linear-gradient(45deg, var(--color2), var(--color4), var(--color5), var(--color3), var(--color6)); }
 } */
 
 @keyframes animated-gradient {
   0% {
     background-position: 0% 0%;
   }
+
   50% {
     background-position: 100% 0%;
   }
+
   100% {
     background-position: 0% 0%;
   }
 }
 
 /* #bar {
-    background: linear-gradient(270deg, @color2, @color4, @color5, @color3, @color6);
+    background: linear-gradient(270deg, var(--color2), var(--color4), var(--color5), var(--color3), var(--color6));
     background-size: 1000% 1000%;
     animation: animated-gradient 15s ease infinite;
 } */
@@ -57,24 +59,24 @@
 border-width:  0 0 3px 0 ;
     border-style: solid;
     border-image-slice: 1;
-    border-image-source: linear-gradient(45deg, @color2, @color4, @color5); 
+    border-image-source: linear-gradient(45deg, var(--color2), var(--color4), var(--color5)); 
 
     animation: gradient-border 10s linear infinite; */
 
 /* #bar {
-    background-color: @background;
+    background-color: var(--background);
     background-image: url("assets/gradient.png");
     background-repeat: no-repeat;
     background-size: 1000px;
 } */
 
 #bar {
-  background-color: @background;
+  background-color: var(--background);
 
 }
 
 #corner {
-  background-color: @background;
+  background-color: var(--background);
 }
 
 
@@ -85,27 +87,28 @@ border-width:  0 0 3px 0 ;
   margin-left: 9px;
   margin-right: 9px;
   background-color: transparent;
-  border:solid;
+  border: solid;
   border-radius: 42px;
   border-width: 2px;
-  border-color: @color4;
-  box-shadow: @color4 0px 0px 3px 4px;
+  border-color: var(--color4);
+  box-shadow: var(--color4) 0px 0px 3px 4px;
 }
 
-#screen-padding-left,#screen-padding-right{
-  background-color: @background;
-  padding:5px;
+#screen-padding-left,
+#screen-padding-right {
+  background-color: var(--background);
+  padding: 5px;
 }
 
-#screen-padding-bottom{
-  background-color: @background;
-  padding:8px;
+#screen-padding-bottom {
+  background-color: var(--background);
+  padding: 8px;
 }
 
 
-#screen-padding-top{
-  background-color: @background;
-  padding:3px;
+#screen-padding-top {
+  background-color: var(--background);
+  padding: 3px;
 }
 
 .sep {
@@ -116,12 +119,13 @@ border-width:  0 0 3px 0 ;
   margin-right: 15px;
   color: white;
 }
+
 #clock label {
   font-size: 18px;
   background: transparent;
-  color: @color4;
+  color: var(--color4);
   margin: 3px;
-  
+
 }
 
 #cpu {
@@ -129,16 +133,16 @@ border-width:  0 0 3px 0 ;
 }
 
 #cpu-label {
-    color: @color6;
-    font-size: 20px;
-    font-weight: 600;
-    padding:10px;
+  color: var(--color6);
+  font-size: 20px;
+  font-weight: 600;
+  padding: 10px;
 }
 
 #cpu-progress-bar {
   color: white;
-  border-color: shade(@color4, 0.85);
-  
+  border-color: shade(var(--color4), 0.85);
+
 }
 
 #gpu-stats {
@@ -158,12 +162,12 @@ border-width:  0 0 3px 0 ;
 }
 
 #gpu-usage-scale trough {
-  padding:0;
-  margin:0;
-  border:solid;
+  padding: 0;
+  margin: 0;
+  border: solid;
   border-width: 1px;
   border-radius: 5px;
-  border-color: @color4;
+  border-color: var(--color4);
   min-width: 35px;
   min-height: 5px;
 }
@@ -171,17 +175,17 @@ border-width:  0 0 3px 0 ;
 
 #gpu-usage-scale highlight {
   border-radius: 5px;
-  background: @color4;
-  
+  background: var(--color4);
+
 }
 
 #gpu-mem-usage-scale trough {
-  padding:0;
-  margin:0;
-  border:solid;
+  padding: 0;
+  margin: 0;
+  border: solid;
   border-width: 1px;
   border-radius: 5px;
-  border-color: @color4;
+  border-color: var(--color4);
   min-width: 35px;
   min-height: 5px;
 }
@@ -189,12 +193,12 @@ border-width:  0 0 3px 0 ;
 
 #gpu-mem-usage-scale highlight {
   border-radius: 5px;
-  background: @color4;
-  
+  background: var(--color4);
+
 }
 
 #memory-label {
-  color: @color6;
+  color: var(--color6);
   font-size: 15px;
   font-weight: 600;
   padding: 10px;
@@ -202,24 +206,24 @@ border-width:  0 0 3px 0 ;
 
 #memory-progress-bar {
   color: white;
-  border-color: shade(@color4, 0.85);
+  border-color: shade(var(--color4), 0.85);
 }
 
 #download-icon {
-  font-size:16px;
+  font-size: 16px;
 }
 
-#download-speed{
-  font-size:14px;
+#download-speed {
+  font-size: 14px;
 }
 
 
 #upload-icon {
-  font-size:16px;
+  font-size: 16px;
 }
 
-#upload-speed{
-  font-size:14px;
+#upload-speed {
+  font-size: 14px;
 }
 
 #workspaces {
@@ -235,13 +239,13 @@ border-width:  0 0 3px 0 ;
   padding-left: 4px;
   padding-right: 4px;
   font-weight: 500;
-  color: lighter(@color4);
+  color: lighter(var(--color4));
   transition: all 0.3s cubic-bezier(0.55, 0.68, 0.48, 1.682);
 }
 
-.workspace-button.active{
-  background: @color4;
-  color: @background;
+.workspace-button.active {
+  background: var(--color4);
+  color: var(--background);
   font-weight: 900;
   /* animation: animated-gradient 25s ease infinite; */
   padding-left: 20px;
@@ -250,8 +254,8 @@ border-width:  0 0 3px 0 ;
 }
 
 .workspace-button:hover {
-  background: alpha(@color4, 0.8);
-  color: @background;
+  background: alpha(var(--color4), 0.8);
+  color: var(--background);
   /* background-size: 400% 400%;
   animation: animated-gradient 5s ease infinite; */
   padding-left: 20px;
@@ -261,36 +265,36 @@ border-width:  0 0 3px 0 ;
 
 
 #active-window {
-  color: mix(@color4, @color5, 0.5);
-  
+  color: mix(var(--color4), var(--color5), 0.5);
+
 }
 
-#cava > label {
+#cava>label {
   font-size: 15px;
 }
 
 #cava {
   padding: 0;
-  background: @color3;
-  color: @background;
+  background: var(--color3);
+  color: var(--background);
   margin-top: 8px;
   margin-bottom: 8px;
   padding-right: 7px;
   padding-left: 7px;
   border-radius: 5px;
-  box-shadow: @color3 0px 0px 10px 4px;
+  box-shadow: var(--color3) 0px 0px 10px 4px;
 }
 
 .cava-active {
   padding: 0;
-  background: @color3;
-  color: @background;
+  background: var(--color3);
+  color: var(--background);
   margin-top: 8px;
   margin-bottom: 8px;
   padding-right: 7px;
   padding-left: 7px;
   border-radius: 5px;
-  box-shadow: @color3 0px 0px 10px 4px;
+  box-shadow: var(--color3) 0px 0px 10px 4px;
 }
 
 .cava-silent {
@@ -298,24 +302,24 @@ border-width:  0 0 3px 0 ;
 }
 
 tooltip {
-  background-color: @background;
-  color: mix(@color5, white, 0.4);
+  background-color: var(--background);
+  color: mix(var(--color5), white, 0.4);
   border-radius: 7px;
   padding: 4px 8px;
   font-size: 15px;
 }
 
 #song-title {
-  color: lighter(@color4);
+  color: lighter(var(--color4));
 }
 
 #pause-icon {
   font-size: 18px;
   padding-left: 2px;
-  color: lighter(@color4);
+  color: lighter(var(--color4));
 }
 
-#album-art > * {
+#album-art>* {
   padding: 0;
 }
 
@@ -323,13 +327,13 @@ tooltip {
   border: solid;
   border-radius: 3px;
   border-width: 1px;
-  border-color: @color4;
+  border-color: var(--color4);
   padding: 0px;
   padding-top: 0px;
   padding-bottom: 0px;
   margin-top: 5px;
   margin-bottom: 5px;
-  
+
 }
 
 #mpris-overlay-window {
@@ -337,7 +341,7 @@ tooltip {
 }
 
 #mpris-overlay {
-  background: alpha(@backgroundWaybar, 0.9);
+  background: alpha(var(--backgroundWaybar), 0.9);
   font-weight: 900;
   padding: 0px;
   border-radius: 16px;
@@ -346,43 +350,44 @@ tooltip {
 }
 
 #mpris-overlay {
-  transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Example cubic-bezier values */
+  transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* Example cubic-bezier values */
 }
-#mpris-popup-scale{
-  all:unset;
+
+#mpris-popup-scale {
+  all: unset;
   margin-bottom: -10px;
 }
 
-#mpris-popup-scale trough 
-{
-  border:solid;
+#mpris-popup-scale trough {
+  border: solid;
   border-radius: 10px;
   border-width: 1px;
-  color:@color4;
+  color: var(--color4);
 }
 
 
 #mpris-popup-scale slider {
   padding-top: 3px;
   padding-bottom: 3px;
-  margin:0px;
+  margin: 0px;
   border-radius: 10px;
   border-width: 10px;
   border: solid;
-  background-color: @background;
+  background-color: var(--background);
 }
 
 #mpris-popup-scale highlight {
   border-radius: 10px;
-  background: @color4;
-  padding:0px;
-  margin:0px;
+  background: var(--color4);
+  padding: 0px;
+  margin: 0px;
 }
 
 
 #song-title-overlay {
   font-size: 20px;
-  color: @color4;
+  color: var(--color4);
 }
 
 #song-artist-overlay {
@@ -407,41 +412,41 @@ tooltip {
 }
 
 #play-button {
-  color:@color4;
+  color: var(--color4);
 }
 
 #system-controls {
-  padding:0px;
-  background-color: @color4;
+  padding: 0px;
+  background-color: var(--color4);
   margin-top: 8px;
   margin-bottom: 8px;
-  padding-right:9px;
+  padding-right: 9px;
   padding-left: 9px;
   border-width: 2px;
   border-radius: 8px;
 }
 
 #audio-icon {
-  color: @background;
+  color: var(--background);
   font-size: 18px;
   font-weight: 600;
   padding-top: 2px;
-  margin-top:-2px;
+  margin-top: -2px;
 }
 
 #audio-container {
-  padding:0px;
+  padding: 0px;
 }
 
 
 
 #audio-scale trough {
-  padding:0;
-  margin:0;
-  border:solid;
+  padding: 0;
+  margin: 0;
+  border: solid;
   border-width: 1px;
   border-radius: 5px;
-  border-color: @background;
+  border-color: var(--background);
   min-width: 55px;
   min-height: 10px;
 }
@@ -449,12 +454,13 @@ tooltip {
 
 #audio-scale highlight {
   border-radius: 5px;
-  background: @background;
-  
+  background: var(--background);
+
 }
+
 #notification-button {
-  background-color: @color4;
-  color: @background;
+  background-color: var(--color4);
+  color: var(--background);
   border-radius: 7px;
   margin-top: 8px;
   margin-bottom: 8px;
@@ -465,7 +471,7 @@ tooltip {
 }
 
 #network-icon {
-  color: @background;
+  color: var(--background);
   font-size: 18px;
   margin-left: 2px;
 }
@@ -473,11 +479,11 @@ tooltip {
 #networks-overlay-window {
   background-color: transparent;
   border-radius: 15px;
-  
+
 }
 
 #wifi-networks-box {
-  background: alpha(@backgroundWaybar, 0.9);
+  background: alpha(var(--backgroundWaybar), 0.9);
   font-weight: 900;
   margin-top: 20px;
   padding: 10px;
@@ -486,12 +492,12 @@ tooltip {
 }
 
 #wifi-networks-box button {
-  color: mix(@color5, white, 0.4);
+  color: mix(var(--color5), white, 0.4);
   padding: 5px;
 }
 
 #wifi-password-entry {
-  background-color: @color5;
+  background-color: var(--color5);
   padding: 4px;
   margin-left: 14px;
   border-radius: 5px;
@@ -500,13 +506,13 @@ tooltip {
 #bluetooth-percentage {
   min-width: 0px;
   font-size: 14px;
-  color: @background;
+  color: var(--background);
 }
 
 #bluetooth-icon {
   font-size: 18px;
   margin-right: 2px;
-  color: @background;
+  color: var(--background);
 }
 
 #battery-glyph {
@@ -523,16 +529,16 @@ tooltip {
   border-radius: 20px;
   border: solid;
   border-width: 2px;
-  border-color: @color4;
-  background-color: @backgroundWaybar;
-  margin-right:30px;
+  border-color: var(--color4);
+  background-color: var(--backgroundWaybar);
+  margin-right: 30px;
   padding: 20px;
 }
 
 #bluetooth-toggle {
   border-radius: 10px;
   border-width: 1px;
-  border-color: @color4;
+  border-color: var(--color4);
 }
 
 #bluetooth-toggle label {
@@ -540,20 +546,20 @@ tooltip {
 }
 
 .bluetooth-off {
-  color: @color4;
+  color: var(--color4);
   border: solid;
   background-color: transparent;
   border-width: 1px;
-  border-color: @color4;
+  border-color: var(--color4);
 }
 
 
 .bluetooth-on {
-  background-color: @color4; 
-  color: @background;
+  background-color: var(--color4);
+  color: var(--background);
   border-width: 1px;
-  border-color: @color4;
-  border:solid;
+  border-color: var(--color4);
+  border: solid;
 }
 
 #wifi-toggle {
@@ -565,28 +571,28 @@ tooltip {
 }
 
 .wifi-off {
-  color: @color4;
+  color: var(--color4);
   border: solid;
   background-color: transparent;
   border-width: 1px;
-  border-color: @color4;
+  border-color: var(--color4);
 }
 
 .wifi-on {
-  background-color: @color4;
-  color: @background;
+  background-color: var(--color4);
+  color: var(--background);
 }
 
 #rog-button {
   padding-left: 8px;
   padding-right: 8px;
   border-radius: 10px;
-  background-color: @color4;
-  color: @color2;
+  background-color: var(--color4);
+  color: var(--color2);
 }
 
 #wallpaper-icon {
-  color: @background;
+  color: var(--background);
   font-size: 24px;
   font-weight: 900;
 }
@@ -595,7 +601,7 @@ tooltip {
   padding-left: 15px;
   padding-right: 15px;
   border-radius: 10px;
-  background-color: @color4;
+  background-color: var(--color4);
 }
 
 #mic-toggle {
@@ -603,8 +609,8 @@ tooltip {
 }
 
 #mic-toggle.mic-active {
-  background-color: @color4;
-  color: @background;
+  background-color: var(--color4);
+  color: var(--background);
 }
 
 #mic-icon {
@@ -612,11 +618,11 @@ tooltip {
 }
 
 #mic-toggle.mic-muted {
-  color: @color4;
+  color: var(--color4);
   border: solid;
   background-color: transparent;
   border-width: 1px;
-  border-color: @color4;
+  border-color: var(--color4);
   padding-left: 13px;
   padding-right: 13px;
   /* padding-top:2px;
@@ -626,24 +632,24 @@ tooltip {
 #performance-toggle {
   padding: 5px;
   border-radius: 10px;
-  background-color: @color4;
-  color: @background;
+  background-color: var(--color4);
+  color: var(--background);
 }
 
-#gamemode-toggle-button{
+#gamemode-toggle-button {
   border-radius: 10px;
 }
 
 .gamemode-off {
-  background-color: @background;
-  color: @color4;
-  border: solid 1px @color4;
-  
+  background-color: var(--background);
+  color: var(--color4);
+  border: solid 1px var(--color4);
+
 }
 
 .gamemode-on {
-  background: @color4;
-  color: @background;
+  background: var(--color4);
+  color: var(--background);
 }
 
 #status-label {
@@ -656,53 +662,53 @@ tooltip {
   margin: 0px;
   border-width: 2px;
   border: solid;
-  border-color: @color4;
+  border-color: var(--color4);
 }
 
 
 
 #brightness-scale slider {
-  
+
   padding-top: 10px;
   padding-bottom: 10px;
   min-height: 20px;
   border-radius: 10px;
   border-width: 2px;
   border: solid;
-  background-color: @background;
-  
+  background-color: var(--background);
+
 }
 
 #brightness-scale highlight {
   border-radius: 10px;
-  background: @color4;
+  background: var(--color4);
 }
 
 /* overlay label */
 #brightness-label {
-  color: @background;
+  color: var(--background);
   font-size: 20px;
   padding-left: 5px;
   font-weight: 900;
   border-width: 2px;
   border: solid;
-  border-color: @color4;
+  border-color: var(--color4);
 }
 
 #brightness-label.brightness-icon-low {
-  color: @color4;
+  color: var(--color4);
 }
 
 
 #notification {
   min-width: 430px;
-  padding:0;
+  padding: 0;
   border-radius: 1rem;
-  background-color: alpha(@backgroundWaybar, 0.7);
+  background-color: alpha(var(--backgroundWaybar), 0.7);
 }
 
 #notification-info {
-  padding:5px;
+  padding: 5px;
   margin-top: 10px;
   margin-bottom: 10px;
 }
@@ -713,43 +719,43 @@ tooltip {
 }
 
 #notification-info {
-  padding:0px;
+  padding: 0px;
   margin-right: -10px;
   margin-left: 15px;
 }
 
 #action-buttons {
-  padding-top:5px;
+  padding-top: 5px;
 }
 
-#action-buttons > * > button {
+#action-buttons>*>button {
   border-radius: 10px;
-  background-color: @color4;
+  background-color: var(--color4);
   padding-top: 4px;
   padding-left: 4px;
   padding-right: 4px;
   padding-bottom: 4px;
 }
-#action-buttons > * > button > label
-{
+
+#action-buttons>*>button>label {
   font-size: 14px;
 }
 
-#notification-close-button{
-  padding-top:2px;
-  padding-bottom:2px;
+#notification-close-button {
+  padding-top: 2px;
+  padding-bottom: 2px;
   padding-right: 7px;
   padding-left: 7px;
-  color:@color5;
+  color: var(--color5);
   background-color: transparent;
 }
 
 #notification-close-button label {
-  font-size:20px;
+  font-size: 20px;
 }
 
 #notification-title {
-  color: lighter(@color4);
+  color: lighter(var(--color4));
   font-size: 20px;
 }
 
@@ -768,18 +774,18 @@ tooltip {
 
 #volume-osd-box {
   all: unset;
-  padding:10px;
+  padding: 10px;
   margin-right: 40px;
   margin-top: 80px;
-  background-color:   alpha(@backgroundWaybar, 0.9);
+  background-color: alpha(var(--backgroundWaybar), 0.9);
   border-radius: 10px;
   border: solid;
   border-width: 1px;
-  border-color: @color4;
+  border-color: var(--color4);
 }
 
 #osd-icon {
-  color: @color4;
+  color: var(--color4);
   font-size: 28px;
   font-weight: 600;
 }
@@ -787,12 +793,12 @@ tooltip {
 
 #volume-osd-scale trough {
   all: unset;
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0;
   /* border:solid;
   border-width: 2px; */
   border-radius: 5px;
-  border-color: @color4;
+  border-color: var(--color4);
   min-height: 250px;
   min-width: 20px;
 }
@@ -801,8 +807,8 @@ tooltip {
 #volume-osd-scale highlight {
   all: unset;
   border-radius: 5px;
-  background: @color4;
-  
+  background: var(--color4);
+
 }
 
 
@@ -813,18 +819,18 @@ tooltip {
 
 #brightness-osd-box {
   all: unset;
-  padding:10px;
+  padding: 10px;
   margin-right: 40px;
   margin-bottom: 80px;
-  background-color: alpha(@backgroundWaybar, 0.8);
+  background-color: alpha(var(--backgroundWaybar), 0.8);
   border-radius: 10px;
   border: solid;
   border-width: 1px;
-  border-color: @color4;
+  border-color: var(--color4);
 }
 
 #brightness-osd-icon {
-  color: @color4;
+  color: var(--color4);
   font-size: 28px;
   font-weight: 600;
 }
@@ -832,12 +838,12 @@ tooltip {
 
 #brightness-osd-scale trough {
   all: unset;
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0;
   /* border:solid;
   border-width: 2px; */
   border-radius: 5px;
-  border-color: @color4;
+  border-color: var(--color4);
   min-height: 250px;
   min-width: 20px;
 }
@@ -846,61 +852,61 @@ tooltip {
 #brightness-osd-scale highlight {
   all: unset;
   border-radius: 5px;
-  background: @color4;
-  
+  background: var(--color4);
+
 }
 
 
 #notification-item {
-background: @background;
-/* border: solid 2px @color4; */
-border-radius:12px;
+  background: var(--background);
+  /* border: solid 2px var(--color4); */
+  border-radius: 12px;
 }
 
-#notification-item-thumbnail{
-border-radius: 10px;
+#notification-item-thumbnail {
+  border-radius: 10px;
 }
 
-#notifications-scrolled-window{
+#notifications-scrolled-window {
   border-radius: 10px;
   transition: all 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682);
 }
 
-#notification-item-content{
+#notification-item-content {
   padding-top: 5px;
-   padding-right: 10px;
-   padding-bottom: 5px;
+  padding-right: 10px;
+  padding-bottom: 5px;
 }
 
 #notification-item-title {
   font-size: 16px;
-  color: @color4;
+  color: var(--color4);
   font-weight: 900;
 }
 
 #notification-item-body {
   font-size: 14px;
-  color: @color4;
+  color: var(--color4);
   font-weight: 900;
 }
 
 #dnd-button {
   font-size: 16px;
   font-weight: 900;
-  color: @color4;
-  background-color: @background;
+  color: var(--color4);
+  background-color: var(--background);
   border-radius: 7px;
-  border: solid 2px @color4;
+  border: solid 2px var(--color4);
   padding: 4px 8px;
 }
 
 #dnd-button.active {
-  background-color: @color4;
-  color: @background;
+  background-color: var(--color4);
+  color: var(--background);
 }
 
 #notifications-panel-title-bar {
-  border: solid @color4;
+  border: solid var(--color4);
   /* border-width: 0px 0px 2px 0px; */
   padding-bottom: 10px;
   border-radius: 0px;
@@ -908,19 +914,19 @@ border-radius: 10px;
 
 #notification-item-close-button {
   font-size: 20px;
-  padding-top:2px;
-  padding-bottom:2px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   padding-right: 7px;
-  color:@color5;
+  color: var(--color5);
   background-color: transparent;
 }
 
 #notification-item-revealer-button {
   font-size: 20px;
-  padding-top:2px;
-  padding-bottom:2px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   padding-right: 7px;
-  color:@color5;
+  color: var(--color5);
   background-color: transparent;
 }
 
@@ -928,46 +934,48 @@ border-radius: 10px;
   padding: 0px;
   padding-left: 5px;
   padding-right: 5px;
-  padding-bottom: 5px;;
+  padding-bottom: 5px;
+  ;
 }
 
 #dismiss-all-button {
-  color: @color4;
-  
+  color: var(--color4);
+
   border: solid 2px;
   border-radius: 7px;
   padding: 4px 8px;
 }
 
-#dismiss-all-button label{
-  font-size:20px;
-  font-weight:900;
+#dismiss-all-button label {
+  font-size: 20px;
+  font-weight: 900;
 }
 
 
 
-#wallpaper-selector-window button{
-  padding:0;
-  margin:0;
-  transition: all 0.3s cubic-bezier(0.00,0.00,0.20,1.00);
+#wallpaper-selector-window button {
+  padding: 0;
+  margin: 0;
+  transition: all 0.3s cubic-bezier(0.00, 0.00, 0.20, 1.00);
 }
 
-#wallpaper-selector-window button:focus{
-  border: solid @color4 2px;
+#wallpaper-selector-window button:focus {
+  border: solid var(--color4) 2px;
   border-radius: 12px;
   min-width: 384px;
   background-size: cover;
 }
 
-#main-wallpaper-container{
-  background-color: @backgroundWaybar;
-  border-radius:20px;
-}
-#wallpaper-scroll-container{
-  margin:20px;
+#main-wallpaper-container {
+  background-color: var(--backgroundWaybar);
+  border-radius: 20px;
 }
 
-#wallpaper-button:focus #wallpaper-container{
+#wallpaper-scroll-container {
+  margin: 20px;
+}
+
+#wallpaper-button:focus #wallpaper-container {
   min-width: 512px;
   background-size: cover;
 }
@@ -975,7 +983,11 @@ border-radius: 10px;
 #wallpaper-container {
   min-width: 256px;
   min-height: 720px;
-  transition: all 0.3s cubic-bezier(0.00,0.00,0.20,1.00);
+  transition: all 0.3s cubic-bezier(0.00, 0.00, 0.20, 1.00);
 }
 
-
+#system-tray * {
+  padding: 10px;
+  margin: 0px;
+  background-color: var(--background);
+}
