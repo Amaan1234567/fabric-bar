@@ -23,6 +23,7 @@ from modules.bluetooth.bluetooth import BluetoothWidget
 from modules.gpu.gpu import GpuWidget
 from modules.network_speed.network_speed import NetworkSpeed
 from modules.system_tray.system_tray import barSystemTray as SystemTray
+from modules.logout_button.logout_button import LogoutButton
 
 class TopBar(Window):
     """top bar of UI"""
@@ -45,14 +46,7 @@ class TopBar(Window):
         self.gpu = GpuWidget()
         self.network_speed = NetworkSpeed()
         self.clock = Clock()
-        self.logout_btn = Button(
-            label="⏻",
-            # CORRECTED: Use `dispatch` for commands.
-            on_clicked=lambda *a: subprocess.run(
-                ["wlogout", "--protocol", "layer-shell"]
-            ),
-            name="logout",
-        )
+        self.logout_btn = LogoutButton(window=self)
         self.active_window = WindowName()
         self.cava = CavaWidget()
         self.right_module = ControlCenterButton(app_data=app_data)
