@@ -16,5 +16,6 @@ RapidFuzz==3.14.5
 requests==2.33.1
 screen_brightness_control==0.27.1
 screeninfo==0.8.1
+setproctitle==1.3.7
 thefuzz==0.22.1
 urllib3==2.6.3
