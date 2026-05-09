@@ -1,0 +1,87 @@
+#control-center {
+  border-radius: 20px;
+  border: solid;
+  border-width: 2px;
+  border-color: var(--color4);
+  background-color: var(--backgroundWaybar);
+  margin-right: 30px;
+  padding: 20px;
+}
+
+#wifi-toggle {
+  border-radius: 10px;
+}
+
+#wifi-toggle label {
+  font-size: 20px;
+}
+
+.wifi-off {
+  color: var(--color4);
+  border: solid;
+  background-color: transparent;
+  border-width: 1px;
+  border-color: var(--color4);
+}
+
+.wifi-on {
+  background-color: var(--color4);
+  color: var(--background);
+}
+
+#rog-button {
+  padding-left: 8px;
+  padding-right: 8px;
+  border-radius: 10px;
+  background-color: var(--color4);
+  color: var(--color2);
+}
+
+#mic-toggle {
+  border-radius: 10px;
+}
+
+#mic-toggle.mic-active {
+  background-color: var(--color4);
+  color: var(--background);
+}
+
+#mic-icon {
+  font-size: 24px;
+}
+
+#mic-toggle.mic-muted {
+  color: var(--color4);
+  border: solid;
+  background-color: transparent;
+  border-width: 1px;
+  border-color: var(--color4);
+  padding-left: 13px;
+  padding-right: 13px;
+}
+
+#performance-toggle {
+  padding: 5px;
+  border-radius: 10px;
+  background-color: var(--color4);
+  color: var(--background);
+}
+
+#gamemode-toggle-button {
+  border-radius: 10px;
+}
+
+.gamemode-off {
+  background-color: var(--background);
+  color: var(--color4);
+  border: solid 1px var(--color4);
+}
+
+.gamemode-on {
+  background: var(--color4);
+  color: var(--background);
+}
+
+#status-label {
+  font-size: 17px;
+}

@@ -312,7 +312,7 @@ class Spectrum:
                 hex_string = "#a5c8ff"  # default value
                 with open(color_file, "r") as f:
                     content = f.read()
-                    m = re.findall(r"background \s*(#[0-9a-fA-F]{6})", content)
+                    m = re.findall(r"--background: \s*(#[0-9a-fA-F]{6})", content)
                 if m:
                     # print("string:", m.string)
                     hex_string= m[0]
@@ -341,7 +341,7 @@ class Spectrum:
         try:
             with open(get_relative_path("../../styles/colors.css"), "r") as f:
                 content = f.read()
-                m = re.findall(r"background \s*(#[0-9a-fA-F]{6})", content)
+                m = re.findall(r"--background: \s*(#[0-9a-fA-F]{6})", content)
                 if m:
                     hex_string= m[0]
                 

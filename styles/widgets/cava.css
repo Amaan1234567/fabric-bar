@@ -1,0 +1,31 @@
+#cava>label {
+  font-size: 15px;
+}
+
+#cava {
+  padding: 0;
+  background: var(--color3);
+  color: var(--background);
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding-right: 7px;
+  padding-left: 7px;
+  border-radius: 5px;
+  box-shadow: var(--color3) 0px 0px 10px 4px;
+}
+
+.cava-active {
+  padding: 0;
+  background: var(--color3);
+  color: var(--background);
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding-right: 7px;
+  padding-left: 7px;
+  border-radius: 5px;
+  box-shadow: var(--color3) 0px 0px 10px 4px;
+}
+
+.cava-silent {
+  all: unset;
+}

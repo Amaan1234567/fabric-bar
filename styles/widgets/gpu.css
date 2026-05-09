@@ -1,0 +1,47 @@
+#gpu-stats {
+  margin-right: 0px;
+}
+
+#gpu-icon {
+  min-width: 20px;
+  padding: 0;
+  margin: 0;
+  color: white;
+}
+
+#gpu-scales-container {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#gpu-usage-scale trough {
+  padding: 0;
+  margin: 0;
+  border: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: var(--color4);
+  min-width: 35px;
+  min-height: 5px;
+}
+
+#gpu-usage-scale highlight {
+  border-radius: 5px;
+  background: var(--color4);
+}
+
+#gpu-mem-usage-scale trough {
+  padding: 0;
+  margin: 0;
+  border: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: var(--color4);
+  min-width: 35px;
+  min-height: 5px;
+}
+
+#gpu-mem-usage-scale highlight {
+  border-radius: 5px;
+  background: var(--color4);
+}

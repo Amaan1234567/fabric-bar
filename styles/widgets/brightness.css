@@ -1,0 +1,37 @@
+#brightness-container,
+#brightness-container overlay {
+  padding: 0px;
+  margin: 0px;
+  border-width: 2px;
+  border: solid;
+  border-color: var(--color4);
+}
+
+#brightness-scale slider {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  min-height: 20px;
+  border-radius: 10px;
+  border-width: 2px;
+  border: solid;
+  background-color: var(--background);
+}
+
+#brightness-scale highlight {
+  border-radius: 10px;
+  background: var(--color4);
+}
+
+#brightness-label {
+  color: var(--background);
+  font-size: 20px;
+  padding-left: 5px;
+  font-weight: 900;
+  border-width: 2px;
+  border: solid;
+  border-color: var(--color4);
+}
+
+#brightness-label.brightness-icon-low {
+  color: var(--color4);
+}

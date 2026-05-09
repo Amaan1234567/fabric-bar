@@ -1,0 +1,15 @@
+#cpu {
+  margin-left: 10px;
+}
+
+#cpu-label {
+  color: var(--color6);
+  font-size: 20px;
+  font-weight: 600;
+  padding: 10px;
+}
+
+#cpu-progress-bar {
+  color: white;
+  border-color: shade(var(--color4), 0.85);
+}

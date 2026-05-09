@@ -1,0 +1,31 @@
+#network-icon {
+  color: var(--background);
+  font-size: 18px;
+  margin-left: 2px;
+}
+
+#networks-overlay-window {
+  background-color: transparent;
+  border-radius: 15px;
+}
+
+#wifi-networks-box {
+  background: alpha(var(--backgroundWaybar), 0.9);
+  font-weight: 900;
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 15px;
+  border: solid;
+}
+
+#wifi-networks-box button {
+  color: mix(var(--color5), white, 0.4);
+  padding: 5px;
+}
+
+#wifi-password-entry {
+  background-color: var(--color5);
+  padding: 4px;
+  margin-left: 14px;
+  border-radius: 5px;
+}

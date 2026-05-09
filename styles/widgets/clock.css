@@ -1,0 +1,6 @@
+#clock label {
+  font-size: 18px;
+  background: transparent;
+  color: var(--color4);
+  margin: 3px;
+}

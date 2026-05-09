@@ -1,0 +1,37 @@
+#bluetooth-percentage {
+  min-width: 0px;
+  font-size: 14px;
+  color: var(--background);
+}
+
+#bluetooth-icon {
+  font-size: 18px;
+  margin-right: 2px;
+  color: var(--background);
+}
+
+#bluetooth-toggle {
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: var(--color4);
+}
+
+#bluetooth-toggle label {
+  font-size: 25px;
+}
+
+.bluetooth-off {
+  color: var(--color4);
+  border: solid;
+  background-color: transparent;
+  border-width: 1px;
+  border-color: var(--color4);
+}
+
+.bluetooth-on {
+  background-color: var(--color4);
+  color: var(--background);
+  border-width: 1px;
+  border-color: var(--color4);
+  border: solid;
+}

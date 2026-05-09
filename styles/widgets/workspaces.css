@@ -1,0 +1,33 @@
+#workspaces {
+  background-color: transparent;
+}
+
+.workspace-button {
+  padding: 0;
+  background-color: transparent;
+  border-radius: 2px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+  padding-right: 4px;
+  font-weight: 500;
+  color: lighter(var(--color4));
+  transition: all 0.3s cubic-bezier(0.55, 0.68, 0.48, 1.682);
+}
+
+.workspace-button.active {
+  background: var(--color4);
+  color: var(--background);
+  font-weight: 900;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 40px;
+}
+
+.workspace-button:hover {
+  background: alpha(var(--color4), 0.8);
+  color: var(--background);
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 40px;
+}

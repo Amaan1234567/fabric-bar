@@ -1,0 +1,11 @@
+#memory-label {
+  color: var(--color6);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px;
+}
+
+#memory-progress-bar {
+  color: white;
+  border-color: shade(var(--color4), 0.85);
+}

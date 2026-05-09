@@ -1,0 +1,45 @@
+#wallpaper-icon {
+  color: var(--background);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+#wallpaper-change-button {
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 10px;
+  background-color: var(--color4);
+}
+
+#wallpaper-selector-window button {
+  padding: 0;
+  margin: 0;
+  transition: all 0.3s cubic-bezier(0.00, 0.00, 0.20, 1.00);
+}
+
+#wallpaper-selector-window button:focus {
+  border: solid var(--color4) 2px;
+  border-radius: 12px;
+  min-width: 384px;
+  background-size: cover;
+}
+
+#main-wallpaper-container {
+  background-color: var(--backgroundWaybar);
+  border-radius: 20px;
+}
+
+#wallpaper-scroll-container {
+  margin: 20px;
+}
+
+#wallpaper-button:focus #wallpaper-container {
+  min-width: 512px;
+  background-size: cover;
+}
+
+#wallpaper-container {
+  min-width: 256px;
+  min-height: 720px;
+  transition: all 0.3s cubic-bezier(0.00, 0.00, 0.20, 1.00);
+}
