@@ -9,6 +9,7 @@
 @import url("./widgets/audio.css");
 @import url("./widgets/notifications.css");
 @import url("./widgets/network.css");
+@import url("./widgets/network-speed.css");
 @import url("./widgets/bluetooth.css");
 @import url("./widgets/battery.css");
 @import url("./widgets/wallpaper.css");

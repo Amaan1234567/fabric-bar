@@ -1,5 +1,66 @@
-#system-tray * {
+#system-tray{
   padding: 10px;
   margin: 0px;
+  background-color: var(--background);
+}
+
+
+menu {
+  margin-top: 30px;
+  border-radius: 10px;
+  background-color: var(--background);
+  border: 2px solid var(--color4);
+  color: #fff;
+}
+menu separator:not(:last-child) {
+  margin: 0 8px;
+  min-height: 2px;
+  background-color: #494d64;
+}
+menu menuitem {
+  margin: 0px;
+  border-radius: 10px;
+  background-color: transparent;
+  transition: all 0s ease-in;
+  padding: 8px;
+}
+menu menuitem:hover {
+  color: var(--background);
+  background-color:var(--color4);
+}
+menu menuitem:hover arrow {
+  color: var(--color4);
+}
+menu menuitem:hover check:checked {
+  color: alpha(var(--color4),0.5);
+}
+menu menuitem arrow {
+  min-width: 16px;
+  min-height: 16px;
+}
+menu menuitem arrow:dir(ltr) {
+  -gtk-icon-source: -gtk-icontheme("pan-end-symbolic?24");
+  margin-left: 10px;
+  margin-right: 20px;
+}
+menu menuitem check {
+  padding-left: 5px;
+  margin-right: 10px;
+  min-width: 20px;
+  min-height: 15px;
+  background-color: #494d64;
+}
+menu menuitem check:checked {
+  background-color: var(--background);
+  -gtk-icon-source: -gtk-icontheme("dino-tick-symbolic");
+  color:var(--color4);
+}
+menu menuitem radio {
+  -gtk-icon-source: -gtk-icontheme("radio-symbolic");
+}
+menu menuitem radio:checked {
+  -gtk-icon-source: -gtk-icontheme("radio-checked-symbolic");
+}
+menu menuitem:backdrop {
   background-color: var(--background);
 }
