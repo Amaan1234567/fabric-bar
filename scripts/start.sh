@@ -6,11 +6,11 @@ source "$BASE_DIR/venv/bin/activate"
 cd "$BASE_DIR"
 
 # 1. Kill any existing instances to avoid conflicts
-pkill -f "python start_shell.py"
-pkill -f "python side-monitors.py"
+pkill -f "hypr-fabric-bar-main"
+pkill -f "hypr-fabric-bar-side"
 
 # 2. Launch Main Shell (Fixed to Monitor 0)
-python start_shell.py &
+setsid python3 start_shell.py > /dev/null 2>&1 &
 sleep 1
 
 # 3. Detect all other monitors and launch side-monitors for each
@@ -19,7 +19,7 @@ OTHER_MONITORS=$(hyprctl monitors -j | jq -r '.[] | select(.id != 0) | .id')
 
 for id in $OTHER_MONITORS; do
     echo "Launching side-monitors on Monitor ID: $id"
-    python side-monitors.py --monitor-id "$id" &
+    setsid python3 side-monitors.py --monitor-id "$id" > /dev/null 2>&1 &
 done
 
 disown

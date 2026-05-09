@@ -1,5 +1,5 @@
 """main python file that initialised the whole UI"""
-
+import setproctitle
 import sys
 from loguru import logger
 
@@ -15,6 +15,8 @@ from widgets.brightness_osd import BrightnessOSD # Added Import
 
 
 if __name__ == "__main__":
+    setproctitle.setproctitle("hypr-fabric-bar-side")
+
     script_name = sys.argv[0]
 
     if len(sys.argv) <= 1 or sys.argv[1] != "--monitor-id":
