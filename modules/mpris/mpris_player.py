@@ -5,8 +5,7 @@ from gi.repository import GdkPixbuf, Gio  # type: ignore
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button
-from fabric.utils import invoke_repeater
-from fabric.utils import cooldown
+from fabric.utils import invoke_repeater,cooldown,get_relative_path
 
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_scale import AnimatedScale
@@ -173,6 +172,9 @@ class MprisPlayer(Box):
                 self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:
             logger.exception("encountered error:", e)
+            pix = GdkPixbuf.Pixbuf.new_from_file(get_relative_path("../../assets/mpris_default.png"))
+            pix = pixbuf_cropping_if_image_is_not_1_1(pix)
+            self.album_art_overlay.set_from_pixbuf(pix)
 
     def _update_progress(self):
         if not self.get_visible():
@@ -207,5 +209,9 @@ class MprisPlayer(Box):
             if art_url not in (self.temp_url_cache, ""):
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
+            else:
+                pix = GdkPixbuf.Pixbuf.new_from_file(get_relative_path("../../assets/mpris_default.png"))
+                pix = pixbuf_cropping_if_image_is_not_1_1(pix)
+                self.album_art_overlay.set_from_pixbuf(pix)
 
         return True

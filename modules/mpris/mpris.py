@@ -5,13 +5,13 @@ from gi.repository import GdkPixbuf, GLib, Gio  # type: ignore
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
-from fabric.utils import invoke_repeater
+from fabric.utils import invoke_repeater, get_relative_path
 
 from custom_widgets.scolling_text_widget import ScrollingLabel
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
 from services.playerctlservice import SimplePlayerctlService
-from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
+from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1
 
 from modules.mpris.mpris_popup import MprisPopup
 
@@ -130,6 +130,10 @@ class Mpris(Box):
                 self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:  # type: ignore
             logger.exception("encountered_error: ", e)
+            pix = GdkPixbuf.Pixbuf.new_from_file(get_relative_path("../../assets/mpris_default.png"))
+            pix = pixbuf_cropping_if_image_is_not_1_1(pix)
+            self.album_art.set_from_pixbuf(pix)
+            
 
     def _update_widget(self):
         if self.service.current_player is None:
@@ -156,6 +160,10 @@ class Mpris(Box):
             if art_url not in (self.temp_url_cache, ""):
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
+            else:
+                pix = GdkPixbuf.Pixbuf.new_from_file(get_relative_path("../../assets/mpris_default.png"))
+                pix = pixbuf_cropping_if_image_is_not_1_1(pix,30)
+                self.album_art.set_from_pixbuf(pix)
         else:
             self.album_art.set_visible(False)
             self.song_progress.set_visible(False)
