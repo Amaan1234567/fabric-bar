@@ -16,6 +16,7 @@ from widgets.corners import ScreenCorners
 from widgets.volume_osd import VolumeOSD
 from widgets.brightness_osd import BrightnessOSD  # This now uses the new Service
 from widgets.wallpaper_selector import WallpaperSelector
+from widgets.theme_selector import ThemeSelector
 
 
 def main():
@@ -46,6 +47,7 @@ def main():
     brightness_osd = BrightnessOSD(monitor_id=primary_monitor)
 
     wallpaper_selector = WallpaperSelector()
+    theme_selector = ThemeSelector()
 
     app = Application(
         "hypr-fabric-bar-main",
@@ -57,12 +59,17 @@ def main():
             volume_osd,
             brightness_osd,
             wallpaper_selector,
+            theme_selector,
         ],
     )
 
     @Application.action()
     def toggle_wallpaper_selector():
         wallpaper_selector.toggle_window()
+
+    @Application.action()
+    def toggle_theme_selector():
+        theme_selector.toggle_window()
 
     style_path = get_relative_path("styles/style.css")
     if style_path:
@@ -87,3 +94,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

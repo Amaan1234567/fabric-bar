@@ -18,14 +18,15 @@
 @import url("./widgets/osd.css");
 @import url("./widgets/system-tray.css");
 @import url("./widgets/logout.css");
+@import url("./widgets/theme_selector.css");
 
 * {
   all: unset;
   font-family: "JetBrainsMono Nerd Font Propo";
   font-weight: 900;
   font-size: 16px;
-  background: transparent;
-  transition: background 0.4s cubic-bezier(0.55, 0.68, 0.48, 1.682);
+  background: transparent; /* DONOT CHANGE THIS, else your screen will be covered with whatever background you put*/
+  transition: background 0.1s cubic-bezier(0.55, 0.68, 0.48, 1.682);
 }
 
 @keyframes animated-gradient {
@@ -100,3 +101,4 @@ tooltip {
   padding: 4px 8px;
   font-size: 15px;
 }
+

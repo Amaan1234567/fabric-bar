@@ -1,0 +1,22 @@
+:vars {
+    --cursor: #B186AF;
+    --background: #03000B;
+    --foreground: #EAF3F9;
+    --color0:  #04000D;
+    --color1:  #74668F;
+    --color2:  #974D88;
+    --color3:  #427F9B;
+    --color4:  #E676C1;
+    --color5:  #29ACCC;
+    --color6:  #C2DCED;
+    --color7:  #D8E5EE;
+    --color8:  #97A0A6;
+    --color9:  #74668F;
+    --color10: #974D88;
+    --color11: #427F9B;
+    --color12: #E676C1;
+    --color13: #29ACCC;
+    --color14: #C2DCED;
+    --color15: #D8E5EE;
+    --backgroundWaybar: rgba(3,0,11,0.65);
+}

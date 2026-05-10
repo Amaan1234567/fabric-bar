@@ -1,0 +1,41 @@
+#theme-selector-window {
+    background-color: var(--backgroundWaybar);
+    padding: 20px;
+    border: 2px solid var(--color4);
+    border-radius: 15px;
+}
+
+#main-theme-container {
+    padding: 10px;
+}
+
+#themes-scroll {
+    min-width: 450px;
+    min-height: 300px;
+}
+
+#themes-container button {
+    background-color: var(--color0);
+    color: var(--foreground);
+    padding: 8px;
+    border-radius: 5px;
+}
+
+#themes-container button:focus {
+    background-color: var(--color4);
+    color: var(--background);
+    border-radius: 12px;
+}
+
+#search-entry {
+    background-color: var(--background);
+    color: var(--color4);
+    padding: 5px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 2px solid var(--color4);
+}
+#search-entry:focus {
+    background-color: var(--color4);
+    color: var(--foreground);
+}
