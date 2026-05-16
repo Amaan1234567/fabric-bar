@@ -4,7 +4,8 @@ from fabric.widgets.overlay import Overlay
 from gi.repository import GLib
 from custom_widgets.animated_scale import AnimatedScale
 from services.brightnessservice import BrightnessService
-from fabric.utils import cooldown # Assuming you have a cooldown decorator
+from fabric.utils import cooldown  # Assuming you have a cooldown decorator
+
 
 class BrightnessSlider(Box):
     def __init__(self, *, step: int = 5, name="brightness-container"):
@@ -17,7 +18,7 @@ class BrightnessSlider(Box):
         self.service = BrightnessService()
         self._is_tracking = False
         self._reset_timeout = None
-        
+
         # Hardcoded to internal for now as requested
         self.target_type = "internal"
         self.target_id = "internal"
@@ -28,7 +29,7 @@ class BrightnessSlider(Box):
             min_value=5,
             max_value=100,
             # Direct access to the internal value
-            value=self.service._internal_val, 
+            value=self.service._internal_val,
             draw_value=False,
             h_expand=True,
             v_expand=True,
@@ -46,7 +47,7 @@ class BrightnessSlider(Box):
 
         self.scale.connect("change-value", self._on_scale_moved)
         self.add(Overlay(child=self.scale, overlays=self.label))
-        
+
         # Connect to the new 4-argument signal
         self.service.connect("changed", self._on_service_changed)
         self._update_style(self.service._internal_val)
@@ -60,12 +61,13 @@ class BrightnessSlider(Box):
     @cooldown(0.1)
     def _on_scale_moved(self, _, __, value):
         self._is_tracking = True
-        
+
         # Use the new explicit method
         self.service.set_brightness(self.target_type, self.target_id, int(value))
-        self.scale.animate_value(value) # Immediate feedback
+        self.service.set_brightness("external", "external", int(value))
+        self.scale.animate_value(value)  # Immediate feedback
         self._update_style(value)
-        
+
         if self._reset_timeout:
             GLib.source_remove(self._reset_timeout)
         self._reset_timeout = GLib.timeout_add(1000, self._reset_tracking)
