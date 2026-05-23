@@ -62,9 +62,9 @@ class BrightnessService(Service):
     def _external_poll_loop(self):
         while True:
             # We only skip if Control Center is animating (inhibit)
-            if self._inhibit_polling:
-                time.sleep(0.1)
-                continue
+            # if self._inhibit_polling:
+            #     time.sleep(0.1)
+            #     continue
 
             try:
                 res = subprocess.run(
@@ -82,7 +82,7 @@ class BrightnessService(Service):
             except Exception:
                 pass
             
-            time.sleep(0.1) 
+            time.sleep(0.01) 
 
     def set_brightness(self, device_type: str, hardware_id: str, value: int):
         # 1. Update internal state and emit immediately so the UI is snappy
