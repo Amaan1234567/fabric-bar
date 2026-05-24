@@ -85,8 +85,8 @@ class LogoutPopup(PopupWindow):
         return False
 
     def _run_cmd(self, cmd):
-        subprocess.Popen(cmd.split())
         self.toggle_popup()
+        subprocess.Popen(cmd.split())
 
     def toggle_popup(self):
         """toggle the visibility of the popup with animation"""
