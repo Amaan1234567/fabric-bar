@@ -55,9 +55,6 @@ class Cpu(Box):
         self.content_event_box.add(self.overlay)
         self.add(self.content_event_box)
 
-        # ── seed history with current value so the graph doesn't
-        #    start with a long flat line at zero ─────────────────────
-        initial = psutil.cpu_percent()
         # ── state ───────────────────────────────────────────────────
         self._history: deque = deque(maxlen=self.HISTORY_LENGTH)
         self._hide_timeout_id = None
@@ -69,8 +66,6 @@ class Cpu(Box):
             pointing_to=self,
             exclusivity="none",
         )
-
-
 
         # hover on bar
         self.content_event_box.connect("enter-notify-event", self._hover_trigger)
@@ -134,6 +129,7 @@ class Cpu(Box):
     # ────────────────────────────────────────────────────────────────
 
     def get_cpu_usage(self) -> float:
+        """Get the current total CPU usage percentage."""
         return psutil.cpu_percent()
 
     def _get_details(self):
@@ -161,29 +157,35 @@ class Cpu(Box):
         )
 
         freq_color = (
-            "#A3DC9A" if cur_freq.current <= 1000
-            else "#FCF67E" if cur_freq.current < 3500
+            "#A3DC9A"
+            if cur_freq.current <= 1000
+            else "#FCF67E"
+            if cur_freq.current < 3500
             else "#FF5454"
         )
         temp_color = (
-            "#A3DC9A" if cpu_temp.current <= 45
-            else "#FCF67E" if cpu_temp.current <= 75
+            "#A3DC9A"
+            if cpu_temp.current <= 45
+            else "#FCF67E"
+            if cpu_temp.current <= 75
             else "#FF5454"
         )
 
-        return "\n".join([
-            "<b>CPU</b>",
-            (
-                f'Freq: <span foreground="{freq_color}">'
-                f"{cur_freq.current / 1000:.2f} GHz</span>"
-            ),
-            f"<tt>Core: {cores}</tt>",
-            (
-                f'Temp: <span foreground="{temp_color}">'
-                f"{cpu_temp.current}\u00b0C</span>"
-            ),
-            f"Fan: {cpu_fan_speed.current} RPM",
-        ])
+        return "\n".join(
+            [
+                "<b>CPU</b>",
+                (
+                    f'Freq: <span foreground="{freq_color}">'
+                    f"{cur_freq.current / 1000:.2f} GHz</span>"
+                ),
+                f"<tt>Core: {cores}</tt>",
+                (
+                    f'Temp: <span foreground="{temp_color}">'
+                    f"{cpu_temp.current}\u00b0C</span>"
+                ),
+                f"Fan: {cpu_fan_speed.current} RPM",
+            ]
+        )
 
     # ────────────────────────────────────────────────────────────────
     #  Polling (every 1 s)

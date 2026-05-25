@@ -1,9 +1,6 @@
 """holds the main bar widget"""
 
-import subprocess
-
 from fabric.widgets.box import Box
-from fabric.widgets.button import Button
 from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.wayland import WaylandWindow as Window
 
@@ -25,6 +22,7 @@ from modules.network_speed.network_speed import NetworkSpeed
 from modules.system_tray.system_tray import barSystemTray as SystemTray
 from modules.logout_button.logout_button import LogoutButton
 
+
 class TopBar(Window):
     """top bar of UI"""
 
@@ -37,7 +35,7 @@ class TopBar(Window):
             exclusivity="auto",
             all_visible=False,
             monitor=monitor,
-            **kwargs
+            **kwargs,
         )
         self.app_data = app_data
         self.cpu = Cpu(window=self)
@@ -55,7 +53,7 @@ class TopBar(Window):
             spacing=10,
             children=[self.cpu, self.memory, self.gpu, self.network_speed],
         )
-        
+
         self.system_tray = SystemTray()
         self.mpris = Mpris(window=self)
         self.volume = AudioWidget()

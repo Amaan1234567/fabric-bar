@@ -6,11 +6,12 @@ from fabric.widgets.eventbox import EventBox
 from custom_widgets.popup_window import PopupWindow
 from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
 import subprocess
-from gi.repository import GLib # type: ignore
+from gi.repository import GLib  # type: ignore
 
 
 class LogoutPopup(PopupWindow):
     """popup for logout options"""
+
     def __init__(self, parent, pointing_to, **kwargs):
         super().__init__(
             parent=parent,
@@ -18,7 +19,6 @@ class LogoutPopup(PopupWindow):
             layer="top",
             type="popup",
             title="logout_popup",
-
             visible=False,
             **kwargs,
         )
@@ -54,19 +54,24 @@ class LogoutPopup(PopupWindow):
         self.revealer = Revealer(
             bezier_curve=(0.3, -0.06, 0, 1.02),
             duration=0.450,
-            child=Box(orientation="h",children=[self.box]),
+            child=Box(orientation="h", children=[self.box]),
             # transition_type="slide-down",
         )
 
         self.add(self.revealer)
 
-        self.connect("enter-notify-event", self._on_popup_enter)
-        self.connect("leave-notify-event", self._on_popup_leave)
-    def _on_popup_enter(self, *a):
+        self.connect("enter-notify-event", self.on_popup_enter)
+        self.connect("leave-notify-event", self.on_popup_leave)
+
+    def on_popup_enter(self, *_):
+        """Called when the mouse enters the popup area. Sets hovering state
+        and cancels auto-hide timer."""
         self._is_hovering = True
         self._cancel_auto_hide_timer()
 
-    def _on_popup_leave(self, *a):
+    def on_popup_leave(self, *_):
+        """Called when the mouse leaves the popup area.
+        Clears hovering state and starts auto-hide timer."""
         self._is_hovering = False
         self._start_auto_hide_timer()
 
@@ -78,6 +83,7 @@ class LogoutPopup(PopupWindow):
         if self._auto_hide_timer:
             GLib.source_remove(self._auto_hide_timer)
             self._auto_hide_timer = None
+
     def _auto_hide_popup(self):
         if not self._is_hovering and self.get_visible():
             self.toggle_popup()
@@ -96,7 +102,7 @@ class LogoutPopup(PopupWindow):
         else:
             self.show()
             self.revealer.set_reveal_child(True)
-            self._on_popup_enter() # Start with hover active
+            self.on_popup_enter()  # Start with hover active
 
 
 class LogoutButton(Box):
@@ -108,8 +114,8 @@ class LogoutButton(Box):
         self.button = Button(label="⏻", name="logout")
         self.content = EventBox(
             on_button_release_event=self._trigger_logout,
-            on_enter_notify_event=lambda *a: self.popup._on_popup_enter(),
-            on_leave_notify_event=lambda *a: self.popup._on_popup_leave(),
+            on_enter_notify_event=lambda *a: self.popup.on_popup_enter(),
+            on_leave_notify_event=lambda *a: self.popup.on_popup_leave(),
         )
 
         self.content.add(self.button)
@@ -117,7 +123,6 @@ class LogoutButton(Box):
 
         self.popup = LogoutPopup(parent=window, pointing_to=self)
 
-    def _trigger_logout(self, *a):
+    def _trigger_logout(self, *_):
         self.popup.toggle_popup()
         return True
-

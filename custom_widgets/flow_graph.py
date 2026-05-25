@@ -5,24 +5,22 @@ Renders flowing line graphs with gradient fills, using cubic spline interpolatio
 for silky curves and the fabric Animator for graceful data transitions.
 """
 
-from typing import Any, List, Optional, Tuple
-from functools import partial
-
 import gi
 import cairo
+from gi.repository import Gtk  # type: ignore
+from typing import Any, List, Optional, Tuple
+from functools import partial
+from utils.animator import Animator, cubic_bezier
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
-from gi.repository import Gtk, Gdk
-
-from utils.animator import Animator, cubic_bezier
 
 
 # ── Colour helpers ────────────────────────────────────────────────────────────
 
 
 def _hex_to_rgba(hex_str: str) -> Tuple[float, float, float, float]:
-    """Convert '#RRGGBB' or '#RRGGBBAA' to floats in 0‑1."""
+    """Convert '#RRGGBB' or '#RRGGBBAA' to floats in 0-1."""
     h = hex_str.lstrip("#")
     if len(h) == 6:
         r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
@@ -48,7 +46,7 @@ def _catmull_rom_segment(
     tension: float = 0.5,
     steps: int = 24,
 ) -> List[Tuple[float, float]]:
-    """Return *steps* interpolated points on a Catmull‑Rom segment p1→p2."""
+    """Return *steps* interpolated points on a Catmull-Rom segment p1→p2."""
     pts: List[Tuple[float, float]] = []
     alpha = tension
     for i in range(steps + 1):
@@ -69,7 +67,7 @@ def _catmull_rom_segment(
                 + ((alpha - 2) * t3 + (3 - 2 * alpha) * t2 + alpha * t) * p2[0]
                 + (alpha * t3 - alpha * t2) * p3[0]
             )
-            if False
+            if False  # pylint: disable=using-constant-test
             else None
         )  # noqa — we use the cleaner version below
 
@@ -125,16 +123,16 @@ def _smooth_path(
 
 
 class FlowGraph(Gtk.DrawingArea):
-    """A smooth animated line‑/area‑graph widget.
+    """A smooth animated line-/area-graph widget.
 
     Parameters
     ----------
     values : list[float]
-        Initial data values (0.0 – 1.0 normalised range, or pass min/max).
+        Initial data values (0.0 - 1.0 normalised range, or pass min/max).
     min_value, max_value : float
         Data range.  Points are normalised to [0, 1] internally for drawing.
     bezier : tuple[float, float, float, float]
-        Cubic‑bezier control points for the transition animation.
+        Cubic-bezier control points for the transition animation.
     animation_duration : float
         Seconds for a full data transition.
     line_width : float
@@ -150,17 +148,17 @@ class FlowGraph(Gtk.DrawingArea):
     grid_lines : int
         Number of horizontal grid divisions.
     tension : float
-        Catmull‑Rom tension (0 = very smooth, 1 = straight segments).
+        Catmull-Rom tension (0 = very smooth, 1 = straight segments).
     spline_steps : int
-        Interpolation sub‑steps per data segment (higher = smoother).
+        Interpolation sub-steps per data segment (higher = smoother).
     padding : float
         Inner padding in pixels.
     animate_on_resize : bool
-        Re‑animate when the widget is resized.
+        Re-animate when the widget is resized.
     background_color : str | None
         Solid widget background.  ``None`` = transparent.
     dot_radius : float
-        Radius of data‑point dots (0 = hidden).
+        Radius of data-point dots (0 = hidden).
     dot_color : str | None
         Hex colour for dots.  Falls back to *line_color*.
     """
@@ -175,10 +173,6 @@ class FlowGraph(Gtk.DrawingArea):
         bezier: Tuple[float, float, float, float] = (0.4, 0.0, 0.2, 1.0),
         animation_duration: float = 0.6,
         line_width: float = 2.0,
-        line_color: str = "#7aa2f7",
-        fill_color: Optional[str] = "#7aa2f714",
-        fill_end_color: Optional[str] = "#7aa2f700",
-        grid_color: Optional[str] = "#ffffff0a",
         grid_lines: int = 4,
         tension: float = 0.4,
         spline_steps: int = 32,
@@ -186,7 +180,6 @@ class FlowGraph(Gtk.DrawingArea):
         animate_on_resize: bool = True,
         background_color: Optional[str] = None,
         dot_radius: float = 0.0,
-        dot_color: Optional[str] = None,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
@@ -307,14 +300,17 @@ class FlowGraph(Gtk.DrawingArea):
     # ── GTK size negotiation ───────────────────────────────────────────────
 
     def do_get_preferred_width(self):
+        """Suggest a default width, but allow expanding if needed."""
         return 100, 200
 
     def do_get_preferred_height(self):
+        """Suggest a default height, but allow expanding if needed."""
         return 25, 50
 
     # ── Cairo draw ─────────────────────────────────────────────────────────
 
     def do_draw(self, cr):
+        """Draw the graph using Cairo.  Called automatically when the widget needs redrawing."""
         w = self.get_allocated_width()
         h = self.get_allocated_height()
 
@@ -325,9 +321,6 @@ class FlowGraph(Gtk.DrawingArea):
 
         # line = CSS color
         line_rgba = css_color
-        # fill = same hue at low opacity
-        fill_rgba = (rgba.red, rgba.green, rgba.blue, 0.5)
-        fill_end_rgba = (rgba.red, rgba.green, rgba.blue, 0.0)
         # grid = faint white
         grid_rgba = (1.0, 1.0, 1.0, 0.04)
 
@@ -370,11 +363,16 @@ class FlowGraph(Gtk.DrawingArea):
 
         grad_y_top = min(p[1] for p in data_pts)
         grad_y_bot = h - self.padding
-        pat = cairo.LinearGradient(0, grad_y_top, 0, grad_y_bot)
-        pat.add_color_stop_rgba(0.0,  rgba.red, rgba.green, rgba.blue, 0.14)  # top — visible
-        pat.add_color_stop_rgba(0.6,  rgba.red, rgba.green, rgba.blue, 0.10)  # 60% — still visible
-        pat.add_color_stop_rgba(1.0,  rgba.red, rgba.green, rgba.blue, 0.0)   # bottom — transparent
-
+        pat = cairo.LinearGradient(0, grad_y_top, 0, grad_y_bot)  # pylint: disable=no-member
+        pat.add_color_stop_rgba(
+            0.0, rgba.red, rgba.green, rgba.blue, 0.14
+        )  # top — visible
+        pat.add_color_stop_rgba(
+            0.6, rgba.red, rgba.green, rgba.blue, 0.10
+        )  # 60% — still visible
+        pat.add_color_stop_rgba(
+            1.0, rgba.red, rgba.green, rgba.blue, 0.0
+        )  # bottom — transparent
 
         cr.set_source(pat)
         cr.fill()

@@ -4,7 +4,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 
 from custom_widgets.popup_window import PopupWindow
-from custom_widgets.FlowGraph import FlowGraph
+from custom_widgets.flow_graph import FlowGraph
 from custom_widgets.HackedStackRevealer import HackedRevealer
 
 
@@ -46,6 +46,7 @@ class CpuPopup(PopupWindow):
             grid_lines=4,
             tension=0,
             spline_steps=8,
+            dot_radius=0,
             padding=0,
             visible=True,
         )
