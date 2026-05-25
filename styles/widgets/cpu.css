@@ -21,8 +21,8 @@
 }
 
 #cpu-popup-content {
-  margin-left: 240px;
-  margin-top: 15px;
+  /* margin-top: 15px;
+  margin-left: 240px; */
   background-color: var(--background);
   border: 1px solid shade(var(--color4), 0.85);
   border-radius: 30px;

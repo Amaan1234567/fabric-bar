@@ -18,9 +18,9 @@ class CpuPopup(PopupWindow):
             layer="top",
             name="cpu-popup-window",
             type="popup",
+            margin="15px 0 0 120px",
             anchor="top left",
             title="fabric-cpu-popup",
-            margin="",
             visible=False,
             v_expand=False,
             h_expand=False,
@@ -69,7 +69,7 @@ class CpuPopup(PopupWindow):
             bezier_curve=(0.3, -0.06, 0, 1.02),
             duration=0.450,
             name="cpu-revealer",
-            transition_type="slide-down",
+            # transition_type="slide-down",
             child=self._content,
         )
 
