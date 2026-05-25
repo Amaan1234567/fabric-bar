@@ -13,3 +13,37 @@
   color: white;
   border-color: shade(var(--color4), 0.85);
 }
+
+/* ── popup window ─────────────────────────────────────── */
+
+#cpu-popup-window {
+  background-color: transparent;
+}
+
+#cpu-popup-content {
+  margin-left: 240px;
+  margin-top: 15px;
+  background-color: var(--background);
+  border: 1px solid shade(var(--color4), 0.85);
+  border-radius: 30px;
+  padding: 10px;
+}
+
+#flow-graph {
+  color: var(--color4);
+  min-height: 50px;
+  min-width: 100px;
+}
+
+
+#cpu-stats-label {
+  color: mix(var(--color5), white, 0.4);
+  font-size: 13px;
+  padding: 2px 4px 0 4px;
+}
+
+#cpu-stats-label tt {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+

@@ -40,7 +40,7 @@ class TopBar(Window):
             **kwargs
         )
         self.app_data = app_data
-        self.cpu = Cpu()
+        self.cpu = Cpu(window=self)
         self.workspaces = CustomWorkspaces()
         self.memory = Memory()
         self.gpu = GpuWidget()
