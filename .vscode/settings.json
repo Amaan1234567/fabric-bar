@@ -7,5 +7,6 @@
     "python.analysis.typeCheckingMode": "standard",
     "pylint.ignorePatterns": [
     ],
-    "python.analysis.stubPath": "venv/lib64/python3.13/site-packages/pygobject_stubs-2.10.0.dist-info"
+    "python.analysis.stubPath": "venv/lib64/python3.13/site-packages/pygobject_stubs-2.10.0.dist-info",
+    "editor.defaultFormatter": "charliermarsh.ruff"
 }
