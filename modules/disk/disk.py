@@ -4,6 +4,7 @@ import shutil
 import psutil
 from gi.repository import GLib  # type: ignore
 
+from tabulate import tabulate
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
@@ -16,7 +17,6 @@ MONITORED_PATHS = ["/"]
 
 
 class DiskWidget(Box):
-
     def __init__(self, window, **kwargs):
         super().__init__(orientation="h", name="disk")
 
@@ -99,52 +99,38 @@ class DiskWidget(Box):
     # ── Data ────────────────────────────────────────────────────
 
     def _build_stats_markup(self):
-        """Build aligned columns: mount | used/total | free | pct"""
-        lines = []
 
-        # find longest mount name for alignment
-        all_mounts = list(MONITORED_PATHS)
-        for part in psutil.disk_partitions(all=False):
-            if part.mountpoint not in all_mounts:
-                all_mounts.append(part.mountpoint)
+        rows = []
 
-        max_mount_len = max(len(m) for m in all_mounts) if all_mounts else 1
-
-        # header
-        lines.append(
-            f"<tt><b>{'Mount':<{max_mount_len}}  {'Used':>10}  {'Free':>8}  {'%':>5}</b></tt>"
-        )
-
-        # monitored paths first
         for path in MONITORED_PATHS:
-            lines.append(self._format_partition(path, shutil.disk_usage(path), max_mount_len))
+            rows.append(self._format_row(path, shutil.disk_usage(path)))
 
-        # other partitions
         for part in psutil.disk_partitions(all=False):
             if part.mountpoint in MONITORED_PATHS:
                 continue
             try:
-                usage = shutil.disk_usage(part.mountpoint)
-                lines.append(self._format_partition(part.mountpoint, usage, max_mount_len))
+                rows.append(self._format_row(part.mountpoint, shutil.disk_usage(part.mountpoint)))
             except PermissionError:
                 pass
 
-        return "\n".join(lines)
+        if not rows:
+            return ""
 
-    def _format_partition(self, mount, usage, max_mount_len):
+        table = tabulate(rows, headers=["Mount", "Used/Total", "Free", "%"],
+                         tablefmt="plain", stralign="left", numalign="left")
+        return f"<tt>{table}</tt>"
+
+    def _format_row(self, mount, usage):
         used_gb = usage.used / CONVERSION_CONST
         total_gb = usage.total / CONVERSION_CONST
         free_gb = usage.free / CONVERSION_CONST
         pct = (usage.used / usage.total) * 100
 
         color = "#A3DC9A" if pct < 70 else "#FCF67E" if pct < 90 else "#FF5454"
+        pct_str = f'<span foreground="{color}">{pct:.1f}%</span>'
 
-        return (
-            f"<tt>{mount:<{max_mount_len}}  "
-            f"{used_gb:>5.1f}/{total_gb:<4.1f} GB  "
-            f"{free_gb:>5.1f} GB  "
-            f'<span foreground="{color}">{pct:>4.1f}%</span></tt>'
-        )
+        return [mount, f"{used_gb:.1f}/{total_gb:.1f} GB", f"{free_gb:.1f} GB", pct_str]
+
 
     def update_label(self) -> bool:
         usage = shutil.disk_usage(MONITORED_PATHS[0])
