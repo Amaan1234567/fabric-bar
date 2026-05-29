@@ -33,21 +33,21 @@ class LogoutPopup(PopupWindow):
             children=[
                 Button(
                     label="󰗽 Logout",
-                    on_clicked=lambda *a: self._run_cmd("hyprctl dispatch exit"),
+                    on_clicked=lambda *a: self._trigger_cmd("hyprctl dispatch exit"),
                 ),
                 Button(
                     label="󰤄 Suspend",
-                    on_clicked=lambda *a: self._run_cmd("systemctl suspend"),
+                    on_clicked=lambda *a: self._trigger_cmd("systemctl suspend"),
                 ),
                 Button(
                     label="󰜉 Reboot",
-                    on_clicked=lambda *a: self._run_cmd("systemctl reboot"),
+                    on_clicked=lambda *a: self._trigger_cmd("systemctl reboot"),
                 ),
                 Button(
                     label=" Shutdown",
-                    on_clicked=lambda *a: self._run_cmd("systemctl poweroff"),
+                    on_clicked=lambda *a: self._trigger_cmd("systemctl poweroff"),
                 ),
-                Button(label="󰌾 Lock", on_clicked=lambda *a: self._run_cmd("hyprlock")),
+                Button(label="󰌾 Lock", on_clicked=lambda *a: self._trigger_cmd("hyprlock")),
             ],
         )
 
@@ -90,9 +90,13 @@ class LogoutPopup(PopupWindow):
         self._auto_hide_timer = None
         return False
 
-    def _run_cmd(self, cmd):
+    def _trigger_cmd(self, cmd):
         self.toggle_popup()
-        subprocess.Popen(cmd.split())
+        GLib.timeout_add(350, self._run_cmd, cmd)
+
+    def _run_cmd(self, cmd):
+        subprocess.Popen(cmd, shell=True)
+        return False
 
     def toggle_popup(self):
         """toggle the visibility of the popup with animation"""
