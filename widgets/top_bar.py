@@ -40,7 +40,7 @@ class TopBar(Window):
         self.app_data = app_data
         self.cpu = Cpu(window=self)
         self.workspaces = CustomWorkspaces()
-        self.memory = Memory()
+        self.memory = Memory(window=self)
         self.gpu = GpuWidget()
         self.network_speed = NetworkSpeed()
         self.clock = Clock()

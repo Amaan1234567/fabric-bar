@@ -10,6 +10,7 @@ from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
 from gi.repository import GLib  # type: ignore
 
+from utils.popup_manager import popup_manager
 from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
 from modules.cpu.cpu_popup import CpuPopup
 
@@ -93,9 +94,11 @@ class Cpu(Box):
         self._show_delay_id = None
 
         self.popup.update(self._history, self._build_stats_markup())
+        popup_manager.request_show(self.popup, self)  # ← add this
         self.popup.set_visible(True)
         self.popup.overlay_revealer.set_reveal_child(True)
         return False
+
 
     def _on_hover_leave(self, *_):
         self._schedule_hide()
@@ -120,9 +123,11 @@ class Cpu(Box):
 
     def _hide_popup(self):
         self.popup.overlay_revealer.set_reveal_child(False)
-        GLib.timeout_add(500, self.popup.set_visible, False)
+        GLib.timeout_add(250, self.popup.set_visible, False)
+        popup_manager.request_hide(self.popup, self)  # ← add this
         self._hide_timeout_id = None
         return False
+
 
     # ────────────────────────────────────────────────────────────────
     #  Data
