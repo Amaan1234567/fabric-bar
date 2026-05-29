@@ -14,3 +14,41 @@
 #upload-speed {
   font-size: 14px;
 }
+
+
+#network-speed-popup-window {
+  background-color: transparent;
+}
+
+#network-speed-popup-content {
+  background-color: var(--background);
+  border: 1px solid shade(var(--color4), 0.85);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+#network-download-graph {
+  min-height: 50px;
+  min-width: 200px;
+  color: var(--color4);
+}
+
+#network-upload-graph {
+  min-height: 50px;
+  min-width: 200px;
+  color: var(--color5);
+}
+
+#network-speed-graph-label {
+  color: mix(var(--color5), white, 0.6);
+  font-size: 12px;
+  padding: 2px 4px 0 4px;
+}
+
+#network-speed-processes-label {
+  color: mix(var(--color5), white, 0.4);
+  font-size: 13px;
+  padding: 6px 4px 0 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 4px;
+}

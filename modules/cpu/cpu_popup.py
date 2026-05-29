@@ -18,7 +18,7 @@ class CpuPopup(PopupWindow):
             layer="top",
             name="cpu-popup-window",
             type="popup",
-            margin="15px 0 0 170px",
+            margin="15px 0 0 135px",
             anchor="top left",
             title="fabric-cpu-popup",
             visible=False,

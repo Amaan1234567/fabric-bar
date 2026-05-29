@@ -19,6 +19,7 @@
 @import url("./widgets/system-tray.css");
 @import url("./widgets/logout.css");
 @import url("./widgets/theme_selector.css");
+@import url("./widgets/disk.css");
 
 * {
   all: unset;

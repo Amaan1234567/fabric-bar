@@ -18,7 +18,7 @@ class GpuPopup(PopupWindow):
             layer="top",
             name="gpu-popup-window",
             type="popup",
-            margin="15px 0 0 120px",
+            margin="15px 0 0 35px",
             anchor="top left",
             title="fabric-gpu-popup",
             visible=False,

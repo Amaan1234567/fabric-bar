@@ -21,7 +21,7 @@ from modules.gpu.gpu import GpuWidget
 from modules.network_speed.network_speed import NetworkSpeed
 from modules.system_tray.system_tray import barSystemTray as SystemTray
 from modules.logout_button.logout_button import LogoutButton
-
+from modules.disk.disk import DiskWidget
 
 class TopBar(Window):
     """top bar of UI"""
@@ -42,7 +42,8 @@ class TopBar(Window):
         self.workspaces = CustomWorkspaces()
         self.memory = Memory(window=self)
         self.gpu = GpuWidget(window=self)
-        self.network_speed = NetworkSpeed()
+        self.network_speed = NetworkSpeed(window=self)
+        self.disk = DiskWidget(window=self)
         self.clock = Clock()
         self.logout_btn = LogoutButton(window=self)
         self.active_window = WindowName()
@@ -51,7 +52,7 @@ class TopBar(Window):
         left_box = Box(
             orientation="h",
             spacing=10,
-            children=[self.cpu, self.memory, self.gpu, self.network_speed],
+            children=[self.cpu, self.memory, self.gpu, self.network_speed, self.disk],
         )
 
         self.system_tray = SystemTray()

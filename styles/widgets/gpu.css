@@ -54,7 +54,7 @@
 #gpu-popup-content {
   background-color: var(--background);
   border: 1px solid shade(var(--color4), 0.85);
-  border-radius: 12px;
+  border-radius: 35px;
   padding: 12px;
 }
 
@@ -62,14 +62,14 @@
 #gpu-core-graph {
   min-height: 50px;
   min-width: 200px;
-  color: @color4;
+  color: var(--color4);
 }
 
 /* VRAM graph — a contrasting color */
 #gpu-vram-graph {
   min-height: 50px;
   min-width: 200px;
-  color: @color5;
+  color: var(--color5);
 }
 
 #gpu-graph-label {
