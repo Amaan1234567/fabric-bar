@@ -183,7 +183,8 @@ class FlowGraph(Gtk.DrawingArea):
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
-        self.set_name("flow-graph")
+        if not self.get_name():
+            self.set_name("flow-graph")
 
         # ---- public config ----
         self.min_value = min_value
