@@ -41,7 +41,7 @@ class TopBar(Window):
         self.cpu = Cpu(window=self)
         self.workspaces = CustomWorkspaces()
         self.memory = Memory(window=self)
-        self.gpu = GpuWidget()
+        self.gpu = GpuWidget(window=self)
         self.network_speed = NetworkSpeed()
         self.clock = Clock()
         self.logout_btn = LogoutButton(window=self)

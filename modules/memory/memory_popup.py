@@ -49,8 +49,11 @@ class MemoryPopup(PopupWindow):
             dot_radius=0,
             padding=0,
             visible=True,
+            y_axis=True,
+            y_axis_format="{:.0f}%",
+            y_axis_width=32,
         )
-        self.graph.set_size_request(100, 50)
+        self.graph.set_size_request(80, 120)
 
         self.stats_label = Label(
             name="memory-stats-label",

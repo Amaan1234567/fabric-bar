@@ -7,13 +7,15 @@ for silky curves and the fabric Animator for graceful data transitions.
 
 import gi
 import cairo
-from gi.repository import Gtk  # type: ignore
+from gi.repository import Gtk, Pango, PangoCairo  # type: ignore
 from typing import Any, List, Optional, Tuple
 from functools import partial
 from utils.animator import Animator, cubic_bezier
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
+gi.require_version("Pango", "1.0")
+gi.require_version("PangoCairo", "1.0")
 
 
 # ── Colour helpers ────────────────────────────────────────────────────────────
@@ -29,12 +31,6 @@ def _hex_to_rgba(hex_str: str) -> Tuple[float, float, float, float]:
     return r / 255, g / 255, b / 255, a / 255
 
 
-def _lerp_color(
-    c1: Tuple[float, ...], c2: Tuple[float, ...], t: float
-) -> Tuple[float, ...]:
-    return tuple(a + (b - a) * t for a, b in zip(c1, c2))
-
-
 # ── Spline math ───────────────────────────────────────────────────────────────
 
 
@@ -47,32 +43,7 @@ def _catmull_rom_segment(
     steps: int = 24,
 ) -> List[Tuple[float, float]]:
     """Return *steps* interpolated points on a Catmull-Rom segment p1→p2."""
-    pts: List[Tuple[float, float]] = []
-    alpha = tension
-    for i in range(steps + 1):
-        t = i / steps
-        t2, t3 = t * t, t * t * t
-        # Catmull‑Rom matrix form
-        x = (
-            (alpha * (-t3 + 2 * t2 - t) + t3 - t2) * 0.5 * p0[0]
-            + (alpha * (t3 - 2 * t2 + t) + (-2 * t3 + 3 * t2) + 1) * p1[0]
-            + (alpha * (-t3 + t2) + (2 * t3 - 3 * t2 + 1) * 0.0 + (t3 - t2)) * 0.0
-            + 0  # placeholder, real formula below
-        )
-        # Simpler standard formulation:
-        x = (
-            (
-                (-alpha * t3 + 2 * alpha * t2 - alpha * t) * p0[0]
-                + ((2 - alpha) * t3 + (alpha - 3) * t2 + 1) * p1[0]
-                + ((alpha - 2) * t3 + (3 - 2 * alpha) * t2 + alpha * t) * p2[0]
-                + (alpha * t3 - alpha * t2) * p3[0]
-            )
-            if False  # pylint: disable=using-constant-test
-            else None
-        )  # noqa — we use the cleaner version below
-
-    # ---- Clean Catmull‑Rom (uniform, tension 0 = Catmull‑Rom, 1 = linear) ----
-    tau = 0.5 * (1.0 - tension)  # standard Catmull‑Rom tension factor
+    tau = 0.5 * (1.0 - tension)
     pts = []
     for i in range(steps + 1):
         s = i / steps
@@ -97,10 +68,7 @@ def _catmull_rom_segment(
 def _smooth_path(
     points: List[Tuple[float, float]], tension: float = 0.4, steps: int = 32
 ) -> List[Tuple[float, float]]:
-    """Build a smooth polyline through *points* using Catmull‑Rom interpolation.
-
-    Duplicate the first/last point so every real segment has a neighbour.
-    """
+    """Build a smooth polyline through *points* using Catmull-Rom interpolation."""
     if len(points) < 2:
         return list(points)
 
@@ -108,14 +76,10 @@ def _smooth_path(
     result: List[Tuple[float, float]] = []
     for i in range(1, len(padded) - 2):
         seg = _catmull_rom_segment(
-            padded[i - 1],
-            padded[i],
-            padded[i + 1],
-            padded[i + 2],
-            tension=tension,
-            steps=steps,
+            padded[i - 1], padded[i], padded[i + 1], padded[i + 2],
+            tension=tension, steps=steps,
         )
-        result.extend(seg if i == 1 else seg[1:])  # avoid duplicating joints
+        result.extend(seg if i == 1 else seg[1:])
     return result
 
 
@@ -123,45 +87,7 @@ def _smooth_path(
 
 
 class FlowGraph(Gtk.DrawingArea):
-    """A smooth animated line-/area-graph widget.
-
-    Parameters
-    ----------
-    values : list[float]
-        Initial data values (0.0 - 1.0 normalised range, or pass min/max).
-    min_value, max_value : float
-        Data range.  Points are normalised to [0, 1] internally for drawing.
-    bezier : tuple[float, float, float, float]
-        Cubic-bezier control points for the transition animation.
-    animation_duration : float
-        Seconds for a full data transition.
-    line_width : float
-        Stroke width of the graph line.
-    line_color : str
-        Hex colour for the line (e.g. ``"#7aa2f7"``).
-    fill_color : str | None
-        Hex colour for the area under the curve.  ``None`` = no fill.
-    fill_end_color : str | None
-        If set, gradient fill from *fill_color* (top) → *fill_end_color* (bottom).
-    grid_color : str | None
-        Hex colour for horizontal guide lines.  ``None`` = hidden.
-    grid_lines : int
-        Number of horizontal grid divisions.
-    tension : float
-        Catmull-Rom tension (0 = very smooth, 1 = straight segments).
-    spline_steps : int
-        Interpolation sub-steps per data segment (higher = smoother).
-    padding : float
-        Inner padding in pixels.
-    animate_on_resize : bool
-        Re-animate when the widget is resized.
-    background_color : str | None
-        Solid widget background.  ``None`` = transparent.
-    dot_radius : float
-        Radius of data-point dots (0 = hidden).
-    dot_color : str | None
-        Hex colour for dots.  Falls back to *line_color*.
-    """
+    """A smooth animated line-/area-graph widget."""
 
     __gtype_name__ = "FlowGraph"
 
@@ -180,13 +106,15 @@ class FlowGraph(Gtk.DrawingArea):
         animate_on_resize: bool = True,
         background_color: Optional[str] = None,
         dot_radius: float = 0.0,
+        y_axis: bool = False,
+        y_axis_format: str = "{:.0f}",
+        y_axis_width: int = 30,
         **kwargs: Any,
     ):
         super().__init__(**kwargs)
         if not self.get_name():
             self.set_name("flow-graph")
 
-        # ---- public config ----
         self.min_value = min_value
         self.max_value = max_value
         self.line_width = line_width
@@ -199,12 +127,17 @@ class FlowGraph(Gtk.DrawingArea):
 
         self.bg_rgba = _hex_to_rgba(background_color) if background_color else None
 
-        # ---- state ----
+        # ── Y-axis config ───────────────────────────────────────
+        self.y_axis = y_axis
+        self.y_axis_format = y_axis_format
+        self.y_axis_width = y_axis_width  # px reserved for labels
+
+        # ── state ───────────────────────────────────────────────
         self._current: List[float] = list(values) if values else []
         self._target: List[float] = list(self._current)
         self._display: List[float] = list(self._current)
 
-        # ---- animator ----
+        # ── animator ────────────────────────────────────────────
         self._animator = Animator(
             duration=animation_duration,
             timing_function=partial(cubic_bezier, *bezier),
@@ -226,7 +159,6 @@ class FlowGraph(Gtk.DrawingArea):
         if not new:
             return
 
-        # First data ever — nothing to animate from, just set directly
         if not self._display:
             self._current = list(new)
             self._target = list(new)
@@ -234,12 +166,7 @@ class FlowGraph(Gtk.DrawingArea):
             self.queue_draw()
             return
 
-        # Snapshot what's on screen right now
         cur = list(self._display)
-
-        # Pad the shorter list so both have equal length —
-        # without this, zip in _on_tick truncates and the new
-        # point never appears until the animation finishes.
         max_len = max(len(cur), len(new))
         if len(cur) < max_len:
             cur.extend([cur[-1]] * (max_len - len(cur)))
@@ -279,8 +206,9 @@ class FlowGraph(Gtk.DrawingArea):
         w = self.get_allocated_width()
         h = self.get_allocated_height()
         pad = self.padding
+        y_off = self.y_axis_width if self.y_axis else 0
 
-        draw_w = w - 2 * pad
+        draw_w = w - 2 * pad - y_off
         draw_h = h - 2 * pad
         n = len(raw)
         if n < 2:
@@ -291,39 +219,37 @@ class FlowGraph(Gtk.DrawingArea):
 
         pts: List[Tuple[float, float]] = []
         for i, v in enumerate(raw):
-            x = pad + (i / (n - 1)) * draw_w
+            x = pad + y_off + (i / (n - 1)) * draw_w
             norm = (v - lo) / span
             norm = max(0.0, min(1.0, norm))
-            y = pad + (1.0 - norm) * draw_h  # invert y
+            y = pad + (1.0 - norm) * draw_h
             pts.append((x, y))
         return pts
 
     # ── GTK size negotiation ───────────────────────────────────────────────
 
     def do_get_preferred_width(self):
-        """Suggest a default width, but allow expanding if needed."""
-        return 100, 200
+        base = 100 + (self.y_axis_width if self.y_axis else 0)
+        return base, base * 2
 
     def do_get_preferred_height(self):
-        """Suggest a default height, but allow expanding if needed."""
         return 25, 50
 
     # ── Cairo draw ─────────────────────────────────────────────────────────
 
     def do_draw(self, cr):
-        """Draw the graph using Cairo.  Called automatically when the widget needs redrawing."""
         w = self.get_allocated_width()
         h = self.get_allocated_height()
 
-        # ── read CSS color (same pattern as ScrollingLabel) ─────────
+        # ── CSS colour (same pattern as ScrollingLabel) ──────────
         style_context = self.get_style_context()
         rgba = style_context.get_color(Gtk.StateFlags.NORMAL)
-        css_color = (rgba.red, rgba.green, rgba.blue, rgba.alpha)
 
-        # line = CSS color
-        line_rgba = css_color
-        # grid = faint white
-        grid_rgba = (1.0, 1.0, 1.0, 0.04)
+        line_rgba = (rgba.red, rgba.green, rgba.blue, rgba.alpha)
+        grid_rgba = (1.0, 1.0, 1.0, 0.4)
+
+        y_off = self.y_axis_width if self.y_axis else 0
+        pad = self.padding
 
         # background
         if self.bg_rgba:
@@ -331,18 +257,57 @@ class FlowGraph(Gtk.DrawingArea):
             cr.rectangle(0, 0, w, h)
             cr.fill()
 
-        # grid
+        # ── Y-axis labels + grid ────────────────────────────────
         if self.grid_lines > 0:
-            cr.set_source_rgba(*grid_rgba)
-            cr.set_line_width(0.5)
-            pad = self.padding
             draw_h = h - 2 * pad
-            for i in range(1, self.grid_lines + 1):
-                y = pad + (i / (self.grid_lines + 1)) * draw_h
-                cr.move_to(pad, y)
+
+            for i in range(self.grid_lines + 2):
+                frac = i / (self.grid_lines + 1)
+                y = pad + frac * draw_h
+
+                # grid line (skip top edge i=0 and bottom edge i=grid_lines+1)
+                if 0 < i < self.grid_lines + 1:
+                    cr.set_source_rgba(*grid_rgba)
+                    cr.set_line_width(0.5)
+                    cr.move_to(pad + y_off, y)
+                    cr.line_to(w - pad, y)
+                    cr.stroke()
+
+                # Y-axis label
+                        # ── Y-axis labels + grid ────────────────────────────────
+        if self.grid_lines > 0:
+            draw_h = h - 2 * pad
+
+            for i in range(self.grid_lines + 2):
+                frac = i / (self.grid_lines + 1)
+                y = pad + frac * draw_h
+
+                # grid line at every breakpoint (including top/bottom edges)
+                cr.set_source_rgba(*grid_rgba)
+                cr.set_line_width(0.5)
+                cr.move_to(pad + y_off, y)
                 cr.line_to(w - pad, y)
                 cr.stroke()
 
+                # Y-axis label (skip top and bottom edges)
+                if self.y_axis and 0 < i < self.grid_lines + 1:
+                    value = self.max_value - frac * (self.max_value - self.min_value)
+                    label = self.y_axis_format.format(value)
+
+                    layout = self.create_pango_layout(label)
+                    font_desc = style_context.get_font(Gtk.StateFlags.NORMAL)
+                    font_desc.set_size(int(8.5 * Pango.SCALE))
+                    layout.set_font_description(font_desc)
+                    layout.set_alignment(Pango.Alignment.RIGHT)
+                    lw, lh = layout.get_pixel_size()
+
+                    cr.set_source_rgba(rgba.red, rgba.green, rgba.blue, 0.35)
+                    cr.move_to(pad, y - lh / 2)
+                    PangoCairo.show_layout(cr, layout)
+
+
+
+        # ── data ────────────────────────────────────────────────
         raw = self._display
         if len(raw) < 2:
             return
@@ -358,23 +323,16 @@ class FlowGraph(Gtk.DrawingArea):
         for px, py in smooth[1:]:
             cr.line_to(px, py)
 
-        cr.line_to(smooth[-1][0], h - self.padding)
-        cr.line_to(smooth[0][0], h - self.padding)
+        cr.line_to(smooth[-1][0], h - pad)
+        cr.line_to(smooth[0][0], h - pad)
         cr.close_path()
 
         grad_y_top = min(p[1] for p in data_pts)
-        grad_y_bot = h - self.padding
+        grad_y_bot = h - pad
         pat = cairo.LinearGradient(0, grad_y_top, 0, grad_y_bot)  # pylint: disable=no-member
-        pat.add_color_stop_rgba(
-            0.0, rgba.red, rgba.green, rgba.blue, 0.14
-        )  # top — visible
-        pat.add_color_stop_rgba(
-            0.6, rgba.red, rgba.green, rgba.blue, 0.10
-        )  # 60% — still visible
-        pat.add_color_stop_rgba(
-            1.0, rgba.red, rgba.green, rgba.blue, 0.0
-        )  # bottom — transparent
-
+        pat.add_color_stop_rgba(0.0, rgba.red, rgba.green, rgba.blue, 0.14)
+        pat.add_color_stop_rgba(0.6, rgba.red, rgba.green, rgba.blue, 0.10)
+        pat.add_color_stop_rgba(1.0, rgba.red, rgba.green, rgba.blue, 0.0)
         cr.set_source(pat)
         cr.fill()
 

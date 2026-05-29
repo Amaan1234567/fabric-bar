@@ -57,7 +57,8 @@ class Cpu(Box):
         self.add(self.content_event_box)
 
         # ── state ───────────────────────────────────────────────────
-        self._history: deque = deque(maxlen=self.HISTORY_LENGTH)
+        self._history: deque = deque([0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH)
+
         self._hide_timeout_id = None
         self._show_delay_id = None
 

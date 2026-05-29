@@ -18,7 +18,7 @@ class CpuPopup(PopupWindow):
             layer="top",
             name="cpu-popup-window",
             type="popup",
-            margin="15px 0 0 120px",
+            margin="15px 0 0 170px",
             anchor="top left",
             title="fabric-cpu-popup",
             visible=False,
@@ -49,8 +49,11 @@ class CpuPopup(PopupWindow):
             dot_radius=0,
             padding=0,
             visible=True,
+            y_axis=True,              # ← add this
+            y_axis_format="{:.0f}",   # ← integers: 0, 25, 50, 75, 100
+            y_axis_width=28,          # ← adjust to taste
         )
-        self.graph.set_size_request(100, 50)
+        self.graph.set_size_request(50, 100)
 
         self.stats_label = Label(
             name="cpu-stats-label",
