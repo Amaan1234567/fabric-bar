@@ -96,8 +96,7 @@ class Cpu(Box):
 
         self.popup.update(self._history, self._build_stats_markup())
         popup_manager.request_show(self.popup, self)  # ← add this
-        self.popup.set_visible(True)
-        self.popup.overlay_revealer.set_reveal_child(True)
+        
         return False
 
 

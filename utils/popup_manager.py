@@ -26,6 +26,8 @@ class _PopupManager:
         if self._current_popup is not None and self._current_popup.get_visible():
             self._hide(self._current_popup, self._current_widget)
 
+        popup.set_visible(True)
+        popup.overlay_revealer.set_reveal_child(True)
         self._current_popup = popup
         self._current_widget = owner
 
