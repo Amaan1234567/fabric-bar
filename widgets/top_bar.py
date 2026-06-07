@@ -57,7 +57,7 @@ class TopBar(Window):
 
         self.system_tray = SystemTray()
         self.mpris = Mpris(window=self)
-        self.volume = AudioWidget()
+        self.volume = AudioWidget(window=self)
         self.battery = BatteryWidget()
         self.network = NetworkWidget(self, interval=1)
         self.bluetooth = BluetoothWidget(interval=1)

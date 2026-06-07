@@ -36,3 +36,102 @@
   border-radius: 5px;
   background: var(--background);
 }
+
+/* ── Popup window ─────────────────────────────────────────────── */
+#audio-popup-window {
+    background-color: transparent;
+}
+
+#audio-popup-content {
+    background: alpha(var(--background), 0.95);
+    border-radius: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--color4);
+    min-width: 340px;
+}
+
+#audio-popup-header {
+    margin-bottom: 4px;
+}
+
+#audio-popup-title {
+    font-weight: bold;
+    font-size: 16px;
+    color: var(--foreground);
+}
+
+#audio-popup-subtitle {
+    font-size: 14px;
+    color: alpha(var(--foreground), 0.45);
+}
+
+#audio-divider {
+    min-height: 3px;
+    background: alpha(var(--foreground), 0.08);
+    margin: 4px 0 6px 0;
+}
+
+/* ── Per-app rows ─────────────────────────────────────────────── */
+#audio-app-row {
+    padding: 4px 0;
+    border-radius: 6px;
+}
+
+#audio-app-icon {
+    color: var(--color4);
+    padding: 0;
+    font-size: 26px;
+}
+
+#audio-app-name {
+    font-size: 14px;
+    color: alpha(var(--foreground), 0.9);
+    min-width: 80px;
+}
+
+#audio-app-vol-label {
+    font-size: 12px;
+    color: alpha(var(--foreground), 0.5);
+    min-width: 34px;
+}
+
+#audio-app-mute-btn {
+    padding: 2px;
+}
+
+#audio-app-mute-btn:hover {
+    opacity: 0.7;
+}
+
+#audio-app-mute-icon {
+    color: alpha(var(--foreground), 0.7);
+}
+
+/* ── Per-app scale ────────────────────────────────────────────── */
+#audio-app-scale trough {
+    min-height: 4px;
+    min-width: 120px;
+    border-radius: 2px;
+    background: alpha(var(--foreground), 0.12);
+}
+
+#audio-app-scale highlight {
+    min-height: 4px;
+    border-radius: 2px;
+    background: var(--color4);
+}
+
+#audio-app-scale slider {
+    min-height: 12px;
+    min-width: 12px;
+    border-radius: 50%;
+    background: var(--foreground);
+    margin: -4px 0;
+}
+
+/* ── Empty state ──────────────────────────────────────────────── */
+#audio-empty-label {
+    color: alpha(var(--foreground), 0.35);
+    font-size: 11px;
+    padding: 16px 0;
+}
