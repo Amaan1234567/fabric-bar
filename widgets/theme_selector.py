@@ -1,9 +1,10 @@
+"""A theme selector window that allows users to preview and apply different color themes for their terminal and bar."""
+
 import os
-from re import search
 import shutil
 import subprocess
 from loguru import logger
-from gi.repository import Gdk
+from gi.repository import Gdk  # type: ignore
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
@@ -19,8 +20,9 @@ BACKUP_CSS_PATH = COLORS_CSS_PATH + ".bak"
 
 
 def get_themes():
+    """Get the list of available themes from wallust."""
     result = subprocess.run(
-        ["wallust", "theme", "--help"], capture_output=True, text=True
+        ["wallust", "theme", "--help"], capture_output=True, text=True, check=True
     )
     output = result.stdout
     start = output.find("[possible values: ")
@@ -30,7 +32,7 @@ def get_themes():
 
 
 class ThemeSelector(Window):
-    """"""
+    """A window for selecting and previewing color themes."""
 
     def __init__(self, **kwargs):
         super().__init__(
@@ -62,7 +64,7 @@ class ThemeSelector(Window):
                 "focus-in-event",
                 lambda *args, t=theme: self.preview_theme(t),
             )
-            btn.connect("clicked", lambda *args, t=theme: self.apply_theme(t))
+            btn.connect("clicked", lambda *args, t=theme: self._apply_theme(t))
             self.theme_box.add(btn)
 
         self.scrolling.add(self.theme_box)
@@ -90,30 +92,34 @@ class ThemeSelector(Window):
 
     def _handle_key_press(self, _, key: Gdk.EventKey):
         if key.keyval == Gdk.KEY_Escape:
-            self.revert()
+            self._revert()
             self.toggle_window()
         elif key.keyval == Gdk.KEY_Return:
-            self.confirm()
+            self._confirm()
         return True  # Return True to indicate the event was handled
 
-    def ANSI_to_HEX(self, ansi_color):
+    def ansi_to_hex(self, ansi_color):
+        """Convert an ANSI color code to HEX format. The input is expected to be in the format:"""
         # Remove ANSI escape codes and convert to HEX
         # print("ansi_color:",ansi_color)
         ansi_color_array = (
-            ansi_color.replace("\x1b[48;2", "").replace("\x1b[49m", "")
+            ansi_color.replace("\x1b[48;2", "")
+            .replace("\x1b[49m", "")
             .replace("m", "")
             .strip()
             .split(";")[1:]
         )
         print("ansi_color_array:", ansi_color_array)
         int_color = 1
-        for i, val in enumerate(ansi_color_array):
+        for _, val in enumerate(ansi_color_array):
             int_color *= int(val)
         r, g, b = map(int, ansi_color_array)
         # print("color_code:", color_code)
-        return f'#{r:02x}{g:02x}{b:02x}'
+        return f"#{r:02x}{g:02x}{b:02x}"
 
     def apply_color_scheme(self, theme):
+        """Apply the given color scheme to the COLORS_CSS_PATH file. The theme is expected to
+        be a list of 16 HEX color codes corresponding to ANSI colors."""
         theme_schema = f""":vars {{
     --cursor: lighter({theme[12]});
     --background: darker({theme[0]});
@@ -136,11 +142,12 @@ class ThemeSelector(Window):
     --color15: {theme[15]};
     --backgroundWaybar: alpha({theme[0]},0.65);
 }}"""
-        with open(COLORS_CSS_PATH, "w") as f:
+        with open(COLORS_CSS_PATH, "w", encoding="utf-8") as f:
             f.write(theme_schema)
 
     @cooldown(0.2)
     def preview_theme(self, theme):
+        """previews theme temporarily by applying it, and sets up a backup to revert if needed."""
         if not self.backup_created and os.path.exists(COLORS_CSS_PATH):
             shutil.copy2(COLORS_CSS_PATH, BACKUP_CSS_PATH)
             self.backup_created = True
@@ -148,31 +155,34 @@ class ThemeSelector(Window):
         # Apply theme
         # If preview is True, it runs with --preview, otherwise standard
         cmd = ["wallust", "theme", theme, "--preview"]
-        output = subprocess.run(cmd, capture_output=True, text=True)
+        output = subprocess.run(cmd, capture_output=True, text=True, check=True)
         print(output.stdout)
-        print("obtained theme: ",repr(output.stdout))
+        print("obtained theme: ", repr(output.stdout))
         theme = [
-            self.ANSI_to_HEX(color) for color in output.stdout.split("    ")[:-1] if color
+            self.ansi_to_hex(color)
+            for color in output.stdout.split("    ")[:-1]
+            if color
         ]
         print("theme:", theme)
         self.apply_color_scheme(theme)
 
-    def apply_theme(self, theme):
+    def _apply_theme(self, theme):
         exec_shell_command(f"wallust theme {theme}")
         self.toggle_window()
 
-    def revert(self):
+    def _revert(self):
         if self.backup_created and os.path.exists(BACKUP_CSS_PATH):
             shutil.move(BACKUP_CSS_PATH, COLORS_CSS_PATH)
             self.backup_created = False
 
-    def confirm(self):
+    def _confirm(self):
         if self.backup_created and os.path.exists(BACKUP_CSS_PATH):
             os.remove(BACKUP_CSS_PATH)
             self.backup_created = False
         self.toggle_window()
 
     def toggle_window(self):
+        """Toggle the visibility of the theme selector window."""
         if self.is_hidden:
             self.show()
             self.grab_focus()

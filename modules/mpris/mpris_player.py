@@ -5,7 +5,7 @@ from gi.repository import GdkPixbuf, Gio  # type: ignore
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.button import Button
-from fabric.utils import invoke_repeater,cooldown,get_relative_path
+from fabric.utils import invoke_repeater, cooldown, get_relative_path
 
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_scale import AnimatedScale
@@ -123,7 +123,7 @@ class MprisPlayer(Box):
         self.add(self.column)
         self._update_widget()
         self._on_status_change()
-        invoke_repeater(1000 , self._update_progress)
+        invoke_repeater(1000, self._update_progress)
 
     def _prev_track(self, *_):
         self._player.previous_track()
@@ -172,7 +172,9 @@ class MprisPlayer(Box):
                 self.temp_art_pixbuf_cache = pixbuf
         except Exception as e:
             logger.exception("encountered error:", e)
-            pix = GdkPixbuf.Pixbuf.new_from_file(get_relative_path("../../assets/mpris_default.png"))
+            pix = GdkPixbuf.Pixbuf.new_from_file(
+                get_relative_path("../../assets/mpris_default.png")
+            )
             pix = pixbuf_cropping_if_image_is_not_1_1(pix)
             self.album_art_overlay.set_from_pixbuf(pix)
 
@@ -210,7 +212,9 @@ class MprisPlayer(Box):
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
             else:
-                pix = GdkPixbuf.Pixbuf.new_from_file(get_relative_path("../../assets/mpris_default.png"))
+                pix = GdkPixbuf.Pixbuf.new_from_file(
+                    get_relative_path("../../assets/mpris_default.png")
+                )
                 pix = pixbuf_cropping_if_image_is_not_1_1(pix)
                 self.album_art_overlay.set_from_pixbuf(pix)
 

@@ -51,7 +51,9 @@ class Memory(Box):
         self.add(self.content_event_box)
 
         # ── state ───────────────────────────────────────────────
-        self._history: deque = deque([0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH)
+        self._history: deque = deque(
+            [0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH
+        )
 
         self._hide_timeout_id = None
         self._show_delay_id = None
@@ -87,7 +89,7 @@ class Memory(Box):
 
         self.popup.update(self._history, self._build_stats_markup())
         popup_manager.request_show(self.popup, self)
-        
+
         return False
 
     def _on_hover_leave(self, *_):
@@ -130,32 +132,34 @@ class Memory(Box):
         swap = psutil.swap_memory()
 
         ram_color = (
-            "#A3DC9A" if ram.percent <= 50
-            else "#FCF67E" if ram.percent <= 80
-            else "#FF5454"
+            "#A3DC9A"
+            if ram.percent <= 50
+            else "#FCF67E" if ram.percent <= 80 else "#FF5454"
         )
         swap_color = (
-            "#A3DC9A" if swap.percent <= 50
-            else "#FCF67E" if swap.percent <= 80
-            else "#FF5454"
+            "#A3DC9A"
+            if swap.percent <= 50
+            else "#FCF67E" if swap.percent <= 80 else "#FF5454"
         )
 
-        return "\n".join([
-            "<b>Memory</b>",
-            (
-                f'RAM: <span foreground="{ram_color}">'
-                f"{ram.used / CONVERSION_CONST:.2f} / "
-                f"{ram.total / CONVERSION_CONST:.2f} GB"
-                f" ({ram.percent}%)</span>"
-            ),
-            (
-                f'SWAP: <span foreground="{swap_color}">'
-                f"{swap.used / CONVERSION_CONST:.2f} / "
-                f"{swap.total / CONVERSION_CONST:.2f} GB"
-                f" ({swap.percent}%)</span>"
-            ),
-            f"Available: {ram.available / CONVERSION_CONST:.2f} GB",
-        ])
+        return "\n".join(
+            [
+                "<b>Memory</b>",
+                (
+                    f'RAM: <span foreground="{ram_color}">'
+                    f"{ram.used / CONVERSION_CONST:.2f} / "
+                    f"{ram.total / CONVERSION_CONST:.2f} GB"
+                    f" ({ram.percent}%)</span>"
+                ),
+                (
+                    f'SWAP: <span foreground="{swap_color}">'
+                    f"{swap.used / CONVERSION_CONST:.2f} / "
+                    f"{swap.total / CONVERSION_CONST:.2f} GB"
+                    f" ({swap.percent}%)</span>"
+                ),
+                f"Available: {ram.available / CONVERSION_CONST:.2f} GB",
+            ]
+        )
 
     # ────────────────────────────────────────────────────────────
     #  Polling (every 500ms)

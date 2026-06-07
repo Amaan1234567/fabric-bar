@@ -11,7 +11,6 @@ from fabric.utils import invoke_repeater, get_relative_path
 
 from gi.repository import GdkPixbuf
 
-
 NOTIFICATION_WIDTH = 360
 NOTIFICATION_IMAGE_SIZE = 128
 NOTIFICATION_TIMEOUT = 10 * 1000  # 10 seconds

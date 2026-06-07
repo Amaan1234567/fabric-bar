@@ -47,7 +47,9 @@ class LogoutPopup(PopupWindow):
                     label=" Shutdown",
                     on_clicked=lambda *a: self._trigger_cmd("systemctl poweroff"),
                 ),
-                Button(label="󰌾 Lock", on_clicked=lambda *a: self._trigger_cmd("hyprlock")),
+                Button(
+                    label="󰌾 Lock", on_clicked=lambda *a: self._trigger_cmd("hyprlock")
+                ),
             ],
         )
 

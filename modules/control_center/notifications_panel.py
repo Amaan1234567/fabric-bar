@@ -127,8 +127,7 @@ class NotificationItem(Box):
                                     h_expand=True,
                                     v_expand=True,
                                     label=action.label,
-                                    on_clicked=lambda *_,
-                                    action=action: action.invoke(),
+                                    on_clicked=lambda *_, action=action: action.invoke(),
                                 )
                                 for action in actions[
                                     i : i + NOTIFICATION_BUTTONS_WRAP_THRESHOLD

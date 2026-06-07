@@ -64,7 +64,7 @@ class DiskWidget(Box):
 
         self.popup.update(self._build_stats_markup())
         popup_manager.request_show(self.popup, self)
-        
+
         return False
 
     def _on_hover_leave(self, *_):
@@ -108,15 +108,24 @@ class DiskWidget(Box):
             if part.mountpoint in MONITORED_PATHS:
                 continue
             try:
-                rows.append(self._format_row(part.mountpoint, shutil.disk_usage(part.mountpoint)))
+                rows.append(
+                    self._format_row(
+                        part.mountpoint, shutil.disk_usage(part.mountpoint)
+                    )
+                )
             except PermissionError:
                 pass
 
         if not rows:
             return ""
 
-        table = tabulate(rows, headers=["Mount", "Used/Total", "Free", "%"],
-                         tablefmt="plain", stralign="left", numalign="left")
+        table = tabulate(
+            rows,
+            headers=["Mount", "Used/Total", "Free", "%"],
+            tablefmt="plain",
+            stralign="left",
+            numalign="left",
+        )
         return f"<tt>{table}</tt>"
 
     def _format_row(self, mount, usage):
@@ -129,7 +138,6 @@ class DiskWidget(Box):
         pct_str = f'<span foreground="{color}">{pct:.1f}%</span>'
 
         return [mount, f"{used_gb:.1f}/{total_gb:.1f} GB", f"{free_gb:.1f} GB", pct_str]
-
 
     def update_label(self) -> bool:
         usage = shutil.disk_usage(MONITORED_PATHS[0])

@@ -57,7 +57,9 @@ class Cpu(Box):
         self.add(self.content_event_box)
 
         # ── state ───────────────────────────────────────────────────
-        self._history: deque = deque([0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH)
+        self._history: deque = deque(
+            [0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH
+        )
 
         self._hide_timeout_id = None
         self._show_delay_id = None
@@ -96,9 +98,8 @@ class Cpu(Box):
 
         self.popup.update(self._history, self._build_stats_markup())
         popup_manager.request_show(self.popup, self)  # ← add this
-        
-        return False
 
+        return False
 
     def _on_hover_leave(self, *_):
         self._schedule_hide()
@@ -127,7 +128,6 @@ class Cpu(Box):
         popup_manager.request_hide(self.popup, self)  # ← add this
         self._hide_timeout_id = None
         return False
-
 
     # ────────────────────────────────────────────────────────────────
     #  Data
@@ -164,16 +164,12 @@ class Cpu(Box):
         freq_color = (
             "#A3DC9A"
             if cur_freq.current <= 1000
-            else "#FCF67E"
-            if cur_freq.current < 3500
-            else "#FF5454"
+            else "#FCF67E" if cur_freq.current < 3500 else "#FF5454"
         )
         temp_color = (
             "#A3DC9A"
             if cpu_temp.current <= 45
-            else "#FCF67E"
-            if cpu_temp.current <= 75
-            else "#FF5454"
+            else "#FCF67E" if cpu_temp.current <= 75 else "#FF5454"
         )
 
         return "\n".join(

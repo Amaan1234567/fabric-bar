@@ -13,7 +13,6 @@ from custom_widgets.popup_window import PopupWindow
 from custom_widgets.animated_scale import AnimatedScale
 from custom_widgets.HackedStackRevealer import HackedRevealer
 
-
 _APP_ICONS = {
     "firefox": "󰈹",
     "brave": "󰈹",

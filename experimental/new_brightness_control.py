@@ -13,7 +13,8 @@ import subprocess
 import re
 
 # To make this fast, find your bus number first with 'ddcutil detect'
-MONITOR_BUS = "10" 
+MONITOR_BUS = "10"
+
 
 def get_brightness():
     # Calling specific bus is ~20x faster than general detection
@@ -23,6 +24,7 @@ def get_brightness():
     match = re.search(r"VCP 10 C (\d+)", result.stdout)
     return int(match.group(1)) if match else None
 
+
 last_val = get_brightness()
 
 while True:
@@ -31,4 +33,4 @@ while True:
         print(f"OSD TRIGGER: Brightness is now {current_val}%")
         # INSERT YOUR OSD CALL HERE (e.g., notify-send or custom GUI)
         last_val = current_val
-    time.sleep(0.01) # Poll every second
+    time.sleep(0.01)  # Poll every second

@@ -64,8 +64,12 @@ class GpuWidget(Box):
         self.add(self.content_event_box)
 
         # ── state ───────────────────────────────────────────────
-        self._core_history: deque = deque([0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH)
-        self._vram_history: deque = deque([0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH)
+        self._core_history: deque = deque(
+            [0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH
+        )
+        self._vram_history: deque = deque(
+            [0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH
+        )
 
         self._latest_data: list = []
         self._hide_timeout_id = None
@@ -172,17 +176,19 @@ class GpuWidget(Box):
                 if len(parts) == 8:
                     used_mib = float(parts[2])
                     total_mib = float(parts[3])
-                    devices_data.append({
-                        "name": parts[0],
-                        "gpu_util": float(parts[1]),
-                        "used_gb": used_mib / 1024,
-                        "vram_percent": (used_mib / total_mib) * 100,
-                        "temp": parts[4],
-                        "gpu_clock": parts[5],
-                        "mem_clock": parts[6],
-                        "power": parts[7],
-                        "index": index,
-                    })
+                    devices_data.append(
+                        {
+                            "name": parts[0],
+                            "gpu_util": float(parts[1]),
+                            "used_gb": used_mib / 1024,
+                            "vram_percent": (used_mib / total_mib) * 100,
+                            "temp": parts[4],
+                            "gpu_clock": parts[5],
+                            "mem_clock": parts[6],
+                            "power": parts[7],
+                            "index": index,
+                        }
+                    )
             if devices_data:
                 GLib.idle_add(self._apply_ui_updates, devices_data)
         except Exception:
@@ -219,7 +225,7 @@ class GpuWidget(Box):
         for dev in self._latest_data:
             markup += (
                 f"<u><b>{dev['name']} (GPU {dev['index']})</b></u>\n"
-                f"Usage: {dev['gpu_util']:.0f}%\n"  
+                f"Usage: {dev['gpu_util']:.0f}%\n"
                 f"Memory: {dev['used_gb']:.2f} GB\n"
                 f"Temperature: {dev['temp']}\u00b0C\n"
                 f"Graphics Clock: {dev['gpu_clock']} MHz\n"

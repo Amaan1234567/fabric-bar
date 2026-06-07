@@ -20,7 +20,7 @@ from modules.control_center.gamemode_toggle import GamemodeToggleButton
 class ControlCenter(PopupWindow):
     """control center widget"""
 
-    def __init__(self, app_data,parent,**kwargs):
+    def __init__(self, app_data, parent, **kwargs):
         super().__init__(
             layer="overlay",
             title="control_center",
@@ -43,7 +43,7 @@ class ControlCenter(PopupWindow):
                 ROGButton(),
                 WallpaperChangeButton(),
                 MicToggle(),
-                GamemodeToggleButton()
+                GamemodeToggleButton(),
             ],
         )
         self.small_toggles.set_homogeneous(True)
@@ -63,7 +63,7 @@ class ControlCenter(PopupWindow):
         self.control_center_content.add(NotificationsPanel(app_data=app_data))
         self.revealer = HackedRevealer(
             bezier_curve=(0.3, -0.06, 0, 1.02),
-            duration=.350,
+            duration=0.350,
             child=self.control_center_content,
             child_revealed=False,
             # transition_duration=200,

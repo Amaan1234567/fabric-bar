@@ -8,6 +8,7 @@ from modules.mpris.mpris_player import MprisPlayer
 from services.playerctlservice import SimplePlayerctlService, Player
 from custom_widgets.HackedStackRevealer import HackedStack
 
+
 class MprisPlayerStack(Stack):
     """mpris popup widget which shows more song details,progressbar and controls"""
 
@@ -61,7 +62,7 @@ class MprisPlayerStack(Stack):
 
         if len(self.players) == 0:
             return
-        print("player: ",self.players)
+        print("player: ", self.players)
         self._visible_child_index = (
             self._visible_child_index + (-1 if event.direction == 0 else 1)
         ) % len(self.children)

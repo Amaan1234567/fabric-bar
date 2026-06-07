@@ -1,6 +1,9 @@
+"""A wallpaper selector widget that allows users to preview and
+apply different wallpapers for their desktop background."""
+
 import os
 from screeninfo import get_monitors
-from gi.repository import Gdk
+from gi.repository import Gdk  # type: ignore
 from PIL import Image
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.widgets.box import Box
@@ -18,6 +21,7 @@ scale_map = {
 
 class WallpaperButton(Button):
     """button widget for wallpapers"""
+
     def __init__(self, wallpaper_folder, child, wallpaper_name, **kwargs):
         super().__init__(
             name="wallpaper-button",
@@ -91,7 +95,7 @@ class WallpaperSelector(Window):
     def _handle_key_press(self, _, key: Gdk.EventKey):
         if key.keyval == Gdk.KEY_Escape:  # type: ignore
             self.toggle_window()
-            
+
     def _process_new_wallpapers(self):
         for wallpaper in self.wallpapers:
             if wallpaper not in self.cache:

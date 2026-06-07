@@ -3,9 +3,11 @@ from fabric.widgets.wayland import WaylandWindow
 from fabric.widgets.box import Box
 from fabric.utils import get_relative_path
 import gi
-gi.require_version('Gtk', '3.0')
+
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GLib
 import cairo
+
 
 class MarqueeLabel(Gtk.DrawingArea):
     def __init__(self, text="Media Title - Artist - Album", speed=0.01):
@@ -38,16 +40,16 @@ class MarqueeLabel(Gtk.DrawingArea):
         # 3. Bounce Logic
         if text_w > width:
             # Maximum distance the text can scroll to the left
-            max_scroll = width - text_w - 5 # 10px padding
+            max_scroll = width - text_w - 5  # 10px padding
 
             if self.pause_counter <= 0:
-                self.x_offset += (self.speed * self.direction)
+                self.x_offset += self.speed * self.direction
                 # print(f"Offset: {self.x_offset:.2f}, Direction: {self.direction}, Pause: {self.pause_counter}")
                 # Hit left boundary (scrolled all the way to the end)
                 if self.x_offset <= max_scroll:
                     self.x_offset = max_scroll
                     self.direction = 1
-                    self.pause_counter = 50 # Pause for ~1 second
+                    self.pause_counter = 50  # Pause for ~1 second
 
                 # Hit right boundary (returned to start)
                 elif self.x_offset >= 0:
@@ -57,7 +59,7 @@ class MarqueeLabel(Gtk.DrawingArea):
             else:
                 self.pause_counter -= 1
         else:
-            self.x_offset = 0 # Center/Align if short enough
+            self.x_offset = 0  # Center/Align if short enough
 
         # 4. Render
         cr.move_to(self.x_offset, y_pos)
@@ -68,7 +70,6 @@ class MarqueeLabel(Gtk.DrawingArea):
         return True
 
 
-
 if __name__ == "__main__":
     app = Application(
         "notifications",
@@ -76,14 +77,14 @@ if __name__ == "__main__":
             margin="8px 8px 8px 8px",
             anchor="top",
             child=Box(
-                size=(200,200),  # so it's not ignored by the compositor
+                size=(200, 200),  # so it's not ignored by the compositor
                 spacing=4,
                 orientation="v",
                 children=[MarqueeLabel(text="Scrolling ", speed=0.4)],
             ),
             visible=True,
             all_visible=True,
-            keyboard_mode="on-demand"
+            keyboard_mode="on-demand",
         ),
     )
 

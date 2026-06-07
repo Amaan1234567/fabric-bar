@@ -1,18 +1,25 @@
-from gi.repository import GLib
+"""Brightness OSD that appears when brightness changes."""
+
+from gi.repository import GLib  # type: ignore
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.utils import remove_handler
 from custom_widgets.animated_scale import AnimatedScale
-from fabric.widgets.wayland import WaylandWindow as Window # <--- Add this!
+from fabric.widgets.wayland import WaylandWindow as Window  # <--- Add this!
 from services.brightnessservice import BrightnessService
 from utils.monitor import get_monitor_info
 from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
 
+
 class BrightnessOSD(Window):
-    def __init__(self,monitor_id=0, **kwargs):
+    """Brightness OSD that appears when brightness changes.
+    It listens to the BrightnessService for changes and shows an OSD with the current brightness level.
+    It automatically hides after a few seconds."""
+
+    def __init__(self, monitor_id=0, **kwargs):
         # Determine if this OSD is internal or external
         self.device_type, self.hardware_id = get_monitor_info(monitor_id)
-        
+
         super().__init__(
             layer="top",
             title="brightness_osd",
@@ -21,7 +28,7 @@ class BrightnessOSD(Window):
             type="popup",
             pass_through=True,
             all_visible=False,
-            monitor=monitor_id, # Ensure the window goes to the right screen
+            monitor=monitor_id,  # Ensure the window goes to the right screen
             **kwargs,
         )
 
@@ -33,12 +40,12 @@ class BrightnessOSD(Window):
             min_value=0,
             max_value=100,
             inverted=True,
-            value=0, # Initial value, will be updated by signal
+            value=0,  # Initial value, will be updated by signal
             h_expand=True,
             v_expand=True,
             has_origin=True,
         )
-        
+
         self.revealer = Revealer(
             child=Box(
                 name="brightness-osd-box",
@@ -47,10 +54,10 @@ class BrightnessOSD(Window):
                 children=[self.scale, self.icon],
             ),
             bezier_curve=(0.3, -0.06, 0, 1.02),
-            duration=.350,
+            duration=0.350,
             transition_type="slide-left",
         )
-        
+
         self.add(self.revealer)
         self.hide_timer = None
         self.window_timer = None
@@ -60,13 +67,13 @@ class BrightnessOSD(Window):
         self.service.connect("changed", self._on_brightness_changed)
         self.hide()
 
-    def _on_brightness_changed(self, service, dev_type, dev_id, value):
+    def _on_brightness_changed(self, _, dev_type, dev_id, value):
         # Match against our dynamic detection
         # Convert both to strings to avoid "1" vs 1 mismatch
         if dev_type != self.device_type or str(dev_id) != str(self.hardware_id):
             return
 
-        if value == self._last_val: 
+        if value == self._last_val:
             return
 
         self._last_val = value
@@ -90,6 +97,3 @@ class BrightnessOSD(Window):
             return
         self.show()
         self.revealer.set_reveal_child(True)
-        
-        
-        
