@@ -1,7 +1,5 @@
 [MAIN]
 
-ignored-modules=gi,gi.repository,fabric,loguru,psutil,setproctitle
-
 # Analyse import fallback blocks. This can be used to support both Python 2 and
 # 3 compatible code, which means that the block might have code that exists
 # only in one or another interpreter, leading to false positives when analysed.
@@ -66,7 +64,7 @@ ignore-patterns=^\.#
 # manipulated during runtime and thus existing member attributes cannot be
 # deduced by static analysis). It supports qualified module names, as well as
 # Unix pattern matching.
-ignored-modules=
+ignored-modules=gi,gi.repository,fabric,loguru,psutil,setproctitle
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
