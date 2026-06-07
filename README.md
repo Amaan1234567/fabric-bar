@@ -123,6 +123,7 @@ fabric-bar/
 - **[amansxcalibur](https://github.com/amansxcalibur)** — for code snippets, borrowed implementations, and a ton of UI inspiration
 - **[rubiin](https://github.com/rubiin)** — for code snippets, borrowed implementations, and a ton of UI inspiration
 - **[Axenide](https://github.com/Axenide)** — for code snippets, borrowed implementations, and a ton of UI inspiration
+- **[Coffee](https://github.com/coffeeisangry)** — for hackedRevealer and more UI inspirations from [caffyne-shell](https://github.com/caffyne-org/caffyne-shell)
 
 ## Credits
 
