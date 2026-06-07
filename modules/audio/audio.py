@@ -136,7 +136,7 @@ class AudioWidget(Box):
 
     def _schedule_hide(self):
         self._cancel_hide_timeout()
-        self._hide_timeout_id = GLib.timeout_add(100000, self._hide_popup)
+        self._hide_timeout_id = GLib.timeout_add(1000, self._hide_popup)
 
     def _cancel_hide_timeout(self):
         if self._hide_timeout_id:

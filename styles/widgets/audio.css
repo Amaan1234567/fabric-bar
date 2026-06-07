@@ -135,3 +135,83 @@
     font-size: 11px;
     padding: 16px 0;
 }
+
+
+/* ── Header ────────────────────────────────────────────────────── */
+#audio-popup-header {
+    margin-bottom: 0;
+}
+
+#audio-master-vol {
+    color: var(--color4);
+    font-weight: bold;
+}
+
+/* ── Device selector ───────────────────────────────────────────── */
+#audio-device-selector {
+    padding: 4px 6px;
+    border-radius: 6px;
+}
+
+#audio-device-selector:hover {
+    background: alpha(var(--foreground), 0.06);
+}
+
+#audio-device-icon {
+    color: var(--color4);
+}
+
+#audio-device-name {
+    color: alpha(var(--foreground), 0.7);
+}
+
+#audio-device-chevron {
+    color: alpha(var(--foreground), 0.4);
+    border-radius: 5px;
+    padding: 0;
+}
+
+#audio-device-chevron > label {
+    font-size: 34px;
+    padding: 0;
+}
+
+#audio-device-chevron:hover {
+    font-size: 24px;
+    color: var(--background);
+    background: var(--color4);
+}
+
+/* ── Device list (expanded) ────────────────────────────────────── */
+#audio-device-list {
+    padding: 2px 0 2px 4px;
+}
+
+#audio-device-row {
+    padding: 3px 6px;
+    border-radius: 4px;
+}
+
+#audio-device-row:hover {
+    background: alpha(var(--foreground), 0.06);
+}
+
+#audio-device-radio {
+    color: alpha(var(--foreground), 0.3);
+    min-width: 14px;
+}
+
+#audio-device-current {
+    color: var(--color4);
+    font-weight: bold;
+    padding-left: 1px;
+}
+
+#audio-device-item-icon {
+    color: alpha(var(--foreground), 0.5);
+}
+
+#audio-device-item-name {
+    color: alpha(var(--foreground), 0.7);
+    font-weight: bold;
+}
