@@ -6,7 +6,7 @@
 }
 
 #memory-progress-bar {
-  color: white;
+  color: alpha(var(--foreground), 0.8);
   border-color: shade(var(--color4), 0.85);
 }
 
