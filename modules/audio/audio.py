@@ -33,8 +33,12 @@ class AudioWidget(Box):
         self.scale = AnimatedScale(
             name="audio-scale",
             orientation="horizontal",
-            min_value=0, max_value=100, value=0,
-            h_expand=True, v_expand=True, increments=[1, 5],
+            min_value=0,
+            max_value=100,
+            value=0,
+            h_expand=True,
+            v_expand=True,
+            increments=[1, 5],
         )
         self.scale.connect("change-value", self._on_scale_change)
 
@@ -118,7 +122,7 @@ class AudioWidget(Box):
     def _on_hover_enter(self, *_):
         self._cancel_hide_timeout()
         self._show_delay_id = None
-        self.popup.refresh()                            # ← populate BEFORE showing
+        self.popup.refresh()  # ← populate BEFORE showing
         popup_manager.request_show(self.popup, self)
         return False
 

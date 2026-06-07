@@ -23,6 +23,7 @@ from modules.system_tray.system_tray import barSystemTray as SystemTray
 from modules.logout_button.logout_button import LogoutButton
 from modules.disk.disk import DiskWidget
 
+
 class TopBar(Window):
     """top bar of UI"""
 

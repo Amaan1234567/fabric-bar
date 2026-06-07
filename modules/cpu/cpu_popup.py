@@ -49,9 +49,9 @@ class CpuPopup(PopupWindow):
             dot_radius=0,
             padding=0,
             visible=True,
-            y_axis=True,              # ← add this
-            y_axis_format="{:.0f}",   # ← integers: 0, 25, 50, 75, 100
-            y_axis_width=28,          # ← adjust to taste
+            y_axis=True,  # ← add this
+            y_axis_format="{:.0f}",  # ← integers: 0, 25, 50, 75, 100
+            y_axis_width=28,  # ← adjust to taste
         )
         self.graph.set_size_request(50, 100)
 
@@ -73,7 +73,6 @@ class CpuPopup(PopupWindow):
         )
 
         self.add(self.overlay_revealer)
-
 
     def update(self, history, stats_markup):
         """Push new data into the graph and stats label."""

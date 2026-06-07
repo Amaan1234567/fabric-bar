@@ -23,16 +23,19 @@ class CavaWidget(Box):
     """
 
     def __init__(self, **kwargs):
-        super().__init__(orientation="v",size=2,  # so it's not ignored by the compositor
-                spacing=4,
-                name="cava", visible=True,
-            all_visible=True,**kwargs)
+        super().__init__(
+            orientation="v",
+            size=2,  # so it's not ignored by the compositor
+            spacing=4,
+            name="cava",
+            visible=True,
+            all_visible=True,
+            **kwargs
+        )
 
         self.bars = 14
 
         self.add(SpectrumRender().get_spectrum_box())
-
-        
 
 
 def get_bars(file_path):
@@ -315,7 +318,7 @@ class Spectrum:
                     m = re.findall(r"--background: \s*(#[0-9a-fA-F]{6})", content)
                 if m:
                     # print("string:", m.string)
-                    hex_string= m[0]
+                    hex_string = m[0]
                     print(hex_string)
 
                     red = int(hex_string[1:3], 16) / 255
@@ -343,8 +346,8 @@ class Spectrum:
                 content = f.read()
                 m = re.findall(r"--background: \s*(#[0-9a-fA-F]{6})", content)
                 if m:
-                    hex_string= m[0]
-                
+                    hex_string = m[0]
+
         except Exception as e:
             print(e)
             pass
@@ -365,7 +368,13 @@ class SpectrumRender:
 
     def get_spectrum_box(self):
         # Get the spectrum box
-        box = Overlay(h_align="center", v_align="center",visible_all=True,h_expand=True,v_expand=True)
+        box = Overlay(
+            h_align="center",
+            v_align="center",
+            visible_all=True,
+            h_expand=True,
+            v_expand=True,
+        )
         box.set_size_request(120, 20)
         box.add_overlay(self.draw.area)
         return box

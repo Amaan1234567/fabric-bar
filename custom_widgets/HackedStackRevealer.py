@@ -3,8 +3,9 @@ from functools import partial
 from cffi import FFI
 from fabric.widgets.stack import Stack
 from fabric.widgets.revealer import Revealer
-from utils.animator import Animator, cubic_bezier
+from utils.animator import Animator, _cubic_bezier
 from fabric.utils import get_relative_path
+
 ffi = FFI()
 
 ffi.cdef("""
@@ -43,7 +44,7 @@ class HackedStack(Stack):
 
         self.animator = (
             Animator(
-                timing_function=partial(cubic_bezier,*bezier_curve),
+                timing_function=partial(_cubic_bezier, *bezier_curve),
                 duration=duration,
                 min_value=0.0,
                 max_value=1.0,
@@ -55,7 +56,9 @@ class HackedStack(Stack):
             .build()
             .unwrap()
         )
-        self.animator.connect("finished", lambda *_: libhacktk.gtk_stack_end_transition(self._ptr))
+        self.animator.connect(
+            "finished", lambda *_: libhacktk.gtk_stack_end_transition(self._ptr)
+        )
 
     def set_visible_child_name(self, name: str):
         if self.get_visible_child_name() == name:
@@ -64,9 +67,8 @@ class HackedStack(Stack):
         libhacktk.gtk_stack_begin_transition(self._ptr, SLIDE_LEFT_RIGHT)
         self.animator.pause()
         self.animator.play()
-    
 
-    def set_visible_child(self,child):
+    def set_visible_child(self, child):
         super().set_visible_child(child)
         libhacktk.gtk_stack_begin_transition(self._ptr, SLIDE_LEFT_RIGHT)
         self.animator.pause()
@@ -99,7 +101,7 @@ class HackedRevealer(Revealer):
 
         self.animator = (
             Animator(
-                timing_function=partial(cubic_bezier,*bezier_curve),
+                timing_function=partial(_cubic_bezier, *bezier_curve),
                 duration=duration,
                 min_value=0.0,
                 max_value=1.0,
@@ -115,6 +117,7 @@ class HackedRevealer(Revealer):
     def _on_animator_value(self, animator, _pspec):
         self._current_pos = animator.value
         libhacktk.gtk_revealer_set_timeline(self._ptr, animator.value)
+
     def _on_size_allocate(self, widget, allocation):
         if not self._animating:
             return
@@ -127,7 +130,7 @@ class HackedRevealer(Revealer):
             super().set_reveal_child(False)
 
     def set_reveal_child(self, reveal: bool):
-        if not hasattr(self, 'animator'):
+        if not hasattr(self, "animator"):
             return super().set_reveal_child(reveal)
         self._reveal_child = reveal
         self._animating = True

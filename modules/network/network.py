@@ -70,7 +70,7 @@ class NetworkWidget(Box):
         self.networks_revealer = HackedRevealer(
             name="wifi-networks-revealer",
             bezier_curve=(0.3, -0.06, 0, 1.02),
-            duration=.400,
+            duration=0.400,
             child_revealed=True,  # Always revealed inside popup
         )
         self.networks_revealer.add(self.networks_box)

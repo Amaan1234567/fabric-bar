@@ -43,8 +43,12 @@ class NetworkSpeed(Box):
         self.content_event_box.add(self.content_box)
         self.add(self.content_event_box)
 
-        self._download_history = deque([0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH)
-        self._upload_history = deque([0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH)
+        self._download_history = deque(
+            [0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH
+        )
+        self._upload_history = deque(
+            [0.0] * self.HISTORY_LENGTH, maxlen=self.HISTORY_LENGTH
+        )
         self._max_download = 1.0
         self._max_upload = 1.0
         self._hide_timeout_id = None
@@ -78,7 +82,7 @@ class NetworkSpeed(Box):
 
         self._push_to_popup()
         popup_manager.request_show(self.popup, self)
-        
+
         return False
 
     def _on_hover_leave(self, *_):
@@ -140,8 +144,8 @@ class NetworkSpeed(Box):
         """Get PIDs with ESTABLISHED connections and their current /proc byte counts."""
         snapshot = {}
         try:
-            for conn in psutil.net_connections(kind='inet'):
-                if conn.pid and conn.pid > 0 and conn.status == 'ESTABLISHED':
+            for conn in psutil.net_connections(kind="inet"):
+                if conn.pid and conn.pid > 0 and conn.status == "ESTABLISHED":
                     if conn.pid in snapshot:
                         continue
                     try:
@@ -181,10 +185,16 @@ class NetworkSpeed(Box):
 
         lines = ["<b>Top Network</b>"]
         for d in deltas:
-            dl_str = (f"{d['dl'] / 1_048_576:.1f} MB/s" if d["dl"] >= 1_048_576
-                      else f"{d['dl'] / 1024:.0f} KB/s")
-            ul_str = (f"{d['ul'] / 1_048_576:.1f} MB/s" if d["ul"] >= 1_048_576
-                      else f"{d['ul'] / 1024:.0f} KB/s")
+            dl_str = (
+                f"{d['dl'] / 1_048_576:.1f} MB/s"
+                if d["dl"] >= 1_048_576
+                else f"{d['dl'] / 1024:.0f} KB/s"
+            )
+            ul_str = (
+                f"{d['ul'] / 1_048_576:.1f} MB/s"
+                if d["ul"] >= 1_048_576
+                else f"{d['ul'] / 1024:.0f} KB/s"
+            )
             lines.append(f"<tt>↓{dl_str} ↑{ul_str}</tt>  {d['name']}")
 
         return "\n".join(lines)
@@ -217,7 +227,9 @@ class NetworkSpeed(Box):
             # build per-process markup from the before/after diff
             proc_markup = self._build_processes_markup(procs_before, procs_after)
 
-            GLib.idle_add(self._apply_update, dl_kbs, ul_kbs, dl_label, ul_label, proc_markup)
+            GLib.idle_add(
+                self._apply_update, dl_kbs, ul_kbs, dl_label, ul_label, proc_markup
+            )
 
             logger.debug(f"download speed: {dl_label}")
             logger.debug(f"upload speed: {ul_label}")

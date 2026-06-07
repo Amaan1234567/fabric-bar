@@ -1,7 +1,6 @@
 from PIL import Image
 import numpy as np
 
-
 width = 500
 height = 300
 colors = [

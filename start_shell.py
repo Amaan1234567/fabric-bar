@@ -1,3 +1,5 @@
+"""main python file that initialised the whole UI"""
+
 import sys
 import setproctitle
 from loguru import logger
@@ -5,7 +7,6 @@ from loguru import logger
 from fabric.utils.helpers import monitor_file, get_relative_path
 from fabric import Application
 from modules.control_center import control_center
-from modules.control_center.control_center import ControlCenter
 from modules.notification.notification_window import NotificationPopupWindow
 from utils.application_data_holder import Data
 from services.notification_service import NotificationService
@@ -20,6 +21,7 @@ from widgets.theme_selector import ThemeSelector
 
 
 def main():
+    """Entry point for the application."""
     setproctitle.setproctitle("hypr-fabric-bar-main")
     logger.remove()
 
@@ -94,4 +96,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

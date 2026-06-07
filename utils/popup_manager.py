@@ -1,6 +1,6 @@
 """Singleton that ensures only one popup is visible at a time."""
 
-from gi.repository import GLib
+from gi.repository import GLib #type: ignore
 
 
 class _PopupManager:
@@ -31,7 +31,7 @@ class _PopupManager:
         self._current_popup = popup
         self._current_widget = owner
 
-    def request_hide(self, popup, owner):
+    def request_hide(self, popup, _):
         """Called when a popup actually hides — clears the reference so
         the next request_show doesn't try to hide an already-hidden popup."""
         if self._current_popup is popup:

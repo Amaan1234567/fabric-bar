@@ -1,3 +1,6 @@
+"""A simple animator class that can be used to animate values
+over time based on a given timing function."""
+
 # Author: Yousef EL-Darsh
 # License (SPDX): AGPL-3.0-or-later
 
@@ -10,19 +13,19 @@ from gi.repository import GLib, Gtk  # type: ignore
 
 
 @cache
-def lerp(start: float, end: float, progress: float) -> float:
+def _lerp(start: float, end: float, progress: float) -> float:
     return start + (end - start) * progress
 
 
 @cache
-def steps(n: int, progress: float, start_jump: bool = False) -> float:
+def _steps(n: int, progress: float, start_jump: bool = False) -> float:
     if start_jump:
         return min(int(progress * n), n - 1) / (n - 1) if n > 1 else 0.0
     return min(int(progress * n + 1e-10), n) / n
 
 
 @cache
-def cubic_bezier(
+def _cubic_bezier(
     x1: float, y1: float, x2: float, y2: float, progress: float, epsilon=1e-6
 ) -> float:
     # implementation yanked off of the internet, don't blame me about anything.
@@ -57,23 +60,25 @@ def cubic_bezier(
     return 3 * y1 * omt * omt * t + 3 * y2 * omt * t_sq + t * t_sq
 
 
-def ease_linear(progress: float) -> float:
-    return cubic_bezier(1, 1, 0, 0, progress)
+def _ease_linear(progress: float) -> float:
+    return _cubic_bezier(1, 1, 0, 0, progress)
 
 
-def ease_in(progress: float) -> float:
-    return cubic_bezier(0.4, 0, 1, 1, progress)
+def _ease_in(progress: float) -> float:
+    return _cubic_bezier(0.4, 0, 1, 1, progress)
 
 
-def ease_out(progress: float) -> float:
-    return cubic_bezier(0, 0, 0.2, 1, progress)
+def _ease_out(progress: float) -> float:
+    return _cubic_bezier(0, 0, 0.2, 1, progress)
 
 
-def ease_in_out(progress: float) -> float:
-    return cubic_bezier(0.4, 0, 0.2, 1, progress)
+def _ease_in_out(progress: float) -> float:
+    return _cubic_bezier(0.4, 0, 0.2, 1, progress)
 
 
 class TimingFunctionCallback(Protocol):
+    """A protocol for timing function callbacks used in the Animator class."""
+
     def __call__(self, progress: float, *args, **kwargs) -> float: ...
 
 
@@ -84,10 +89,11 @@ class Animator(Service):
     """
 
     @Signal
-    def finished(self) -> None: ...
+    def finished(self) -> None: ...  # pyright: ignore[missing-function-docstring]
 
     @Property(TimingFunctionCallback, "read-write")
-    def timing_function(self) -> TimingFunctionCallback:
+    def timing_function(self) -> TimingFunctionCallback:  # pyright: ignore
+        """Get the current timing function used for the animation."""
         return self._timing_function
 
     @timing_function.setter
@@ -96,10 +102,11 @@ class Animator(Service):
         return
 
     @Property(float, "read-write")
-    def duration(self):
+    def duration(self):  # pyright: ignore
+        """Get the duration of the animation in seconds."""
         return self._duration
 
-    @duration.setter
+    @duration.setter  # pyright: ignore
     def duration(self, value: float):
         if value <= 0.0:
             raise ValueError("duration can't be smaller than or equal to 0.0")
@@ -108,46 +115,54 @@ class Animator(Service):
         return
 
     @Property(float, "read-write")
-    def value(self):
+    def value(self):  # pyright: ignore
+        """Get the current value of the animation. This is the value that
+        will be animated over time."""
         return self._value
 
-    @value.setter
+    @value.setter  # pyright: ignore
     def value(self, value: float):
         self._value = value
         return
 
     @Property(float, "read-write")
-    def max_value(self):
+    def max_value(self):  # pyright: ignore
+        """Get the maximum value of the animation. This is the value
+        that the animation will animate towards."""
         return self._max_value
 
-    @max_value.setter
+    @max_value.setter  # pyright: ignore
     def max_value(self, value: float):
         self._max_value = value
         return
 
     @Property(float, "read-write")
-    def min_value(self):
+    def min_value(self):  # pyright: ignore
+        """Get the minimum value of the animation. This is the value that
+        the animation will animate from."""
         return self._min_value
 
-    @min_value.setter
+    @min_value.setter  # pyright: ignore
     def min_value(self, value: float):
         self._min_value = value
         return
 
     @Property(bool, "read-write", default_value=False)
-    def playing(self):
+    def playing(self):  # pyright: ignore
+        """Check if the animation is currently playing."""
         return self._playing
 
-    @playing.setter
+    @playing.setter  # pyright: ignore
     def playing(self, value: bool):  # this setter is intended for internal usage only
         self._playing = value
         return
 
     @Property(bool, "read-write", default_value=False)
-    def repeat(self):
+    def repeat(self):  # pyright: ignore
+        """Check if the animation should repeat after finishing."""
         return self._repeat
 
-    @repeat.setter
+    @repeat.setter  # pyright: ignore
     def repeat(self, value: bool):
         self._repeat = value
         return
@@ -155,7 +170,7 @@ class Animator(Service):
     def __init__(
         self,
         duration: float = 0.8,
-        timing_function: TimingFunctionCallback = ease_linear,
+        timing_function: TimingFunctionCallback = _ease_linear,
         value: float = 0.0,
         min_value: float = 0.0,
         max_value: float = 1.0,
@@ -188,9 +203,13 @@ class Animator(Service):
         self._timeline_pos = 0.0
 
     def do_get_time_now(self):
+        """Get the current time in seconds. This is used for calculating
+        the progress of the animation."""
         return GLib.get_monotonic_time() / 1_000_000
 
     def do_update_value(self, delta_time: float):
+        """Update the value of the animation based on the elapsed time
+        since the animation started."""
         if not self._playing:
             return
 
@@ -198,7 +217,7 @@ class Animator(Service):
 
         self._timeline_pos = min(1.0, elapsed_time / self._duration)
 
-        self.value = lerp(
+        self.value = _lerp(
             self._min_value,
             self._max_value,
             self._timing_function(progress=self._timeline_pos),
@@ -219,11 +238,14 @@ class Animator(Service):
         return
 
     def do_handle_tick(self, *_):
+        """Handle a tick event from the tick widget or GLib timeout.
+        This is where the animation updatesits value based on the elapsed time."""
         current_time = self.do_get_time_now()
         self.do_update_value(current_time)
         return True
 
     def do_remove_tick_handlers(self):
+        """Remove the tick handler from the tick widget or GLib timeout."""
         if not self._tick_handler:
             return
 
@@ -235,6 +257,7 @@ class Animator(Service):
         return
 
     def play(self):
+        """Start the animation. If the animation is already playing, this will do nothing."""
         if self._playing:
             return
 
@@ -254,10 +277,13 @@ class Animator(Service):
         return
 
     def pause(self):
+        """Pause the animation. If the animation is already paused, this will do nothing."""
         self.playing = False
         return self.do_remove_tick_handlers()
 
     def stop(self):
+        """Stop the animation and reset its value to the minimum value.
+        If the animation is already stopped, this will do nothing."""
         if not self._tick_handler:
             self._timeline_pos = 0
             self.playing = False

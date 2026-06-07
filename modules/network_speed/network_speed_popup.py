@@ -49,10 +49,9 @@ class NetworkSpeedPopup(PopupWindow):
             dot_radius=0,
             padding=0,
             y_axis=True,
-            y_axis_format="{:.1f}",     # no unit — it's in the title now
+            y_axis_format="{:.1f}",  # no unit — it's in the title now
             y_axis_width=36,
             visible=True,
-            
         )
         self.download_graph.set_size_request(100, 50)
 
@@ -70,7 +69,7 @@ class NetworkSpeedPopup(PopupWindow):
             dot_radius=0,
             padding=0,
             y_axis=True,
-            y_axis_format="{:.1f}",     # no unit — it's in the title now
+            y_axis_format="{:.1f}",  # no unit — it's in the title now
             y_axis_width=36,
             visible=True,
         )
@@ -78,23 +77,37 @@ class NetworkSpeedPopup(PopupWindow):
 
         # ── titles with unit in brackets ────────────────────────
         dl_col = Box(
-            orientation="v", spacing=4, h_expand=True,
+            orientation="v",
+            spacing=4,
+            h_expand=True,
             children=[
-                Label(label="↓ Download (MB/s)", name="network-speed-graph-label",
-                      use_markup=True, h_align="start"),
+                Label(
+                    label="↓ Download (MB/s)",
+                    name="network-speed-graph-label",
+                    use_markup=True,
+                    h_align="start",
+                ),
                 self.download_graph,
             ],
         )
         ul_col = Box(
-            orientation="v", spacing=4, h_expand=True,
+            orientation="v",
+            spacing=4,
+            h_expand=True,
             children=[
-                Label(label="↑ Upload (MB/s)", name="network-speed-graph-label",
-                      use_markup=True, h_align="start"),
+                Label(
+                    label="↑ Upload (MB/s)",
+                    name="network-speed-graph-label",
+                    use_markup=True,
+                    h_align="start",
+                ),
                 self.upload_graph,
             ],
         )
         graphs_row = Box(
-            orientation="h", spacing=12, h_expand=True,
+            orientation="h",
+            spacing=12,
+            h_expand=True,
             children=[dl_col, ul_col],
         )
 
@@ -117,8 +130,9 @@ class NetworkSpeedPopup(PopupWindow):
 
         self.add(self.overlay_revealer)
 
-    def update(self, dl_history_mb, ul_history_mb, dl_max_mb, ul_max_mb,
-               processes_markup=""):
+    def update(
+        self, dl_history_mb, ul_history_mb, dl_max_mb, ul_max_mb, processes_markup=""
+    ):
         if dl_max_mb > 0:
             self.download_graph.max_value = dl_max_mb
         if ul_max_mb > 0:

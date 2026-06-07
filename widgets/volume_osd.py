@@ -1,17 +1,15 @@
 """Volume on-screen display (OSD) widget."""
 
-from operator import invert
 from typing import Any
 
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-from fabric.widgets.scale import ScaleMark
+
 from fabric.audio.service import Audio
 from fabric.widgets.wayland import WaylandWindow as Window
 from fabric.utils import remove_handler
-from gi.repository import GLib
+from gi.repository import GLib  # type: ignore
 
-from custom_widgets.popup_window import PopupWindow
 from custom_widgets.animated_scale import AnimatedScale
 from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
 
@@ -71,7 +69,7 @@ class VolumeOSD(Window):
             name="volume-osd-revealer",
             transition_type="slide-left",
             bezier_curve=(0.3, -0.06, 0, 1.02),
-            duration=.350,
+            duration=0.350,
         )
 
         self.add(self.revealer)

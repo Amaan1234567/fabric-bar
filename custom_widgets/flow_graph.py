@@ -10,7 +10,7 @@ import cairo
 from gi.repository import Gtk, Pango, PangoCairo  # type: ignore
 from typing import Any, List, Optional, Tuple
 from functools import partial
-from utils.animator import Animator, cubic_bezier
+from utils.animator import Animator, _cubic_bezier
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
@@ -76,8 +76,12 @@ def _smooth_path(
     result: List[Tuple[float, float]] = []
     for i in range(1, len(padded) - 2):
         seg = _catmull_rom_segment(
-            padded[i - 1], padded[i], padded[i + 1], padded[i + 2],
-            tension=tension, steps=steps,
+            padded[i - 1],
+            padded[i],
+            padded[i + 1],
+            padded[i + 2],
+            tension=tension,
+            steps=steps,
         )
         result.extend(seg if i == 1 else seg[1:])
     return result
@@ -140,7 +144,7 @@ class FlowGraph(Gtk.DrawingArea):
         # ── animator ────────────────────────────────────────────
         self._animator = Animator(
             duration=animation_duration,
-            timing_function=partial(cubic_bezier, *bezier),
+            timing_function=partial(_cubic_bezier, *bezier),
             min_value=0.0,
             max_value=1.0,
             repeat=False,
@@ -274,7 +278,7 @@ class FlowGraph(Gtk.DrawingArea):
                     cr.stroke()
 
                 # Y-axis label
-                        # ── Y-axis labels + grid ────────────────────────────────
+                # ── Y-axis labels + grid ────────────────────────────────
         if self.grid_lines > 0:
             draw_h = h - 2 * pad
 
@@ -305,8 +309,6 @@ class FlowGraph(Gtk.DrawingArea):
                     cr.move_to(pad, y - lh / 2)
                     PangoCairo.show_layout(cr, layout)
 
-
-
         # ── data ────────────────────────────────────────────────
         raw = self._display
         if len(raw) < 2:
@@ -329,7 +331,9 @@ class FlowGraph(Gtk.DrawingArea):
 
         grad_y_top = min(p[1] for p in data_pts)
         grad_y_bot = h - pad
-        pat = cairo.LinearGradient(0, grad_y_top, 0, grad_y_bot)  # pylint: disable=no-member
+        pat = cairo.LinearGradient(
+            0, grad_y_top, 0, grad_y_bot
+        )  # pylint: disable=no-member
         pat.add_color_stop_rgba(0.0, rgba.red, rgba.green, rgba.blue, 0.14)
         pat.add_color_stop_rgba(0.6, rgba.red, rgba.green, rgba.blue, 0.10)
         pat.add_color_stop_rgba(1.0, rgba.red, rgba.green, rgba.blue, 0.0)
