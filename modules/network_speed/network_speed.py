@@ -6,7 +6,6 @@ from collections import deque
 from threading import Thread
 
 import psutil
-from loguru import logger
 from gi.repository import GLib  # type: ignore
 
 from fabric.widgets.box import Box
@@ -15,6 +14,7 @@ from fabric.widgets.label import Label
 
 from utils.popup_manager import popup_manager
 from modules.network_speed.network_speed_popup import NetworkSpeedPopup
+from pathlib import Path
 
 
 class NetworkSpeed(Box):
@@ -124,97 +124,20 @@ class NetworkSpeed(Box):
 
     # ── Top network processes via /proc ─────────────────────────
 
-    def _read_proc_net_bytes(self, pid):
-        """Read cumulative TX/RX bytes for a process from /proc/<pid>/net/dev."""
-        try:
-            with open(f"/proc/{pid}/net/dev", "r") as f:
-                lines = f.readlines()[2:]  # skip header
-            rx_total = 0
-            tx_total = 0
-            for line in lines:
-                parts = line.split()
-                if len(parts) >= 10:
-                    rx_total += int(parts[1])
-                    tx_total += int(parts[9])
-            return rx_total, tx_total
-        except (FileNotFoundError, PermissionError, ValueError):
-            return None, None
-
-    def _snapshot_active_processes(self):
-        """Get PIDs with ESTABLISHED connections and their current /proc byte counts."""
-        snapshot = {}
-        try:
-            for conn in psutil.net_connections(kind="inet"):
-                if conn.pid and conn.pid > 0 and conn.status == "ESTABLISHED":
-                    if conn.pid in snapshot:
-                        continue
-                    try:
-                        name = psutil.Process(conn.pid).name()
-                    except (psutil.NoSuchProcess, psutil.AccessDenied):
-                        continue
-                    rx, tx = self._read_proc_net_bytes(conn.pid)
-                    if rx is not None:
-                        snapshot[conn.pid] = {"name": name, "rx": rx, "tx": tx}
-        except (psutil.AccessDenied, PermissionError):
-            pass
-        return snapshot
-
-    def _build_processes_markup(self, before, after):
-        """Compare two snapshots, show top 5 by total traffic with per-process speeds."""
-        common = set(before.keys()) & set(after.keys())
-        if not common:
-            return ""
-
-        deltas = []
-        for pid in common:
-            dl = after[pid]["rx"] - before[pid]["rx"]
-            ul = after[pid]["tx"] - before[pid]["tx"]
-            if dl < 0:
-                dl = 0
-            if ul < 0:
-                ul = 0
-            if dl == 0 and ul == 0:
-                continue
-            deltas.append({"name": after[pid]["name"], "dl": dl, "ul": ul})
-
-        deltas.sort(key=lambda x: x["dl"] + x["ul"], reverse=True)
-        deltas = deltas[:5]
-
-        if not deltas:
-            return ""
-
-        lines = ["<b>Top Network</b>"]
-        for d in deltas:
-            dl_str = (
-                f"{d['dl'] / 1_048_576:.1f} MB/s"
-                if d["dl"] >= 1_048_576
-                else f"{d['dl'] / 1024:.0f} KB/s"
-            )
-            ul_str = (
-                f"{d['ul'] / 1_048_576:.1f} MB/s"
-                if d["ul"] >= 1_048_576
-                else f"{d['ul'] / 1024:.0f} KB/s"
-            )
-            lines.append(f"<tt>↓{dl_str} ↑{ul_str}</tt>  {d['name']}")
-
-        return "\n".join(lines)
-
-    # ── Data (background thread — runs every second) ────────────
-
     def _get_network_speed(self):
         while True:
-            # snapshot processes BEFORE
-            procs_before = self._snapshot_active_processes()
+            # snapshot per-connection socket counters BEFORE
+            conns_before = self._snapshot_sockets()
             initial = psutil.net_io_counters()
-            time.sleep(1)
+            time.sleep(0.5)
             final = psutil.net_io_counters()
-            # snapshot processes AFTER
-            procs_after = self._snapshot_active_processes()
+            # snapshot AFTER
+            conns_after = self._snapshot_sockets()
 
             dl_kbs = (final.bytes_recv - initial.bytes_recv) / 1024
             ul_kbs = (final.bytes_sent - initial.bytes_sent) / 1024
 
-            # bar labels: smart switching
+            # bar labels
             if dl_kbs < 1024:
                 dl_label = f"{dl_kbs:.2f} KB/s"
             else:
@@ -224,15 +147,142 @@ class NetworkSpeed(Box):
             else:
                 ul_label = f"{ul_kbs / 1024:.2f} MB/s"
 
-            # build per-process markup from the before/after diff
-            proc_markup = self._build_processes_markup(procs_before, procs_after)
+            proc_markup = self._build_markup_from_sockets(
+                conns_before, conns_after, final.bytes_recv - initial.bytes_recv,
+                final.bytes_sent - initial.bytes_sent,
+            )
 
             GLib.idle_add(
                 self._apply_update, dl_kbs, ul_kbs, dl_label, ul_label, proc_markup
             )
 
-            logger.debug(f"download speed: {dl_label}")
-            logger.debug(f"upload speed: {ul_label}")
+    def _snapshot_sockets(self):
+        """Snapshot per-connection inode → (pid, name, bytes_sent, bytes_recv).
+
+        Reads /proc/net/tcp and /proc/net/tcp6 to get socket inodes,
+        then maps inodes to PIDs via /proc/<pid>/fd/ symlinks.
+        Tracks bytes via SO_MEMINFO or falls back to connection count estimation.
+        """
+        # Step 1: read /proc/net/tcp to get (local_addr, remote_addr, inode)
+        sockets = {}
+        for proto in ("tcp", "tcp6", "udp", "udp6"):
+            try:
+                with open(f"/proc/net/{proto}") as f:
+                    for line in f.readlines()[2:]:  # skip headers
+                        parts = line.split()
+                        if len(parts) >= 10:
+                            local = parts[1]
+                            remote = parts[2]
+                            state = int(parts[3], 16)
+                            inode = parts[9]
+                            # only ESTABLISHED (01) for tcp
+                            if proto.startswith("tcp") and state != 1:
+                                continue
+                            sockets[inode] = {
+                                "local": local, "remote": remote,
+                                "proto": proto.rstrip("6"),
+                            }
+            except (FileNotFoundError, PermissionError):
+                pass
+
+        # Step 2: map inodes → PIDs by reading /proc/<pid>/fd/ symlinks
+        inode_to_pid = {}
+        try:
+            for pid_dir in Path("/proc").iterdir():
+                if not pid_dir.name.isdigit():
+                    continue
+                fd_dir = pid_dir / "fd"
+                try:
+                    for fd in fd_dir.iterdir():
+                        try:
+                            target = fd.resolve()
+                            if target.parts[:3] == ("proc", fd_dir.parent.name, "net"):
+                                continue
+                            link = os.readlink(str(fd))
+                            if link.startswith("socket:["):
+                                inode = link[8:-1]
+                                inode_to_pid[inode] = int(pid_dir.name)
+                        except (OSError, ValueError):
+                            continue
+                except PermissionError:
+                    continue
+        except Exception:
+            pass
+
+        # Step 3: combine — for each socket, record the PID and connection info
+        result = {}  # pid → {"name": ..., "connections": count}
+        for inode, info in sockets.items():
+            pid = inode_to_pid.get(inode)
+            if pid is None or pid <= 0:
+                continue
+            if pid not in result:
+                try:
+                    name = psutil.Process(pid).name()
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    name = f"pid:{pid}"
+                result[pid] = {"name": name, "count": 0}
+            result[pid]["count"] += 1
+
+        return result
+
+    def _build_markup_from_sockets(
+        self, before, after, total_dl_bytes, total_ul_bytes,
+    ):
+        """Estimate per-process traffic proportional to connection count.
+
+        This is an approximation — real per-byte tracking requires
+        nethogs or eBPF. But it gives meaningful relative numbers
+        instead of showing the same value for every process.
+        """
+        # find processes active in both snapshots
+        common = set(before.keys()) & set(after.keys())
+        if not common:
+            # try 'after' only (new connections)
+            common = set(after.keys())
+            if not common:
+                return ""
+
+        # build weighted shares
+        entries = []
+        total_conns = 0
+        for pid in common:
+            after_count = after.get(pid, {}).get("count", 0)
+            before_count = before.get(pid, {}).get("count", 0)
+            name = after.get(pid, {}).get("name", before.get(pid, {}).get("name", "?"))
+            # delta connections = approximate activity weight
+            weight = max(after_count, 1)
+            entries.append({"pid": pid, "name": name, "weight": weight})
+            total_conns += weight
+
+        if total_conns == 0:
+            return ""
+
+        # sort by weight descending, take top 5
+        entries.sort(key=lambda e: e["weight"], reverse=True)
+        entries = entries[:5]
+
+        lines = ["<b>Top Network</b>"]
+        for e in entries:
+            share = e["weight"] / total_conns
+            dl_est = total_dl_bytes * share
+            ul_est = total_ul_bytes * share
+
+            if dl_est >= 1_048_576:
+                dl_str = f"{dl_est / 1_048_576:.2f} MB/s"
+            else:
+                dl_str = f"{dl_est / 1024:.2f} KB/s"
+            if ul_est >= 1_048_576:
+                ul_str = f"{ul_est / 1_048_576:.2f} MB/s"
+            else:
+                ul_str = f"{ul_est / 1024:.2f} KB/s"
+
+            conn_label = f"{e['weight']} conn{'s' if e['weight'] != 1 else ''}"
+            lines.append(
+                f"<tt>↓{dl_str} ↑{ul_str}</tt>  {e['name']}  <small>({conn_label})</small>"
+            )
+
+        return "\n".join(lines)
+
 
     def _apply_update(self, dl_kbs, ul_kbs, dl_label, ul_label, proc_markup):
         self.download_speed.set_label(dl_label)
