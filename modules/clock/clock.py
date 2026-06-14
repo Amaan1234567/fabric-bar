@@ -86,7 +86,7 @@ class Clock(Box):
 
     def _schedule_hide(self):
         self._cancel_hide_timeout()
-        self._hide_timeout_id = GLib.timeout_add(100000000, self._hide_popup)
+        self._hide_timeout_id = GLib.timeout_add(1000, self._hide_popup)
 
     def _cancel_hide_timeout(self):
         if self._hide_timeout_id:
@@ -95,7 +95,7 @@ class Clock(Box):
 
     def _hide_popup(self):
         self.popup.overlay_revealer.set_reveal_child(False)
-        GLib.timeout_add(250, self.popup.set_visible, False)
+        GLib.timeout_add(450, self.popup.set_visible, False)
         popup_manager.request_hide(self.popup, self)
         self._hide_timeout_id = None
         return False
