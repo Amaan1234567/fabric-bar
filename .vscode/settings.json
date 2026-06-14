@@ -1,6 +1,6 @@
 {
     "python.analysis.autoImportCompletions": true,
-    "python.defaultInterpreterPath": "./venv/bin/python",
+    "python.defaultInterpreterPath": "venv/bin/python",
     "python.envFile": ".env",
     "pylint.importStrategy": "useBundled",
     "python.languageServer": "Pylance",
