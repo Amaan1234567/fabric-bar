@@ -45,7 +45,7 @@ class TopBar(Window):
         self.gpu = GpuWidget(window=self)
         self.network_speed = NetworkSpeed(window=self)
         self.disk = DiskWidget(window=self)
-        self.clock = Clock()
+        self.clock = Clock(window=self)
         self.logout_btn = LogoutButton(window=self)
         self.active_window = WindowName()
         self.cava = CavaWidget()
