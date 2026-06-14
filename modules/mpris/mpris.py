@@ -133,7 +133,7 @@ class Mpris(Box):
             pix = GdkPixbuf.Pixbuf.new_from_file(
                 get_relative_path("../../assets/mpris_default.png")
             )
-            pix = pixbuf_cropping_if_image_is_not_1_1(pix)
+            pix = pixbuf_cropping_if_image_is_not_1_1(pix,30)
             self.album_art.set_from_pixbuf(pix)
 
     def _update_widget(self):
