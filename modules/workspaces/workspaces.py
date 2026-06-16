@@ -11,12 +11,12 @@ class HyprlandWorkspaces(FabricHyprlandWorkspaces):
 
     def do_action_next(self):
         return self.connection.send_command(
-            f'batch/dispatch hl.dsp.focus({{ workspace = "{"e" if not self._empty_scroll else ""}+1" }})'
+            f'batch/dispatch hl.dsp.focus({{ workspace = "{"e" if not self._empty_scroll else ""}+1" }})' # pylint: disable=line-too-long
         )
 
     def do_action_previous(self):
         return self.connection.send_command(
-            f'batch/dispatch hl.dsp.focus({{ workspace = "{"e" if not self._empty_scroll else ""}-1" }})'
+            f'batch/dispatch hl.dsp.focus({{ workspace = "{"e" if not self._empty_scroll else ""}-1" }})' # pylint: disable=line-too-long
         )
 
     def do_button_clicked(self, button):
