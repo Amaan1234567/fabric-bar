@@ -1,10 +1,31 @@
 """contains the workspaces widget"""
 
 from fabric.core.widgets import WorkspaceButton
-from fabric.hyprland.widgets import HyprlandWorkspaces as Workspaces
+from fabric.hyprland.widgets import (
+    HyprlandWorkspaces as FabricHyprlandWorkspaces,
+)
 
 
-class CustomWorkspaces(Workspaces):
+class HyprlandWorkspaces(FabricHyprlandWorkspaces):
+    """Hyprland workspaces widget"""
+
+    def do_action_next(self):
+        return self.connection.send_command(
+            f'batch/dispatch hl.dsp.focus({{ workspace = "{"e" if not self._empty_scroll else ""}+1" }})'
+        )
+
+    def do_action_previous(self):
+        return self.connection.send_command(
+            f'batch/dispatch hl.dsp.focus({{ workspace = "{"e" if not self._empty_scroll else ""}-1" }})'
+        )
+
+    def do_button_clicked(self, button):
+        return self.connection.send_command(
+            f'batch/dispatch hl.dsp.focus({{ workspace = "{button.id}" }})'
+        )
+
+
+class CustomWorkspaces(HyprlandWorkspaces):
     """Hyprland workspaces widget"""
 
     def __init__(self, **kwargs):
