@@ -23,7 +23,7 @@ https://github.com/user-attachments/assets/0a049fb6-e79b-4c61-9571-09b95cb1c7d2
 - Media player controls via `playerctl`
 - Audio visualizer powered by `cava`
 - Bluetooth & network management widgets
-- Dynamic color theming with `wallust` / `matugen`
+- Dynamic color theming with `wallust`
 - Smooth GTK3 revealer animations via a custom C extension
 
 ## Prerequisites
