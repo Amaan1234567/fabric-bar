@@ -1,0 +1,46 @@
+/* ── Alt-Tab ─────────────────────────────────────────────────── */
+#alttab-window {
+    background: transparent;
+}
+
+#alttab-backdrop {
+    background: alpha(var(--background), 0.55);
+    border-radius: 30px;
+}
+
+#alttab-grid {
+    padding: 20px;
+}
+
+/* ── Thumbnails ──────────────────────────────────────────────── */
+.alttab-preview {
+    padding: 2px;
+}
+
+.alttab-thumb {
+    border: 3px solid alpha(var(--foreground), 0.06);
+    border-radius: 15px;
+    background: alpha(var(--foreground), 0.04);
+    padding: 4px;
+}
+
+#alttab-image{
+    border-radius: 12px;
+}
+
+.alttab-preview.selected .alttab-thumb {
+    border: 3px solid var(--color4);
+    background: alpha(var(--color4), 0.08);
+}
+
+/* .alttab-preview.focused .alttab-thumb {
+    border: 3px solid alpha(var(--color4), 0.3);
+} */
+
+.alttab-title {
+    color: alpha(var(--foreground), 0.6);
+    font-size: 14px;
+    background: alpha(var(--background), 0.7);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
