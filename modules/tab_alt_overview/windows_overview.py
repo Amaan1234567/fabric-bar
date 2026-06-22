@@ -8,6 +8,7 @@ import random
 from typing import Callable
 
 import gi
+import json
 
 gi.require_version("Glace", "0.1")
 from gi.repository import Glace, GdkPixbuf, GLib, Gtk, Gdk  # type: ignore
@@ -18,15 +19,17 @@ from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
 from fabric.widgets.eventbox import EventBox
-from custom_widgets.image_rounded import CustomImage  # ← add this (adjust path to match yours)
+from fabric.hyprland.widgets import get_hyprland_connection
+from custom_widgets.image_rounded import CustomImage
 
 _SCALE = 0.2
-_CAP_FPS = 4
+_CAP_FPS = 2
 
 
 # ────────────────────────────────────────────────────────────
 #  TickChoker — from Fabrika, rate-limited widget tick callback
 # ────────────────────────────────────────────────────────────
+
 
 class TickChoker:
     """Throttles a callback to target FPS via GTK widget tick callbacks."""
@@ -79,8 +82,9 @@ class TickChoker:
 
 
 # ────────────────────────────────────────────────────────────
-#  ClientPreview — live thumbnail (Fabrika PagerClientView pattern)
+#  ClientPreview — live thumbnail
 # ────────────────────────────────────────────────────────────
+
 
 class ClientPreview(Box):
     """Live window thumbnail using Glace capture + TickChoker."""
@@ -134,8 +138,6 @@ class ClientPreview(Box):
         self.do_update_style()
         self.show()
 
-    # ── size from Hyprland data (Fabrika PagerClientView.update_for_data) ──
-
     def update_for_data(self, hyprland_data: dict):
         w, h = hyprland_data.get("size", [500, 350])
         self.set_size_request(round(w * _SCALE), round(h * _SCALE))
@@ -146,8 +148,6 @@ class ClientPreview(Box):
         if len(display) > 22:
             display = display[:20] + "…"
         self.title_label.set_text(display)
-
-    # ── capture callback (Fabrika PagerClientView.do_handle_capture) ──
 
     def do_captured(self, pixbuf: GdkPixbuf.Pixbuf | None):
         if not pixbuf:
@@ -162,8 +162,6 @@ class ClientPreview(Box):
         except Exception:
             pass
 
-    # ── style classes for state (Fabrika pattern) ──
-
     def do_update_style(self, *_):
         if self.client.get_activated():
             self.add_style_class("focused")
@@ -176,8 +174,6 @@ class ClientPreview(Box):
         else:
             self.remove_style_class("selected")
 
-    # ── cleanup (Fabrika PagerClientView.do_handle_close) ──
-
     def do_close(self, *_):
         self.tick.stop()
         self.destroy()
@@ -187,36 +183,9 @@ class ClientPreview(Box):
 #  AltTab — window subclass (WallpaperSelector pattern)
 # ────────────────────────────────────────────────────────────
 
+
 class AltTab(Window):
-    """Alt-Tab switcher using Glace for live window previews.
-
-    Usage in start_shell.py:
-        alttab = AltTab()
-
-        app = Application("...", windows=[..., alttab])
-
-        @Application.action()
-        def alt_tab_next():
-            alttab.cmd_next()
-
-        @Application.action()
-        def alt_tab_prev():
-            alttab.cmd_prev()
-
-        @Application.action()
-        def alt_tab_activate():
-            alttab.cmd_activate()
-
-        @Application.action()
-        def alt_tab_cancel():
-            alttab.cmd_cancel()
-
-    Hyprland Lua:
-        hl.bind("ALT + TAB",         hl.dsp.exec_cmd("fabric-cli ... alt-tab-next"),     {repeat_on_hold = true})
-        hl.bind("ALT + SHIFT + TAB", hl.dsp.exec_cmd("fabric-cli ... alt-tab-prev"),     {repeat_on_hold = true})
-        hl.bind("ALT , Escape",      hl.dsp.exec_cmd("fabric-cli ... alt-tab-cancel"))
-        -- ALT_L release handled by auto-activate timer (350ms)
-    """
+    """Alt-Tab switcher using Glace for live window previews."""
 
     def __init__(self, **kwargs):
         super().__init__(
@@ -240,17 +209,25 @@ class AltTab(Window):
         self._selected = 0
         self._show_time = 0.0
         self._focus_timeout = 0
+        self._activate_timeout = 0    # ← was missing, caused silent crashes
+
+        # cache connection — don't re-fetch on every sync
+        self._conn = get_hyprland_connection()
 
         # ── UI ──────────────────────────────────────────────
         self.content = Box(
             name="alttab-backdrop",
-            h_expand=True, v_expand=True,
-            h_align="fill", v_align="fill",
+            h_expand=True,
+            v_expand=True,
+            h_align="fill",
+            v_align="fill",
         )
         self._grid = Box(
             name="alttab-grid",
-            orientation="h", spacing=12,
-            h_align="center", v_align="center",
+            orientation="h",
+            spacing=12,
+            h_align="center",
+            v_align="center",
         )
         self.content.add(self._grid)
         self.children = [self.content]
@@ -267,7 +244,6 @@ class AltTab(Window):
     # ────────────────────────────────────────────────────────
 
     def _on_client_added(self, manager: Glace.Manager, client: Glace.Client):
-        # wait for hyprland-address before creating preview (Fabrika pattern)
         client.connect("notify::hyprland-address", self._on_client_ready)
 
     def _on_client_ready(self, client: Glace.Client, _pspec):
@@ -278,7 +254,6 @@ class AltTab(Window):
         preview = ClientPreview(client, self._glace)
         self._client_views[address] = preview
 
-        # track focus order
         client.connect("notify::activated", self._on_activated, client)
         if client.get_activated():
             self._focus_order.insert(0, client)
@@ -289,6 +264,7 @@ class AltTab(Window):
             self._rebuild()
 
     def _on_activated(self, _obj, _pspec, client: Glace.Client):
+        # ← guard: don't waste cycles reordering when hidden
         if client.get_activated():
             if client in self._focus_order:
                 self._focus_order.remove(client)
@@ -300,14 +276,13 @@ class AltTab(Window):
 
     def remove_client_view(self, address: int):
         if view := self._client_views.pop(address, None):
-            if view.get_parent() is self._grid:
-                self._grid.remove(view)
+            parent = view.get_parent()   # ← fixed: parent might be row box
+            if parent:
+                parent.remove(view)
             view.destroy()
 
-        # also remove from focus order
         self._focus_order = [
-            c for c in self._focus_order
-            if c.get_hyprland_address() != address
+            c for c in self._focus_order if c.get_hyprland_address() != address
         ]
 
         if not self.is_hidden:
@@ -325,15 +300,11 @@ class AltTab(Window):
             return
 
         try:
-            from fabric.hyprland.widgets import get_hyprland_connection
-            conn = get_hyprland_connection()
-            if not conn.ready:
+            # ← use cached connection instead of re-fetching
+            if not self._conn.ready:
                 return
 
-            import json
-            clients = json.loads(
-                conn.send_command("j/clients").reply.decode()
-            )
+            clients = json.loads(self._conn.send_command("j/clients").reply.decode())
 
             seen = set()
             for c in clients:
@@ -345,7 +316,6 @@ class AltTab(Window):
                 if view := self._client_views.get(addr):
                     view.update_for_data(c)
 
-            # remove stale
             stale = set(self._client_views.keys()) - seen
             for addr in stale:
                 self.remove_client_view(addr)
@@ -361,7 +331,6 @@ class AltTab(Window):
         for ch in list(self._grid.get_children()):
             self._grid.remove(ch)
 
-        # sync focus order with Hyprland data
         self._sync()
 
         for i, client in enumerate(self._focus_order):
@@ -419,7 +388,7 @@ class AltTab(Window):
         else:
             self._hide()
 
-       # ── keyboard handlers (inside GTK — instant response) ───
+    # ── keyboard handlers ───────────────────────────────────
 
     def _on_key_press(self, _, event):
         if event.keyval == Gdk.KEY_Escape:
@@ -434,11 +403,8 @@ class AltTab(Window):
         return False
 
     def _on_focus_out(self, *_):
-        """Safety net: if focus leaves the window, close after 200ms."""
         if not self.is_hidden and not self._focus_timeout:
-            self._focus_timeout = GLib.timeout_add(
-                200, self._do_focus_lost,
-            )
+            self._focus_timeout = GLib.timeout_add(200, self._do_focus_lost)
         return False
 
     def _do_focus_lost(self):
@@ -464,7 +430,10 @@ class AltTab(Window):
 
     def _hide(self):
         self._cancel_focus_timeout()
+        self._cancel_activate_timer()         # ← clean up timer
         self.is_hidden = True
+        for view in self._client_views.values():  # ← stop all captures
+            view.tick.stop()
         self.hide()
 
     # ────────────────────────────────────────────────────────
@@ -472,16 +441,12 @@ class AltTab(Window):
     # ────────────────────────────────────────────────────────
 
     def cmd_next(self):
-        """Called by both ALT_L press AND ALT+TAB."""
         now = GLib.get_monotonic_time() / 1_000_000
 
         if self.is_hidden:
-            # ALT pressed — show overlay, select second window
             self._selected = 1
             self._show()
         elif self._focus_order:
-            # Debounce: ALT_L press and ALT+TAB fire within
-            # the same frame on first press — skip the duplicate
             if now - self._show_time < 0.06:
                 return
             old = self._selected
@@ -489,7 +454,6 @@ class AltTab(Window):
             self._swap_selection(old, self._selected)
 
     def cmd_activate(self):
-        """Called by ALT release."""
         if self.is_hidden:
             return
         client = (
@@ -502,5 +466,4 @@ class AltTab(Window):
         self._hide()
 
     def cmd_cancel(self):
-        """Called by Escape — close without activating."""
         self._hide()

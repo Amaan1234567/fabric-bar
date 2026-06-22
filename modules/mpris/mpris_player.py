@@ -23,6 +23,7 @@ class MprisPlayer(Box):
         self.song_length = 0
         self.art_url = ""
         self._player = player
+        self.stop_update= True
 
         self.service = SimplePlayerctlService()
         self._player.connect("changed", self._update_widget)
@@ -179,7 +180,7 @@ class MprisPlayer(Box):
             self.album_art_overlay.set_from_pixbuf(pix)
 
     def _update_progress(self):
-        if not self.get_visible():
+        if not self.get_visible() or self.stop_update == True:
             return True
         position = self._player.get_position()
 
@@ -206,6 +207,11 @@ class MprisPlayer(Box):
             )
             self.song_title.set_label(truncate(title.strip() or "—", max_len=20))
             self.song_artist.set_label(truncate(artist.strip() or "—", max_len=20))
+            if self.song_length == 0:
+                self.stop_update= True
+                self.song_length = self.scale.value if self.scale.value > 0 else 300000
+            else:
+                self.stop_update = False
             self.scale.max_value = self.song_length
 
             if art_url not in (self.temp_url_cache, ""):

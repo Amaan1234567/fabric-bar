@@ -24,13 +24,14 @@ class MprisPlayerStack(Stack):
         self._service = SimplePlayerctlService()
         self.players = {}
         self._visible_child_index = 0
+        self._service.manager.connect("name-appeared", self._add_player)
+        self._service.manager.connect("name-vanished", self._remove_player)
         self._create_players()
 
         self.connect("scroll-event", self._on_scroll_handler)
 
     def _create_players(self):
-        self._service.manager.connect("name-appeared", self._add_player)
-        self._service.manager.connect("name-vanished", self._remove_player)
+        
         players: dict[str, Player] = self._service.players
         for _, player in players.items():
             mpris_player = MprisPlayer(player)
