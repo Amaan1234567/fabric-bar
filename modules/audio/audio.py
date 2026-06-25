@@ -71,7 +71,7 @@ class AudioWidget(Box):
         self.content_event_box.connect("leave-notify-event", self._on_hover_leave)
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
-        self.popup.do_reposition("x")
+        #self.popup.do_reposition("x")
 
         # ── tick ───────────────────────────────────────────────
         GLib.timeout_add(1000, self._tick)

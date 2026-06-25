@@ -62,7 +62,7 @@ class Mpris(Box):
         self.content_event_box.connect("leave-notify-event", self._on_hover_leave)
         self.overlay.do_reposition("x")
 
-        invoke_repeater(500, self._update_progress)
+        invoke_repeater(1000, self._update_progress)
 
     def _init_widget_data(self):
         self.service.connect("changed", self._update_widget)

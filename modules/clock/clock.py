@@ -48,7 +48,7 @@ class Clock(Box):
         )
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
-        self.popup.do_reposition("x")
+        #self.popup.do_reposition("x")
 
         # ── tick for popup time update ─────────────────────────
         GLib.timeout_add(1000, self._tick)

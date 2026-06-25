@@ -47,7 +47,7 @@ class DiskWidget(Box):
         self.content_event_box.connect("leave-notify-event", self._on_hover_leave)
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
-        self.popup.do_reposition("x")
+        # self.popup.do_reposition("x")
 
         self.update_label()
         GLib.timeout_add(10000, self.update_label)

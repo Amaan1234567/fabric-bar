@@ -40,28 +40,27 @@ class TopBar(Window):
         )
         self.app_data = app_data
         self.cpu = Cpu(window=self)
-        self.workspaces = CustomWorkspaces()
         self.memory = Memory(window=self)
-        self.gpu = GpuWidget(window=self)
         self.network_speed = NetworkSpeed(window=self)
+        self.gpu = GpuWidget(window=self)
         self.disk = DiskWidget(window=self)
-        self.clock = Clock(window=self)
-        self.logout_btn = LogoutButton(window=self)
-        self.active_window = WindowName()
-        self.cava = CavaWidget()
-        self.right_module = ControlCenterButton(app_data=app_data)
+
         left_box = Box(
             orientation="h",
             spacing=10,
-            children=[self.cpu, self.memory, self.gpu, self.network_speed, self.disk],
+            children=[self.cpu, 
+                      self.memory, 
+                      self.gpu, 
+                      self.network_speed, 
+                      self.disk
+                    ],
         )
 
-        self.system_tray = SystemTray()
+
         self.mpris = Mpris(window=self)
-        self.volume = AudioWidget(window=self)
-        self.battery = BatteryWidget()
-        self.network = NetworkWidget(self, interval=1)
-        self.bluetooth = BluetoothWidget(interval=1)
+        self.cava = CavaWidget()
+        self.active_window = WindowName()
+        self.workspaces = CustomWorkspaces()
         center_box = Box(
             orientation="h",
             spacing=20,
@@ -73,6 +72,15 @@ class TopBar(Window):
                 self.workspaces,
             ],
         )
+
+        self.system_tray = SystemTray()
+        self.clock = Clock(window=self)
+        self.volume = AudioWidget(window=self)
+        self.bluetooth = BluetoothWidget(interval=1)
+        self.network = NetworkWidget(self, interval=1)
+        self.battery = BatteryWidget()
+        self.right_module = ControlCenterButton(app_data=app_data)
+        self.logout_btn = LogoutButton(window=self)
 
         right_box = Box(
             orientation="h",

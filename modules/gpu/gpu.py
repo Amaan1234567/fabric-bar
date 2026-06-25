@@ -96,10 +96,10 @@ class GpuWidget(Box):
 
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
-        self.popup.do_reposition("x")
+        #self.popup.do_reposition("x")
 
         # ── polling (background thread, every 2s) ───────────────
-        GLib.timeout_add(500, self._trigger_update)
+        GLib.timeout_add(1000, self._trigger_update)
 
     # ── Hover / show / hide ─────────────────────────────────────
 

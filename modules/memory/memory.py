@@ -70,11 +70,11 @@ class Memory(Box):
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
 
-        self.popup.do_reposition("x")
+        #self.popup.do_reposition("x")
 
         # ── polling ─────────────────────────────────────────────
         self._tick()
-        GLib.timeout_add(500, self._tick)
+        GLib.timeout_add(1000, self._tick)
 
     # ────────────────────────────────────────────────────────────
     #  Hover / show / hide
