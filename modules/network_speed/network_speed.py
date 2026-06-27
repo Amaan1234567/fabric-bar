@@ -23,7 +23,7 @@ class NetworkSpeed(Box):
 
         self.download_icon = Label(name="download-icon", label="")
         self.download_speed = Label(name="download-speed", label="")
-        self.upload_icon = Label(name="upload-icon", label="")
+        self.upload_icon = Label(name="upload-icon", label="")
         self.upload_speed = Label(name="upload-speed", label="")
 
         self.content_box = Box(
