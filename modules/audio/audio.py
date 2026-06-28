@@ -83,6 +83,9 @@ class AudioWidget(Box):
         if not speaker:
             return
         speaker.connect("notify::volume", self._update_ui)
+        speaker.connect("notify::muted", self._update_ui)
+        speaker.connect("notify::volume", self.popup.refresh)
+        speaker.connect("notify::muted", self.popup.refresh)
         self._update_ui()
 
     def _update_ui(self, *_: Any):
