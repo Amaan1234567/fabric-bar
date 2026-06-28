@@ -4,7 +4,7 @@ import os
 from fabric import Property
 from fabric.core.service import Service, Signal
 from loguru import logger
-from gi.repository import Playerctl  # type: ignore
+from gi.repository import Playerctl, GLib  # type: ignore
 
 
 class Player(Service):
@@ -262,6 +262,7 @@ class SimplePlayerctlService(Service):
         self.manager: Playerctl.PlayerManager = Playerctl.PlayerManager()
         self.current_player: None | Player = None
         self._players: dict[str, Player] = {}
+        self._debounce_id = None
         # Discover existing players
         self._discover_players()
 
@@ -314,8 +315,16 @@ class SimplePlayerctlService(Service):
 
     def _update_current_player(self, player: Player):
         self.current_player = player
-        logger.info(f"mpris player {player.name} state changed")
+        # Debounce: collapse dozens of rapid-fire signals into one emit
+        if self._debounce_id:
+            GLib.source_remove(self._debounce_id)
+        self._debounce_id = GLib.timeout_add(150, self._emit_changed)
+
+    def _emit_changed(self):
+        self._debounce_id = None
+        logger.info(f"mpris player {self.current_player.name} state changed")
         self.emit("changed")
+        return False
 
     def _on_player_vanished(self, _, player):
         """Handle player disappearing"""
