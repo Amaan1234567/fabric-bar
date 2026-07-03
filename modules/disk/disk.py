@@ -90,7 +90,7 @@ class DiskWidget(Box):
 
     def _hide_popup(self):
         self.popup.overlay_revealer.set_reveal_child(False)
-        GLib.timeout_add(250, self.popup.set_visible, False)
+        GLib.timeout_add(450, self.popup.set_visible, False)
         popup_manager.request_hide(self.popup, self)
         self._hide_timeout_id = None
         return False
