@@ -78,7 +78,7 @@ def display_color_palette(colors, percentages):
 if __name__ == "__main__":
     # Extract colors using K-means
     colors, percentages = extract_colors_kmeans(
-        subprocess.getoutput("swww query | awk -F'image: ' '{print $2}'"), n_colors=8
+        subprocess.getoutput("awww query | awk -F'image: ' '{print $2}'"), n_colors=8
     )
     # print(colors)
     if colors is not None:
