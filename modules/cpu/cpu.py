@@ -11,7 +11,8 @@ from fabric.widgets.overlay import Overlay
 from gi.repository import GLib  # type: ignore
 
 from utils.popup_manager import popup_manager
-from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
+from custom_widgets.animated_cirular_scale import AnimatedCircularScale
+
 from modules.cpu.cpu_popup import CpuPopup
 
 
@@ -32,15 +33,15 @@ class Cpu(Box):
             v_align="center",
         )
 
-        self.progress_bar = AnimatedCircularProgressBar(
+        self.progress_bar = AnimatedCircularScale(
             name="cpu-progress-bar",
             value=0,
             line_style="round",
             line_width=4,
             size=35,
-            start_angle=140,
-            end_angle=395,
-            invert=True,
+            start_angle=105,
+            end_angle=465,
+            # invert=True,
             min_value=0.0,
             max_value=100.0,
         )

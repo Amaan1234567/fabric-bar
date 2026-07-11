@@ -10,7 +10,7 @@ from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
 from utils.popup_manager import popup_manager
-from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
+from custom_widgets.animated_cirular_scale import AnimatedCircularScale
 from modules.memory.memory_popup import MemoryPopup
 
 CONVERSION_CONST = 1073741824  # 1 Gigabyte = 1073741824 bytes
@@ -26,15 +26,15 @@ class Memory(Box):
 
         # ── icon + circular progress ────────────────────────────
         self.icon = Label("", name="memory-label")
-        self.progress_bar = AnimatedCircularProgressBar(
+        self.progress_bar = AnimatedCircularScale(
             name="memory-progress-bar",
             value=0,
             line_style="round",
             line_width=4,
             size=35,
-            start_angle=140,
-            end_angle=395,
-            invert=True,
+            start_angle=105,
+            end_angle=465,
+            # invert=True,
             min_value=0.0,
             max_value=100.0,
         )

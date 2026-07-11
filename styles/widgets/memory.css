@@ -10,6 +10,25 @@
   border-color: shade(var(--color4), 0.85);
 }
 
+#memory-progress-bar trough {
+  background-color: alpha(var(--color4), 0.3);
+}
+
+#memory-progress-bar highlight {
+  background-color: alpha(var(--color4), 0.9);
+}
+
+#memory-progress-bar slider {
+  background-color: var(--color4);
+  
+  min-height: 4px;
+  min-width: 4px;
+  border-radius: 5px;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+
 
 #memory {
   margin-left: 0px;

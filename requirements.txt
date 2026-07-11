@@ -3,7 +3,7 @@ cffi==2.0.0
 charset-normalizer==3.4.7
 click==8.3.1
 dasbus==1.7
-fabric @ git+https://github.com/Fabric-Development/fabric.git@8633df172a3ceee9222e7e583e93717f733d5618
+fabric @ git+https://github.com/Fabric-Development/fabric.git@b7b0f9975f0cf161ccf81c1adfb181230d553f79
 idna==3.13
 loguru==0.7.3
 pillow==12.2.0

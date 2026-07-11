@@ -6,10 +6,11 @@ from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from fabric.utils import invoke_repeater, get_relative_path
+from fabric.widgets.overlay import Overlay
 
 from custom_widgets.scolling_text_widget import ScrollingLabel
 from custom_widgets.image_rounded import CustomImage
-from custom_widgets.animated_circular_progress_bar import AnimatedCircularProgressBar
+from custom_widgets.animated_cirular_scale import AnimatedCircularScale
 from services.playerctlservice import SimplePlayerctlService
 from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1
 
@@ -32,19 +33,20 @@ class Mpris(Box):
 
         self.title_label = ScrollingLabel(name="song-title", text="")
         self.pause_icon = Label(label="", name="pause-icon")
-        self.song_progress = AnimatedCircularProgressBar(
-            name="cpu-progress-bar",
-            child=self.pause_icon,
+
+        self.song_progress = AnimatedCircularScale(
+            name="song-progress-bar",
             value=0,
             line_style="round",
             line_width=4,
             size=35,
-            start_angle=140,
-            end_angle=395,
-            invert=True,
+            start_angle=105,
+            end_angle=465,   
+            # invert=True,
         )
 
-        self.content.add(self.song_progress)
+        self.song_progress_overlay = Overlay(name="song-progress-overlay",child=self.song_progress, overlays=self.pause_icon)
+        self.content.add(self.song_progress_overlay)
         self.content.add(self.album_art)
         self.content.add(self.title_label)
         self.content_event_box.add(self.content)
@@ -159,9 +161,10 @@ class Mpris(Box):
                 self.song_progress.max_value = self.song_length
             self.title_label.set_text(title.strip())
             if art_url not in (self.temp_url_cache, ""):
+                logger.info(f"updating album art with url: {art_url}") 
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
-            else:
+            elif art_url == "":
                 pix = GdkPixbuf.Pixbuf.new_from_file(
                     get_relative_path("../../assets/mpris_default.png")
                 )
