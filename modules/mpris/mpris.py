@@ -126,6 +126,7 @@ class Mpris(Box):
             pix = GdkPixbuf.Pixbuf.new_from_stream(f.read_finish(res), None)
 
             if pixbuf := pix:
+                print(f"Updating album art with pixbuf: {pixbuf}")
                 self.album_art.set_from_pixbuf(
                     pixbuf_cropping_if_image_is_not_1_1(pixbuf, 30)
                 )

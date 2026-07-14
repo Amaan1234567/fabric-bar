@@ -215,9 +215,10 @@ class MprisPlayer(Box):
             self.scale.max_value = self.song_length
 
             if art_url not in (self.temp_url_cache, ""):
+                logger.info(f"updating album art with url: {art_url}") 
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
-            else:
+            elif art_url == "":
                 pix = GdkPixbuf.Pixbuf.new_from_file(
                     get_relative_path("../../assets/mpris_default.png")
                 )
