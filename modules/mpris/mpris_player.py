@@ -76,6 +76,7 @@ class MprisPlayer(Box):
             orientation="horizontal",
             spacing=30,
             h_align="fill",
+            h_expand=True,
             children=[
                 self.shuffle_button,
                 self.prev_button,
@@ -96,6 +97,7 @@ class MprisPlayer(Box):
                 self.song_artist,
             ],
         )
+        self.control_row.set_homogeneous(True)
         self.padding_box = Box(v_expand=True, h_expand=True)
         self.right_column = Box(
             name="right-column",
