@@ -98,6 +98,8 @@ class ClientPreview(Box):
         )
         self.client = client
         self.manager = manager
+        self._monitor_scale = 1.0
+        self._last_raw_pixbuf: GdkPixbuf.Pixbuf | None = None
 
         self.image = CustomImage(
             name="alttab-image",
@@ -138,9 +140,21 @@ class ClientPreview(Box):
         self.do_update_style()
         self.show()
 
+    def set_monitor_scale(self, scale: float):
+        if abs(self._monitor_scale - scale) < 0.01:
+            return
+        self._monitor_scale = scale
+        # Re-scale the last raw capture at the new scale so the
+        # preview is correct immediately, not on the next tick.
+        if self._last_raw_pixbuf:
+            self._apply_pixbuf(self._last_raw_pixbuf)
+
     def update_for_data(self, hyprland_data: dict):
         w, h = hyprland_data.get("size", [500, 350])
-        self.set_size_request(round(w * _SCALE), round(h * _SCALE))
+        self.set_size_request(
+            round(w / self._monitor_scale * _SCALE),
+            round(h / self._monitor_scale * _SCALE),
+        )
 
         title = hyprland_data.get("title", "")
         app_id = hyprland_data.get("initialClass", "")
@@ -152,10 +166,14 @@ class ClientPreview(Box):
     def do_captured(self, pixbuf: GdkPixbuf.Pixbuf | None):
         if not pixbuf:
             return
+        self._last_raw_pixbuf = pixbuf
+        self._apply_pixbuf(pixbuf)
+
+    def _apply_pixbuf(self, pixbuf: GdkPixbuf.Pixbuf):
         try:
             scaled = pixbuf.scale_simple(
-                round(pixbuf.get_width() * _SCALE),
-                round(pixbuf.get_height() * _SCALE),
+                round(pixbuf.get_width() / self._monitor_scale * _SCALE),
+                round(pixbuf.get_height() / self._monitor_scale * _SCALE),
                 GdkPixbuf.InterpType.BILINEAR,
             )
             self.image.set_from_pixbuf(scaled)
@@ -175,6 +193,7 @@ class ClientPreview(Box):
             self.remove_style_class("selected")
 
     def do_close(self, *_):
+        self._last_raw_pixbuf = None
         self.tick.stop()
         self.destroy()
 
@@ -242,6 +261,27 @@ class AltTab(Window):
         logger.info("AltTab ready")
 
     # ────────────────────────────────────────────────────────
+    #  Monitor scale helper
+    # ────────────────────────────────────────────────────────
+
+    def _get_monitor_scale(self) -> float:
+        """Return the scale factor of the focused monitor."""
+        try:
+            if not self._conn.ready:
+                return 1.0
+            monitors = json.loads(
+                self._conn.send_command("j/monitors").reply.decode()
+            )
+            for m in monitors:
+                if m.get("focused"):
+                    return m.get("scale", 1.0)
+            if monitors:
+                return monitors[0].get("scale", 1.0)
+        except Exception:
+            pass
+        return 1.0
+
+    # ────────────────────────────────────────────────────────
     #  Glace lifecycle (Fabrika Pager pattern)
     # ────────────────────────────────────────────────────────
 
@@ -254,6 +294,7 @@ class AltTab(Window):
             return
 
         preview = ClientPreview(client, self._glace)
+        preview.set_monitor_scale(self._get_monitor_scale())
         self._client_views[address] = preview
 
         client.connect("notify::activated", self._on_activated, client)
@@ -348,6 +389,10 @@ class AltTab(Window):
     def _rebuild(self):
         for ch in list(self._grid.get_children()):
             self._grid.remove(ch)
+
+        mon_scale = self._get_monitor_scale()
+        for view in self._client_views.values():
+            view.set_monitor_scale(mon_scale)
 
         self._sync()
 
