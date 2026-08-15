@@ -53,13 +53,16 @@ class TickChoker:
         self.widget.connect("unmap", self.on_unmap)
 
     def on_map(self, _):
+        """Start the tick callback when the widget is mapped."""
         GLib.timeout_add(round(self.offset * 50), self.wireup)
         return False
 
     def on_unmap(self, _):
+        """Stop the tick callback when the widget is unmapped."""
         self.stop()
 
     def do_tick(self, *_):
+        """Called on each widget tick; calls the callback if enough time has passed."""
         if not self.widget.get_mapped():
             return False
         now = GLib.get_monotonic_time() / 1_000_000
@@ -71,11 +74,13 @@ class TickChoker:
         return True
 
     def wireup(self):
+        """Wire up the tick callback to the widget, stopping any existing one first."""
         self.stop()
         self.handler_id = self.widget.add_tick_callback(self.do_tick)
         return False
 
     def stop(self):
+        """Stop the tick callback if it's running."""
         if self.handler_id:
             self.widget.remove_tick_callback(self.handler_id)
             self.handler_id = 0
@@ -141,6 +146,8 @@ class ClientPreview(Box):
         self.show()
 
     def set_monitor_scale(self, scale: float):
+        """Set the scale factor of the monitor this client is on. This is used to rescale the
+        preview image appropriately."""
         if abs(self._monitor_scale - scale) < 0.01:
             return
         self._monitor_scale = scale
@@ -150,6 +157,7 @@ class ClientPreview(Box):
             self._apply_pixbuf(self._last_raw_pixbuf)
 
     def update_for_data(self, hyprland_data: dict):
+        """Update the preview based on fresh Hyprland client data."""
         w, h = hyprland_data.get("size", [500, 350])
         self.set_size_request(
             round(w / self._monitor_scale * _SCALE),
@@ -164,6 +172,7 @@ class ClientPreview(Box):
         self.title_label.set_text(display)
 
     def do_captured(self, pixbuf: GdkPixbuf.Pixbuf | None):
+        """Called when a new capture is available. Rescales and updates the preview image."""
         if not pixbuf:
             return
         self._last_raw_pixbuf = pixbuf
@@ -181,18 +190,21 @@ class ClientPreview(Box):
             pass
 
     def do_update_style(self, *_):
+        """Update the style classes based on the client's activation state."""
         if self.client.get_activated():
             self.add_style_class("focused")
         else:
             self.remove_style_class("focused")
 
     def set_selected(self, yes: bool):
+        """Set the selection state of the window preview."""
         if yes:
             self.add_style_class("selected")
         else:
             self.remove_style_class("selected")
 
     def do_close(self, *_):
+        """Called when the client is closed. Cleans up resources and stops the tick callback."""
         self._last_raw_pixbuf = None
         self.tick.stop()
         self.destroy()
@@ -269,15 +281,13 @@ class AltTab(Window):
         try:
             if not self._conn.ready:
                 return 1.0
-            monitors = json.loads(
-                self._conn.send_command("j/monitors").reply.decode()
-            )
+            monitors = json.loads(self._conn.send_command("j/monitors").reply.decode())
             for m in monitors:
                 if m.get("focused"):
                     return m.get("scale", 1.0)
             if monitors:
                 return monitors[0].get("scale", 1.0)
-        except Exception:
+        except Exception:  # noqa: BLE001, S110
             pass
         return 1.0
 
@@ -285,7 +295,7 @@ class AltTab(Window):
     #  Glace lifecycle (Fabrika Pager pattern)
     # ────────────────────────────────────────────────────────
 
-    def _on_client_added(self, manager: Glace.Manager, client: Glace.Client):
+    def _on_client_added(self, _, client: Glace.Client):
         client.connect("notify::hyprland-address", self._on_client_ready)
 
     def _on_client_ready(self, client: Glace.Client, _pspec):
@@ -335,6 +345,8 @@ class AltTab(Window):
             preview.tick.stop()
 
     def remove_client_view(self, address: int):
+        """Remove a client view from the switcher, cleaning up its resources and
+        removing it from the focus order."""
         if view := self._client_views.pop(address, None):
             parent = view.get_parent()
             if parent:
@@ -379,7 +391,7 @@ class AltTab(Window):
             for addr in stale:
                 self.remove_client_view(addr)
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             logger.debug(f"AltTab sync: {e}")
 
     # ────────────────────────────────────────────────────────
@@ -445,6 +457,8 @@ class AltTab(Window):
             client.activate()
 
     def toggle_window(self):
+        """Toggle the visibility of the AltTab switcher. If hidden,
+        show it and select the first window. If visible, hide it."""
         if self.is_hidden:
             self._selected = 1
             self._show()
@@ -518,6 +532,8 @@ class AltTab(Window):
     # ────────────────────────────────────────────────────────
 
     def cmd_next(self):
+        """Select the next window in the list, wrapping around. If the
+        switcher is hidden, show it and select the first window."""
         now = GLib.get_monotonic_time() / 1_000_000
 
         if self.is_hidden:
@@ -531,6 +547,8 @@ class AltTab(Window):
             self._swap_selection(old, self._selected)
 
     def cmd_activate(self):
+        """Activate the currently selected window and hide the switcher.
+        If the switcher is hidden, do nothing."""
         if self.is_hidden:
             return
 
@@ -546,4 +564,6 @@ class AltTab(Window):
             client.activate()
 
     def cmd_cancel(self):
+        """Cancel the switcher and hide it without changing focus.
+        If the switcher is hidden, do nothing."""
         self._hide()
