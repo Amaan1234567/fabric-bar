@@ -209,7 +209,9 @@ class AltTab(Window):
         self._selected = 0
         self._show_time = 0.0
         self._focus_timeout = 0
-        self._activate_timeout = 0    # ← was missing, caused silent crashes
+        self._activate_timeout = 0
+        self._deferred_reorder_id = 0
+        self._switching = False
 
         # cache connection — don't re-fetch on every sync
         self._conn = get_hyprland_connection()
@@ -264,11 +266,28 @@ class AltTab(Window):
             self._rebuild()
 
     def _on_activated(self, _obj, _pspec, client: Glace.Client):
-        # ← guard: don't waste cycles reordering when hidden
+        # Guard: don't reorder mid-switch — defer to _hide() instead
+        if self._switching:
+            return
         if client.get_activated():
             if client in self._focus_order:
                 self._focus_order.remove(client)
             self._focus_order.insert(0, client)
+
+    def _deferred_reorder(self, client: Glace.Client):
+        """Reorder _focus_order after the switcher has hidden.
+        Called as an idle callback so all activation signals settle first."""
+        self._deferred_reorder_id = 0
+        if client.get_activated():
+            if client in self._focus_order:
+                self._focus_order.remove(client)
+            self._focus_order.insert(0, client)
+        return False
+
+    def _cancel_deferred_reorder(self):
+        if self._deferred_reorder_id:
+            GLib.source_remove(self._deferred_reorder_id)
+            self._deferred_reorder_id = 0
 
     def _on_client_closed(self, address: int):
         if preview := self._client_views.pop(address, None):
@@ -276,7 +295,7 @@ class AltTab(Window):
 
     def remove_client_view(self, address: int):
         if view := self._client_views.pop(address, None):
-            parent = view.get_parent()   # ← fixed: parent might be row box
+            parent = view.get_parent()
             if parent:
                 parent.remove(view)
             view.destroy()
@@ -300,7 +319,6 @@ class AltTab(Window):
             return
 
         try:
-            # ← use cached connection instead of re-fetching
             if not self._conn.ready:
                 return
 
@@ -377,7 +395,7 @@ class AltTab(Window):
             if self._focus_order and self._selected < len(self._focus_order)
             else None
         )
-        self._hide()
+        self._hide(do_switch=True)
         if client:
             client.activate()
 
@@ -428,13 +446,27 @@ class AltTab(Window):
         self.show()
         self.grab_focus()
 
-    def _hide(self):
+    def _hide(self, *, do_switch: bool = False):
         self._cancel_focus_timeout()
-        self._cancel_activate_timer()         # ← clean up timer
+        self._cancel_activate_timer()
+        self._cancel_deferred_reorder()
+
+        client_to_reorder = None
+        if do_switch and self._focus_order and self._selected < len(self._focus_order):
+            client_to_reorder = self._focus_order[self._selected]
+
         self.is_hidden = True
-        for view in self._client_views.values():  # ← stop all captures
+        self._switching = False
+        for view in self._client_views.values():
             view.tick.stop()
         self.hide()
+
+        # After hiding, schedule the deferred reorder so _focus_order
+        # reflects the new focus for the NEXT switcher open.
+        if client_to_reorder:
+            self._deferred_reorder_id = GLib.idle_add(
+                self._deferred_reorder, client_to_reorder
+            )
 
     # ────────────────────────────────────────────────────────
     #  Public commands
@@ -456,14 +488,17 @@ class AltTab(Window):
     def cmd_activate(self):
         if self.is_hidden:
             return
+
         client = (
             self._focus_order[self._selected]
             if self._focus_order and self._selected < len(self._focus_order)
             else None
         )
+        # Set switching guard BEFORE hiding (which calls activate)
+        self._switching = True
+        self._hide(do_switch=True)
         if client:
             client.activate()
-        self._hide()
 
     def cmd_cancel(self):
         self._hide()

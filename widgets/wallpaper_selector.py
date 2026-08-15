@@ -131,8 +131,9 @@ class WallpaperSelector(Window):
                 v_expand=True,
             )
             image.set_style(
-                f"""border-radius: 10px;
+                f"""border-radius: 12px;
                 padding:0px;
+                margin:0px;
                 background-image: url('file://{self.cache_folder + image_file_name}');""",
                 compile=False,
             )
