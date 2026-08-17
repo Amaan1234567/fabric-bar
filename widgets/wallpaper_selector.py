@@ -8,8 +8,8 @@ from time import sleep
 from fabric.utils.helpers import exec_shell_command_async
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
-from fabric.widgets.label import Label
 from fabric.widgets.eventbox import EventBox
+from fabric.widgets.label import Label
 from fabric.widgets.scrolledwindow import ScrolledWindow
 from fabric.widgets.wayland import WaylandWindow as Window
 from gi.repository import Gdk, GLib  # type: ignore
@@ -80,13 +80,12 @@ class WallpaperSelector(Window):
         Thread(target=self._process_new_wallpapers).start()
 
         self.scrolling_container = ScrolledWindow(
-            name="wallpaper-scroll-container",
-            h_expand=True
+            name="wallpaper-scroll-container", h_expand=True
         )
         # Prevent scroll container and eventbox from stealing widget focus
         self.scrolling_container.set_can_focus(False)
 
-        self.event_box = EventBox(child=self.scrolling_container,h_expand=True)
+        self.event_box = EventBox(child=self.scrolling_container, h_expand=True)
         self.event_box.set_can_focus(False)
         # Using key-press-event for immediate response
         self.connect("key-press-event", self._handle_key_press)
@@ -159,7 +158,7 @@ class WallpaperSelector(Window):
         if not self.cache_available:
             temp_label = Label(
                 name="loading-label",
-                label="Creating wallpaper cache...",
+                label="Building wallpaper cache...",
                 h_align="center",
                 v_align="center",
                 h_expand=True,

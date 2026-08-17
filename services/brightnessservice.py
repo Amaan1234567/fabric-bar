@@ -97,7 +97,7 @@ class BrightnessService(Service):
             except Exception:
                 pass
 
-            time.sleep(0.01)
+            time.sleep(1)
 
     def set_brightness(self, device_type: str, hardware_id: str, value: int):
         """Set brightness for a given device and emit the change immediately."""
