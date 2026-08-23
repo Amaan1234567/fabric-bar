@@ -77,7 +77,7 @@ class WallpaperSelector(Window):
         self.cache_available = len(os.listdir(self.cache_folder)) != 0
         self.wallpapers = os.listdir(self.wallpaper_folder)
         self.cache = os.listdir(self.cache_folder)
-        Thread(target=self._process_new_wallpapers).start()
+        Thread(target=self._process_new_wallpapers,daemon=True).start()
 
         self.scrolling_container = ScrolledWindow(
             name="wallpaper-scroll-container", h_expand=True
@@ -94,7 +94,7 @@ class WallpaperSelector(Window):
             name="wallpapers-container", orientation="h", spacing=20, h_expand=True
         )
 
-        Thread(target=self._create_buttons).start()
+        Thread(target=self._create_buttons,daemon=True).start()
         self.scrolling_container.children = [self.buttons_box]
 
         self.content.add(self.event_box)

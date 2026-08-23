@@ -1,20 +1,21 @@
-from operator import le
+import gc
 import os
-from socket import SocketIO
-from loguru import logger
-from fabric.widgets.box import Box
-from fabric.widgets.scrolledwindow import ScrolledWindow
-from fabric.widgets.label import Label
-from fabric.widgets.button import Button
-from fabric.widgets.centerbox import CenterBox
-from fabric.widgets.revealer import Revealer
+
 from fabric.notifications.service import Notification
 from fabric.utils import get_relative_path
-from gi.repository import GdkPixbuf, Gtk, GLib
+from fabric.widgets.box import Box
+from fabric.widgets.button import Button
+from fabric.widgets.centerbox import CenterBox
+from fabric.widgets.label import Label
+from fabric.widgets.revealer import Revealer
+from fabric.widgets.scrolledwindow import ScrolledWindow
+from gi.repository import GdkPixbuf, GLib, Gtk
+from loguru import logger
+
 from custom_widgets.image_rounded import CustomImage
 from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
-from utils.variables import APP_ICON_MAP
 from services.notification_service import NotificationService
+from utils.variables import APP_ICON_MAP
 
 NOTIFICATION_IMAGE_SIZE = 120
 NOTIFICATION_BUTTONS_WRAP_THRESHOLD = 2
@@ -143,6 +144,9 @@ class NotificationItem(Box):
             self.buttons_box.add(self.revealer_button)
             self.add(self.revealer_widget)
 
+    def __del__(self):
+        print(f"Widget for notification {getattr(self, '_notification', 'Unknown')} successfully garbage collected!")
+
     def _reveal_action_buttons(self):
         if self.revealer_widget.get_child_revealed():
             self.revealer_button.set_label("")
@@ -153,10 +157,11 @@ class NotificationItem(Box):
 
     def _delete_self(self):
         parent.remove(self) if (parent := self.get_parent()) else None
+        self.destroy()
+        return False
 
     def _close_notification(self):
-        GLib.timeout_add(300, self._delete_self)
-        GLib.timeout_add(300, self.destroy)
+        GLib.idle_add(self._delete_self)
 
     def _dismiss_notification(self, _):
         """Dismiss the notification."""
@@ -243,11 +248,15 @@ class NotificationsPanel(Box):
         self.app_data = app_data
         self.notifications_service: NotificationService = app_data.notification_service
         self.notifications_service.connect("notification-added", self._add_notification)
+        
+        # CHANGED: Route individual dismissals to the new targeted method
         self.notifications_service.connect(
-            "notification-dismissed", self._load_notifications
+            "notification-dismissed", self._remove_notification
         )
+        
+        # KEEP: all-notifications-dismissed still needs to clear everything
         self.notifications_service.connect(
-            "all-notifications-dismissed", self._load_notifications
+            "all-notifications-dismissed", self._load_notifications 
         )
 
         self.notifications_box = Box(
@@ -299,9 +308,15 @@ class NotificationsPanel(Box):
         self.content.add(self.notifications_scrolled_window)
         self.add(self.content)
 
-    def _dismiss_all(self):
+    def _dismiss_all(self,*_):
+        # Explicitly destroy all child widgets to free memory
+        for child in self.notifications_box.children:
+            child.destroy()
         self.notifications_box.children = []
-        GLib.timeout_add(10, self.notifications_service.dismiss_all_notifications)
+
+        gc.collect()
+        
+        self.notifications_service.dismiss_all_notifications()
 
     def toggle_dnd(self, button):
         """Toggle Do Not Disturb mode."""
@@ -314,10 +329,14 @@ class NotificationsPanel(Box):
             self.dnd_button_enabled = True
             ctx.add_class("active")
 
-    def _load_notifications(self):
+    def _load_notifications(self, *_):
         """Load existing notifications into the panel."""
+        # Explicitly destroy all child widgets to free memory
+        for child in self.notifications_box.children:
+            child.destroy()
+            
         self.notifications_box.children = []
-        # logger.debug(self.notifications_service.notifications.values())
+        
         for notification in self.notifications_service.notifications.values():
             notif_item = NotificationItem(notification)
             self.notifications_box.add(notif_item)
@@ -331,3 +350,11 @@ class NotificationsPanel(Box):
 
         notif_item = NotificationItem(notification)
         self.notifications_box.add(notif_item)
+
+    def _remove_notification(self, _, notification_id: int):
+        """Remove a single notification item from the panel by its ID."""
+        for child in self.notifications_box.children:
+            # Ensure the child has the _notification attribute to avoid errors
+            if hasattr(child, '_notification') and child._notification.id == notification_id:
+                child.destroy()
+                break  # Stop searching once we've found and destroyed the target

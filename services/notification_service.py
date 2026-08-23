@@ -1,15 +1,16 @@
 """Notification Service Module"""
 
 from typing import Dict, cast
-from loguru import logger
-from gi.repository import GLib  # type: ignore
+
 from fabric import Property
+from fabric.core.service import Service, Signal
 from fabric.notifications.service import (
-    Notifications,
     Notification,
     NotificationCloseReason,
+    Notifications,
 )
-from fabric.core.service import Service, Signal
+from gi.repository import GLib  # type: ignore
+from loguru import logger
 
 
 class NotificationService(Service):
@@ -43,7 +44,7 @@ class NotificationService(Service):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._notifications = {}
+        self._notifications : dict[int, Notification] = {}
         self._notifications_service = Notifications()
         self._notifications_service.connect(
             "notification-added", self._on_notification_added
@@ -86,10 +87,11 @@ class NotificationService(Service):
         )
         logger.info(f"Notification {notification_id} closed with reason {close_reason}")
         if (
-            notification_id in self._notifications.keys()  # type : ignore
+            notification_id in self._notifications
             and close_reason == NotificationCloseReason.DISMISSED_BY_USER
         ):
-            self._notifications.pop(notification_id)
+            # Execute synchronously and safely. No KeyError if it's already gone.
+            self._notifications.pop(notification_id, None)
             self.notification_dismissed.emit(notification_id)
 
     def dismiss_notification(self, notification_id: int) -> None:
@@ -101,10 +103,21 @@ class NotificationService(Service):
                 NotificationCloseReason.DISMISSED_BY_USER,
             )
 
-    def dismiss_all_notifications(self) -> None:
+    def dismiss_all_notifications(self) -> bool:
         """Dismiss all notifications."""
-        self._notifications = {}
-        self.all_notifications_dismissed.emit()
+        # Explicitly tell the DBus/Fabric backend to close them so C structures are freed
+        for notif_id in list(self._notifications.keys()):
+            GLib.idle_add(
+                self._notifications[notif_id].close,
+                NotificationCloseReason.DISMISSED_BY_USER
+            )
+        
+        # We do not need to clear the dictionary manually here. 
+        # close_notification will trigger your _on_notification_closed method, 
+        # which safely pops them out of memory one by one.
+        
+        # self.all_notifications_dismissed.emit()
+        return False
 
     def get_notification_from_id(self, notification_id: int) -> Notification:
         """Get a notification by its ID."""

@@ -19,7 +19,6 @@ class BrightnessService(Service):
         hardware_id is the identifier for the specific device.
         value is the new brightness level (0-100).
         """
-        pass
 
     def __new__(cls):
         if cls._instance is None:
@@ -74,26 +73,23 @@ class BrightnessService(Service):
 
     def _external_poll_loop(self):
         while True:
-            # We only skip if Control Center is animating (inhibit)
-            # if self._inhibit_polling:
-            #     time.sleep(0.1)
-            #     continue
-
             try:
-                res = subprocess.run(
+                # Use context manager and avoid capture_output/check=True
+                with subprocess.Popen(
                     ["ddcutil", "getvcp", "10", "--bus", self.external_bus, "--terse"],
-                    capture_output=True,
-                    text=True,  # Slightly longer timeout
-                    check=True,
-                )
-                if res.returncode == 0:
-                    parts = res.stdout.split()
-                    if len(parts) >= 4:
-                        val = int(parts[3])
-                        # Only emit if the hardware value actually changed from what we last saw
-                        if val != self._external_values.get(self.external_bus):
-                            self._external_values[self.external_bus] = val
-                            GLib.idle_add(self.emit, "changed", "external", "1", val)
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL, # Discard stderr to prevent unneeded I/O wrappers
+                    text=True
+                ) as proc:
+                    stdout, _ = proc.communicate()
+                    
+                    if proc.returncode == 0:
+                        parts = stdout.split()
+                        if len(parts) >= 4:
+                            val = int(parts[3])
+                            if val != self._external_values.get(self.external_bus):
+                                self._external_values[self.external_bus] = val
+                                GLib.idle_add(self.emit, "changed", "external", "1", val)
             except Exception:
                 pass
 
@@ -101,28 +97,13 @@ class BrightnessService(Service):
 
     def set_brightness(self, device_type: str, hardware_id: str, value: int):
         """Set brightness for a given device and emit the change immediately."""
-        # 1. Update internal state and emit immediately so the UI is snappy
         if device_type == "internal":
             self._internal_val = value
-            subprocess.Popen(["brightnessctl", "set", f"{value}%", "-q"])
+            # Native GTK async fire-and-forget (No zombie processes)
+            GLib.spawn_command_line_async(f"brightnessctl set {value}% -q")
         else:
             self._external_values[self.external_bus] = value
-            # Run the ddcutil set command in a background thread
-            threading.Thread(
-                target=lambda: subprocess.run(
-                    [
-                        "ddcutil",
-                        "setvcp",
-                        "10",
-                        str(value),
-                        "--bus",
-                        self.external_bus,
-                        "--sleep-multiplier",
-                        ".1",
-                    ]
-                ),
-                daemon=True,
-            ).start()
+            # Native GTK background execution - replaces your threading.Thread completely
+            GLib.spawn_command_line_async(f"ddcutil setvcp 10 {value} --bus {self.external_bus} --sleep-multiplier .1")
 
-        # 2. Force emit the signal so the OSD pops up instantly
         self.emit("changed", device_type, hardware_id, value)

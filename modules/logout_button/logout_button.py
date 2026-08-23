@@ -97,7 +97,7 @@ class LogoutPopup(PopupWindow):
         GLib.timeout_add(350, self._run_cmd, cmd)
 
     def _run_cmd(self, cmd):
-        subprocess.Popen(cmd, shell=True)
+        GLib.spawn_command_line_async(cmd)
         return False
 
     def toggle_popup(self):
