@@ -1,7 +1,5 @@
-"""mpris players stack"""
-
 from loguru import logger
-from gi.repository import Playerctl  # type: ignore
+from gi.repository import Playerctl, Gdk  # type: ignore
 from fabric.widgets.stack import Stack
 from fabric.utils.helpers import cooldown
 from modules.mpris.mpris_player import MprisPlayer
@@ -10,17 +8,19 @@ from custom_widgets.HackedStackRevealer import HackedStack
 
 
 class MprisPlayerStack(Stack):
-    """mpris popup widget which shows more song details,progressbar and controls"""
+    """mpris popup widget which shows more song details, progressbar and controls"""
 
     def __init__(self, **kwargs):
         super().__init__(
             name="mpris-stack",
-            # bezier_curve=(0.34, 1.56, 0.64, 1.0),
-            # duration=0.45,
             transition_type="slide-left-right",
-            # transition_duration=200,
+            **kwargs
         )
         self.add_events("scroll")
+        
+        # CRITICAL: Enable smooth scroll events for trackpad two-finger swipes
+        self.add_events(Gdk.EventMask.SMOOTH_SCROLL_MASK)
+
         self._service = SimplePlayerctlService()
         self.players = {}
         self._visible_child_index = 0
@@ -31,7 +31,6 @@ class MprisPlayerStack(Stack):
         self.connect("scroll-event", self._on_scroll_handler)
 
     def _create_players(self):
-        
         players: dict[str, Player] = self._service.players
         for _, player in players.items():
             mpris_player = MprisPlayer(player)
@@ -55,17 +54,26 @@ class MprisPlayerStack(Stack):
         if len(self.players) == 0:
             return
         widget = self.players.pop(player_name.name)
-        print(self.players)
         self.remove(widget)
 
     @cooldown(0.2)
     def _on_scroll_handler(self, _, event):
-
-        if len(self.players) == 0:
+        if len(self.children) == 0:
             return
-        print("player: ", self.players)
+
+        # Parse smooth scroll deltas for trackpad two-finger swipes
+        success, dx, dy = event.get_scroll_deltas()
+
+        if success:
+            # Use horizontal movement (dx) for left/right swipes, vertical (dy) otherwise
+            delta = dx if abs(dx) > abs(dy) else dy
+            direction_offset = 1 if delta > 0 else -1
+        else:
+            # Fall back to your working mouse wheel logic
+            direction_offset = -1 if event.direction in (0, 2) else 1
+
         self._visible_child_index = (
-            self._visible_child_index + (-1 if event.direction == 0 else 1)
+            self._visible_child_index + direction_offset
         ) % len(self.children)
 
         return self.set_visible_child(self.children[self._visible_child_index])
