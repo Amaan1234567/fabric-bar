@@ -1,6 +1,6 @@
 from fabric.utils.helpers import cooldown
 from fabric.widgets.stack import Stack
-from gi.repository import Gdk, Playerctl  # type: ignore
+from gi.repository import Gdk, Playerctl  # type: ignore  # type: ignore
 from loguru import logger
 
 from modules.mpris.mpris_player import MprisPlayer
@@ -8,7 +8,7 @@ from services.playerctlservice import Player, SimplePlayerctlService
 
 
 class MprisPlayerStack(Stack):
-    """mpris popup widget which shows more song details, progressbar and controls."""
+    """mpris popup widget which shows more song details, progressbar and controls"""
 
     def __init__(self, **kwargs):
         super().__init__(
@@ -69,6 +69,9 @@ class MprisPlayerStack(Stack):
         else:
             # Fall back to your working mouse wheel logic
             direction_offset = -1 if event.direction in (0, 2) else 1
+
+        # Parse smooth scroll deltas for trackpad two-finger swipes
+        success, dx, dy = event.get_scroll_deltas()
 
         self._visible_child_index = (
             self._visible_child_index + direction_offset
