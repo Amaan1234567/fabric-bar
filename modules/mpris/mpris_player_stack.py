@@ -12,7 +12,9 @@ class MprisPlayerStack(Stack):
 
     def __init__(self, **kwargs):
         super().__init__(
-            name="mpris-stack", transition_type="slide-left-right", **kwargs
+            name="mpris-stack",
+            transition_type="slide-left-right",
+            **kwargs
         )
         self.add_events("scroll")
 
@@ -57,6 +59,7 @@ class MprisPlayerStack(Stack):
     @cooldown(0.2)
     def _on_scroll_handler(self, _, event):
         if len(self.children) == 0:
+        if len(self.children) == 0:
             return
 
         # Parse smooth scroll deltas for trackpad two-finger swipes
@@ -69,9 +72,6 @@ class MprisPlayerStack(Stack):
         else:
             # Fall back to your working mouse wheel logic
             direction_offset = -1 if event.direction in (0, 2) else 1
-
-        # Parse smooth scroll deltas for trackpad two-finger swipes
-        success, dx, dy = event.get_scroll_deltas()
 
         self._visible_child_index = (
             self._visible_child_index + direction_offset
