@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Path setup
-BASE_DIR="/home/amaan/Documents/fabric-bar"
+BASE_DIR="$HOME/Documents/fabric-bar"
 source "$BASE_DIR/venv/bin/activate"
 cd "$BASE_DIR"
 
