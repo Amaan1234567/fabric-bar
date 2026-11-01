@@ -140,7 +140,7 @@ class NotificationPopup(Box):
         )
         self.add(self.revealer)
 
-        self._notification.connect(
+        self._close_signal_id = self._notification.connect(
             "closed",
             self._close_notification,
         )
@@ -149,24 +149,28 @@ class NotificationPopup(Box):
         if len(self._notification.actions) != 0:
             invoke_repeater(
                 NOTIFICATION_TIMEOUT_WITH_ACTIONS,
-                lambda: self._notification.close("expired"),
+                lambda *_: (self._notification.close("expired"), False)[1],
                 initial_call=False,
             )
         else:
             invoke_repeater(
                 NOTIFICATION_TIMEOUT,
-                lambda: self._notification.close("expired"),
+                lambda *_: (self._notification.close("expired"), False)[1],
                 initial_call=False,
             )
 
     def _delete_self(self):
         parent.remove(self) if (parent := self.get_parent()) else None
+        self.destroy()
+        return False
 
     def _close_notification(self):
+        if hasattr(self, "_close_signal_id"):
+            self._notification.disconnect(self._close_signal_id)
+            del self._close_signal_id
         self.revealer.set_reveal_child(False)
 
         GLib.timeout_add(NOTIFICATION_TRANSITION_DURATION, self._delete_self)
-        GLib.timeout_add(NOTIFICATION_TRANSITION_DURATION, self.destroy)
 
     def _load_notification_pixbuf(
         self, notification: Notification

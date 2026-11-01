@@ -42,3 +42,9 @@
   min-height: 720px;
   transition: all 0.3s cubic-bezier(0.00, 0.00, 0.20, 1.00);
 }
+
+
+#loading-label {
+  color: var(--foreground);
+  font-size: 18px;
+}
