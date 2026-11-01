@@ -1,0 +1,99 @@
+
+
+* {
+    background-color: transparent;
+    text-color:       #E9EBF1;
+}
+
+window {
+    fullscreen:       false;
+    background-color: #04000480;
+    padding:          10px;
+    children:         [ listview-split];
+    width: 80%;
+    height: 80%;
+    border-color: #C1C6D8;
+    border: 3px;
+    border-radius: 1em;
+    padding:2em;
+}
+
+
+/** We add an extra child to this if PREVIEW=true */
+listview-split {
+  orientation: vertical;
+  spacing: 10em;
+  children: [listview];
+}
+
+wrap {
+    expand: false;
+    orientation: horizontal;
+    children: [ inputbar, message ];
+    border-color: #C1C6D8;
+    border: 3px;
+    border-radius: 0.4em;
+    margin-bottom:20px;
+}
+
+
+inputbar {
+    spacing: 0.4em;
+    padding: 0.4em;
+    children: [ entry ];
+}
+entry {
+    placeholder: "Search";
+    placeholder-color: grey;
+}
+message {
+    background-color: red/20%;
+    border-color: lightsalmon;
+    border: 3px 0px 0px 0px;
+    
+}
+listview{
+    orientation:horizontal;
+    columns:                     4;
+    lines:                       1;
+    layout:                      vertical;
+    reverse:                     false;
+    fixed-height:                true;
+    fixed-columns:               true;
+    vertical-align: 0.5;
+    horizontal-align: 0.5;
+    spacing:2em;
+}
+
+element {
+  children: [element-icon,element-text];
+  orientation:vertical;
+  padding:0px;
+  margin:0px;
+  border: 3px;
+  border-radius: 1em;
+}
+element-icon {
+    padding:0px;
+    margin:0px;
+    orientation:horizontal;
+    size:63%;
+    height:100;
+    vertical-align: 0.5;
+    horizontal-align:0.5;
+}
+
+element-text {
+    expand:false;
+    font-family: "JetBrainsMono Nerd Font";
+    padding: 1em ;
+    vertical-align: 0.5;
+    horizontal-align:0.5;
+    background-color: #B763571A;
+    
+}
+
+
+element selected {
+    border-color: #C1C6D8;
+}

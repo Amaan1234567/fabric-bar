@@ -1,0 +1,12 @@
+hl.config({
+    general = {
+        gaps_in = 5,
+        gaps_out = 10,
+        border_size = 2,
+        col = {
+            active_border = {colors = { "rgba({{color1 | strip}}ee)", "rgba({{color2 | strip}}ee)" ,"rgba({{color3 | strip}}ee)","rgba({{color4 | strip}}ee)" ,"rgba({{color5 | strip}}ee)" ,"rgba({{color6 | strip}}ee)" }},
+            inactive_border = "rgba({{color4 | strip}}ee)"
+
+        }
+    }
+})

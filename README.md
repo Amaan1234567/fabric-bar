@@ -46,14 +46,18 @@ https://github.com/user-attachments/assets/0a049fb6-e79b-4c61-9571-09b95cb1c7d2
 ### 1. System dependencies (Fedora)
 
 ```bash
-sudo dnf copr enable materka/wallust
-sudo dnf install \
+sudo dnf copr enable lionheartp/Hyprland 
+sudo dnf install -y \
   gtk3-devel cairo-devel gtk-layer-shell-devel glib2 \
   gobject-introspection-devel python3-devel python-pip \
   python3-gobject python3-cairo python3-loguru pkgconf \
   cava NetworkManager-libnm-devel webp-pixbuf-loader \
   blueman blueman-applet playerctl jetbrains-mono-fonts \
-  wallust ddcutil
+  ddcutil hyprland hypridle hyprlock hyprpolkitagent\ xdg-desktop-portal-hyprland awww kitty grimshot rust cargo cliphist rofi zsh ImageMagick git stow cmake meson ninja
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git>${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+cargo install wallust
 ```
 
 Replace `tuned-ppd` with `power-profiles-daemon` (required for the power widget):
@@ -61,8 +65,13 @@ Replace `tuned-ppd` with `power-profiles-daemon` (required for the power widget)
 ```bash
 sudo dnf remove tuned-ppd && sudo dnf install power-profiles-daemon
 ```
+### 2. Put the dotfiles in their place
 
-### 2. Python environment
+```bash
+stow -R basic_dotfiles
+```
+
+### 3. Python environment
 
 ```bash
 python -m venv venv

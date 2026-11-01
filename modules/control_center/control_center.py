@@ -5,7 +5,7 @@ from fabric.widgets.box import Box
 from fabric.widgets.revealer import Revealer
 from fabric.utils import cooldown
 from custom_widgets.popup_window import PopupWindow
-from experimental.hacktk import HackedRevealer
+from custom_widgets.HackedStackRevealer import HackedRevealer
 from modules.control_center.bluetooth_toggle import BluetoothToggle
 from modules.control_center.wifi_toggle_button import WifiToggle
 from modules.control_center.rog_control_center_toggle import ROGButton
