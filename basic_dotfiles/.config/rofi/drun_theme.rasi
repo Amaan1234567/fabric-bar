@@ -1,0 +1,112 @@
+/**
+ * rofi -dump-theme output.
+ * Rofi version: 1.7.8+wayland1
+ **/
+
+* {
+    font-family: "JetBrainsMono Nerd Font";
+    background-color: #04000400; 
+}
+
+prompt{
+    content: "select wifi";
+    padding:0px;
+    margin:0px;
+    font-size: 8px;
+}
+
+configuration {
+    show-icons: true;
+}
+
+window
+{
+    padding:0px;
+    background-color: #040004CC;
+    border: 4px;
+    border-radius: 10px;
+    width:45%;
+    height:40%;
+    transparency: "real";
+}
+
+listview
+{
+    spacing:5px;
+    orientation: vertical;
+}
+
+element
+{
+    padding:5px;
+    background-color: transparent;
+    spacing:10px;
+}
+
+element selected
+{
+    background-color: #46A3D3;
+    horizontal-align: 0;
+}
+
+element-icon selected
+{
+    background-color: transparent;
+    horizontal-align: 0;
+}
+
+element-text selected{
+    text-color : #040004;
+}
+mainbox {
+    padding: 10px;
+    border: 4px;
+    border-radius: 10px;
+}
+
+inputbar {
+    padding:    1px ;
+    spacing:    0px ;
+    text-color: #B76357;
+    children:   [ "prompt","textbox-prompt-colon","entry"];
+}
+
+case-indicator {
+    spacing:    0;
+    text-color: #B76357;
+}
+entry {
+    text-color:        #B76357;
+    cursor:            text;
+    spacing:           0;
+    placeholder-color: Gray;
+    placeholder:       "Type to filter";
+}
+prompt {
+    spacing:    0;
+    text-color: #B76357;
+}
+textbox-prompt-colon {
+    margin:     0px 0.3000em 0.0000em 0.0000em ;
+    expand:     false;
+    str:        ":";
+    text-color: inherit;
+}
+
+scrollbar {
+    width:        4px ;
+    padding:      0;
+    handle-width: 8px ;
+    border:       0;
+    handle-color: #E9EBF1;
+}
+
+element-text
+{
+    text-color: #B76357;
+    background-color: transparent;
+}
+element-icon
+{
+    size:20px;
+}

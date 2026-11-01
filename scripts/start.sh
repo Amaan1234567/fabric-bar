@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Path setup
-BASE_DIR="$HOME/Documents/fabric-bar"
+BASE_DIR="$HOME/fabric-bar"
+echo "$BASE_DIR/venv/bin/activate"
 source "$BASE_DIR/venv/bin/activate"
 cd "$BASE_DIR"
 
@@ -10,7 +11,7 @@ pkill -f "hypr-fabric-bar-main"
 pkill -f "hypr-fabric-bar-side"
 
 # 2. Launch Main Shell (Fixed to Monitor 0)
-setsid python3 start_shell.py > /dev/null 2>&1 &
+setsid python3 start_shell.py 
 sleep 1
 
 # 3. Detect all other monitors and launch side-monitors for each
