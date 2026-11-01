@@ -5,6 +5,7 @@ from fabric.widgets.box import Box
 
 from custom_widgets.HackedStackRevealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
+
 from modules.control_center.bluetooth_toggle import BluetoothToggle
 from modules.control_center.brightness_slider import BrightnessSlider
 from modules.control_center.gamemode_toggle import GamemodeToggleButton
