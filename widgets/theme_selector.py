@@ -15,7 +15,7 @@ from fabric.utils.helpers import exec_shell_command, cooldown
 
 # Configuration
 # Update path to be relative to your project root or use an absolute path
-COLORS_CSS_PATH = os.path.expanduser("~/Documents/fabric-bar/styles/colors.css")
+COLORS_CSS_PATH = os.path.expanduser("~/fabric-bar/styles/colors.css")
 BACKUP_CSS_PATH = COLORS_CSS_PATH + ".bak"
 
 
