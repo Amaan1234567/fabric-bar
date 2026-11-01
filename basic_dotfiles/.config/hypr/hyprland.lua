@@ -181,10 +181,6 @@ load_override("rules", function()
     hl.window_rule({ match = { float = false, workspace = "f[1]s[false]" }, border_size = 0 })
     hl.window_rule({ match = { float = false, workspace = "f[1]s[false]" }, rounding = 0 })
 
-    for i = 1, 5, 1 do
-        hl.workspace_rule({ workspace = string.format("%d", i), monitor = "HDMI-A-1" })
-    end
-
     hl.window_rule({
         name     = "fix-xwayland-drags",
         match    = { class = "^$", title = "^$", xwayland = true, float = true, fullscreen = false, pin = false },
