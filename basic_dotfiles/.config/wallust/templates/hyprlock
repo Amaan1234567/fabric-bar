@@ -5,7 +5,7 @@ general {
 
 background {
     monitor = 
-    path = /home/amaan/.cache/current_wallpaper.jpg
+    path = $HOME/.cache/current_wallpaper.jpg
     # color = rgba(91, 98, 104, 0.8)
     # all these options are taken from hyprland, see https://wiki.hyprland.org/Configuring/Variables/#blur for explanations
     blur_size = 4
@@ -22,7 +22,7 @@ background {
 
 
 image{
-    path = /home/amaan/Pictures/blank.jpeg
+    path = $HOME/Pictures/blank.jpeg
     monitor =
     size = 250
     rounding = 10
@@ -32,13 +32,13 @@ image{
     valign = bottom
     halign = left
     reload_time = 1
-    reload_cmd = /home/amaan/Scripts/music_metadata.sh cover
+    reload_cmd = $HOME/fabric-bar/scripts/music_metadata.sh cover
 }
 
 # PLAYER STATUS
 label {
     monitor =
-    text = cmd[update:500] echo "$(~/Scripts/music_metadata.sh status)"
+    text = cmd[update:500] echo "$(~/fabric-bar/scripts/music_metadata.sh status)"
     color = rgba({{foreground | rgb}},1)
     font_size = 24
     font_family = JetBrains Mono Nerd Font Mono ExtraBold
@@ -50,7 +50,7 @@ label {
 # PLAYER TITLE
 label {
     monitor =
-    text = cmd[update:500] echo "$(~/Scripts/music_metadata.sh title)"
+    text = cmd[update:500] echo "$(~/fabric-bar/scripts/music_metadata.sh title)"
     color = rgba({{foreground | rgb}},0.8)
     font_size = 24
     font_family = JetBrains Mono Nerd Font Mono ExtraBold
@@ -62,7 +62,7 @@ label {
 # PLAYER Artist
 label {
     monitor =
-    text = cmd[update:500] echo "$(~/Scripts/music_metadata.sh artist)"
+    text = cmd[update:500] echo "$(~/fabric-bar/scripts/music_metadata.sh artist)"
     color = rgba({{foreground | rgb}},0.8)
     font_size = 22
     font_family = JetBrains Mono Nerd Font Mono ExtraBold
@@ -74,7 +74,7 @@ label {
 
 label {
     monitor =
-    text = cmd[update:500] echo "$(~/Scripts/music_metadata.sh progress)"
+    text = cmd[update:500] echo "$(~/fabric-bar/scripts/music_metadata.sh progress)"
     color = rgba({{foreground | rgb}},0.8)
     font_size = 16
     font_family = JetBrains Mono Nerd Font Mono ExtraBold
