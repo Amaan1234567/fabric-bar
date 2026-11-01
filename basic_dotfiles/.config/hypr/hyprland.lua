@@ -30,15 +30,16 @@ local home = os.getenv("HOME")
 -- ==========================================
 -- 2. AUTOSTART HOOKS
 -- ==========================================
-
-hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
-hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
-hl.exec_cmd("dbus-update-activation-environment --systemd --all")
-hl.exec_cmd("awww-daemon")
-hl.exec_cmd("hypridle")
-hl.exec_cmd(home .. "/fabric-bar/scripts/start.sh")
-hl.exec_cmd(home .. "/fabric-bar/scripts/wallpaper_loop.sh")
-hl.exec_cmd("wl-paste --watch cliphist store")
+hl.on("hyprland.start", function()
+    hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+    hl.exec_cmd("dbus-update-activation-environment --systemd --all")
+    hl.exec_cmd("awww-daemon")
+    hl.exec_cmd("hypridle")
+    hl.exec_cmd(home .. "/fabric-bar/scripts/start.sh")
+    hl.exec_cmd(home .. "/fabric-bar/scripts/wallpaper_loop.sh")
+    hl.exec_cmd("wl-paste --watch cliphist store")
+end)
 
 load_override("autostart", function()
     hl.on("hyprland.start", function()
@@ -65,7 +66,7 @@ hl.env("WLR_NO_HARDWARE_CURSORS", "1")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 
 load_override("env", function()
-    
+
 end)
 
 -- ==========================================
@@ -192,7 +193,6 @@ load_override("rules", function()
         opacity = "0.8 override",
         animation = "popin 85%"
     })
-
 end)
 
 load_override("keybinds", function()
@@ -203,12 +203,17 @@ load_override("keybinds", function()
     local editor = "code"
     local browser = "google-chrome"
 
-    hl.bind("ALT + TAB", hl.dsp.exec_cmd("fabric-cli invoke-action hypr-fabric-bar-main alt-tab-next"), { repeat_on_hold = true })
+    hl.bind("ALT + TAB", hl.dsp.exec_cmd("fabric-cli invoke-action hypr-fabric-bar-main alt-tab-next"),
+        { repeat_on_hold = true })
     hl.bind("SUPER + Q", hl.dsp.window.close())
     hl.bind(string.format("%s + DELETE", mainmod), hl.dsp.exit())
-    hl.bind(string.format("%s + SHIFT + W", mainmod), hl.dsp.exec_cmd("fabric-cli invoke-action hypr-fabric-bar-main toggle-wallpaper-selector"))
-    hl.bind(string.format("%s + SHIFT + T", mainmod), hl.dsp.exec_cmd("fabric-cli invoke-action hypr-fabric-bar-main toggle-theme-selector"))
-    hl.bind(string.format("%s + V", mainmod), hl.dsp.exec_cmd("rofi -modi clipboard:~/Scripts/cliphist-rofi-img.sh -theme drun_theme -show clipboard -show-icons"))
+    hl.bind(string.format("%s + SHIFT + W", mainmod),
+        hl.dsp.exec_cmd("fabric-cli invoke-action hypr-fabric-bar-main toggle-wallpaper-selector"))
+    hl.bind(string.format("%s + SHIFT + T", mainmod),
+        hl.dsp.exec_cmd("fabric-cli invoke-action hypr-fabric-bar-main toggle-theme-selector"))
+    hl.bind(string.format("%s + V", mainmod),
+        hl.dsp.exec_cmd(
+        "rofi -modi clipboard:~/Scripts/cliphist-rofi-img.sh -theme drun_theme -show clipboard -show-icons"))
     hl.bind("SUPER  +  A", hl.dsp.exec_cmd(menu))
     hl.bind(string.format("%s + P", mainmod), hl.dsp.window.pseudo())
     hl.bind(string.format("%s + J", mainmod), hl.dsp.layout("togglesplit"))
@@ -254,8 +259,10 @@ load_override("keybinds", function()
     hl.bind(string.format("%s + mouse:272", mainmod), hl.dsp.window.drag())
     hl.bind(string.format("%s + mouse:273", mainmod), hl.dsp.window.resize())
 
-    hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%+ --limit 1.0"), { repeating = true })
-    hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%- --limit 1.0"), { repeating = true })
+    hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%+ --limit 1.0"),
+        { repeating = true })
+    hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 3%- --limit 1.0"),
+        { repeating = true })
     hl.bind("XF86AudioMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"))
     hl.bind("XF86AudioMicMute", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"))
     hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl s 5%+"), { repeating = true })
