@@ -5,7 +5,7 @@ BASE_DIR="$HOME/fabric-bar"
 echo "$BASE_DIR/venv/bin/activate"
 source "$BASE_DIR/venv/bin/activate"
 cd "$BASE_DIR"
-
+export PATH=$HOME/.cargo/bin:$PATH
 # 1. Kill any existing instances to avoid conflicts
 pkill -f "hypr-fabric-bar-main"
 pkill -f "hypr-fabric-bar-side"
