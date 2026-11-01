@@ -36,8 +36,8 @@ hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CU
 hl.exec_cmd("dbus-update-activation-environment --systemd --all")
 hl.exec_cmd("awww-daemon")
 hl.exec_cmd("hypridle")
-hl.exec_cmd(home .. "/Documents/fabric-bar/scripts/start.sh")
-hl.exec_cmd(home .. "/Scripts/wallpaper_loop.sh")
+hl.exec_cmd(home .. "/fabric-bar/scripts/start.sh")
+hl.exec_cmd(home .. "/fabric-bar/scripts/wallpaper_loop.sh")
 hl.exec_cmd("wl-paste --watch cliphist store")
 
 load_override("autostart", function()
