@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Path setup
-BASE_DIR="$HOME/fabric-bar"
-echo "$BASE_DIR/venv/bin/activate"
+BASE_DIR="$HOME/Documents/fabric-bar"
 source "$BASE_DIR/venv/bin/activate"
 cd "$BASE_DIR"
 export PATH=$HOME/.cargo/bin:$PATH
