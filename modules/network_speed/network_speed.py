@@ -5,18 +5,20 @@ from collections import deque
 from threading import Thread
 
 import psutil
-from gi.repository import GLib
-
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
+from gi.repository import GLib  # type:ignore
 
-from utils.popup_manager import popup_manager
 from modules.network_speed.network_speed_popup import NetworkSpeedPopup
+from utils.popup_manager import popup_manager
 
 
 class NetworkSpeed(Box):
+    """Network speed widget — download/upload labels in the bar, graph popup on hover."""
+
     HISTORY_LENGTH = 30
+    POLL_TIME = 1  # seconds
 
     def __init__(self, window, **kwargs):
         super().__init__(orientation="h", name="network-speed", spacing=5)
@@ -184,18 +186,18 @@ class NetworkSpeed(Box):
     # ── Network speed polling ───────────────────────────────────
 
     def _get_network_speed(self):
-        initial_poll=True
+        initial_poll = True
         while True:
             initial = psutil.net_io_counters()
             if initial_poll:
-                time.sleep(0.5)
+                time.sleep(0.1)
                 initial_poll = False
-            else :
-                time.sleep(2)
+            else:
+                time.sleep(self.POLL_TIME)
             final = psutil.net_io_counters()
 
-            dl_kbs = (final.bytes_recv - initial.bytes_recv) / 1024
-            ul_kbs = (final.bytes_sent - initial.bytes_sent) / 1024
+            dl_kbs = ((final.bytes_recv - initial.bytes_recv) / 1024) * self.POLL_TIME
+            ul_kbs = ((final.bytes_sent - initial.bytes_sent) / 1024) * self.POLL_TIME
 
             if dl_kbs < 1024:
                 dl_label = f"{dl_kbs:.2f} KB/s"
