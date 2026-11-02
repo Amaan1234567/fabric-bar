@@ -207,15 +207,15 @@ load_override("keybinds", function()
 
     hl.bind("ALT + TAB", hl.dsp.exec_cmd("fabric-cli invoke-action hypr-fabric-bar-main alt-tab-next"),
         { repeat_on_hold = true })
-    hl.bind("SUPER + Q", hl.dsp.window.close())
-    hl.bind(string.format("%s + DELETE", mainmod), hl.dsp.exit())
     hl.bind(string.format("%s + SHIFT + W", mainmod),
         hl.dsp.exec_cmd("fabric-cli invoke-action hypr-fabric-bar-main toggle-wallpaper-selector"))
     hl.bind(string.format("%s + SHIFT + T", mainmod),
         hl.dsp.exec_cmd("fabric-cli invoke-action hypr-fabric-bar-main toggle-theme-selector"))
     hl.bind(string.format("%s + V", mainmod),
         hl.dsp.exec_cmd(
-        "rofi -modi clipboard:~/Scripts/cliphist-rofi-img.sh -theme drun_theme -show clipboard -show-icons"))
+            "rofi -modi clipboard:~/Scripts/cliphist-rofi-img.sh -theme drun_theme -show clipboard -show-icons"))
+    hl.bind("SUPER + Q", hl.dsp.window.close())
+    hl.bind(string.format("%s + DELETE", mainmod), hl.dsp.exit())
     hl.bind("SUPER  +  A", hl.dsp.exec_cmd(menu))
     hl.bind(string.format("%s + P", mainmod), hl.dsp.window.pseudo())
     hl.bind(string.format("%s + J", mainmod), hl.dsp.layout("togglesplit"))
