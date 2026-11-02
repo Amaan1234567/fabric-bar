@@ -2,7 +2,6 @@
 
 from fabric.utils.helpers import exec_shell_command_async
 from fabric.widgets.button import Button
-from gi.repository import GLib  # type: ignore
 from loguru import logger
 
 from services.networkservice import NetworkService
