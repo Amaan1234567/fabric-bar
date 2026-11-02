@@ -100,7 +100,7 @@ class ThemeSelector(Window):
         return True  # Return True to indicate the event was handled
 
     def ansi_to_hex(self, ansi_color):
-        """Convert an ANSI color code to HEX format. The input is expected to be in the format:"""
+        """Convert an ANSI color code to HEX format. The input is expected to be in the format."""
         # Remove ANSI escape codes and convert to HEX
         # print("ansi_color:",ansi_color)
         ansi_color_array = (
