@@ -10,17 +10,23 @@ export PATH=$HOME/.cargo/bin:$PATH
 pkill -f "hypr-fabric-bar-main"
 pkill -f "hypr-fabric-bar-side"
 
-# 2. Launch Main Shell (Fixed to Monitor 0)
-setsid python3 start_shell.py 
-sleep 1
+# 1. Dynamically find all monitors EXCEPT the primary one
+OTHER_MONITORS=$(hyprctl monitors -j | jq -r --argjson primary "${PRIMARY_MONITOR_ID:-0}" '.[] | select(.id != $primary) | .id')
 
-# 3. Detect all other monitors and launch side-monitors for each
-# This gets all IDs from hyprctl, removes '0', and loops
-OTHER_MONITORS=$(hyprctl monitors -j | jq -r '.[] | select(.id != 0) | .id')
+# 2. Launch Main Shell on the designated Primary Monitor
+echo "Launching main shell on Primary Monitor ID: ${PRIMARY_MONITOR_ID:-0}"
+setsid python3 start_shell.py --monitor-id "${PRIMARY_MONITOR_ID:-0}" > /dev/null 2>&1
+disown
+# 3. Launch Side Shells only if other monitors exist
+if [ -z "$OTHER_MONITORS" ]; then
+    echo "No side monitors detected."
+else
+    echo "Detected side monitors: $OTHER_MONITORS"
+    for id in $OTHER_MONITORS; do
+        echo "Launching side-monitors on Monitor ID: $id"
+        setsid python3 side-monitors.py --monitor-id "$id" > /dev/null 2>&1 &
+    done
+fi
 
-for id in $OTHER_MONITORS; do
-    echo "Launching side-monitors on Monitor ID: $id"
-    setsid python3 side-monitors.py --monitor-id "$id" > /dev/null 2>&1 &
-done
 
 disown

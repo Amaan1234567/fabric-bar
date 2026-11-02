@@ -24,7 +24,7 @@ from widgets.volume_osd import VolumeOSD
 from widgets.wallpaper_selector import WallpaperSelector
 
 
-def main():
+def main(monitor_id=0):
     """Entry point for the application."""
     setproctitle.setproctitle("hypr-fabric-bar-main")
     logger.remove()
@@ -42,7 +42,7 @@ def main():
     )
 
     # Primary Monitor ID
-    primary_monitor = 0
+    primary_monitor = monitor_id
     alttab = AltTab()
     status_bar = TopBar(app_data, monitor=primary_monitor)
     corners = ScreenCorners(monitor=primary_monitor)
@@ -116,4 +116,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    print(sys.argv)
+    main(monitor_id=int(sys.argv[2]) if len(sys.argv) > 1 else 0)
