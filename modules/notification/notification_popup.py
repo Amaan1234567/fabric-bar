@@ -6,7 +6,9 @@ from fabric.notifications.service import Notification
 from fabric.utils import get_relative_path, invoke_repeater
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
-from fabric.widgets.label import Label
+from fabric.notifications.service import Notification
+from fabric.widgets.revealer import Revealer
+from fabric.utils import invoke_repeater, get_relative_path
 from gi.repository import GdkPixbuf, GLib, Gtk
 from loguru import logger
 

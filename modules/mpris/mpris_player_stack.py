@@ -1,6 +1,6 @@
 from fabric.utils.helpers import cooldown
 from fabric.widgets.stack import Stack
-from gi.repository import Gdk, Playerctl  # type: ignore  # type: ignore
+from gi.repository import Gdk, Playerctl  # type: ignore
 from loguru import logger
 
 from modules.mpris.mpris_player import MprisPlayer
@@ -12,9 +12,7 @@ class MprisPlayerStack(Stack):
 
     def __init__(self, **kwargs):
         super().__init__(
-            name="mpris-stack",
-            transition_type="slide-left-right",
-            **kwargs
+            name="mpris-stack", transition_type="slide-left-right", **kwargs
         )
         self.add_events("scroll")
 
