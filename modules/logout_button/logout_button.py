@@ -1,12 +1,14 @@
 """holds the logout button and its associated popup"""
 
+import subprocess
+
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.eventbox import EventBox
-from custom_widgets.popup_window import PopupWindow
-from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
-import subprocess
 from gi.repository import GLib  # type: ignore
+
+from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
+from custom_widgets.popup_window import PopupWindow
 
 
 class LogoutPopup(PopupWindow):
@@ -67,13 +69,15 @@ class LogoutPopup(PopupWindow):
 
     def on_popup_enter(self, *_):
         """Called when the mouse enters the popup area. Sets hovering state
-        and cancels auto-hide timer."""
+        and cancels auto-hide timer.
+        """
         self._is_hovering = True
         self._cancel_auto_hide_timer()
 
     def on_popup_leave(self, *_):
         """Called when the mouse leaves the popup area.
-        Clears hovering state and starts auto-hide timer."""
+        Clears hovering state and starts auto-hide timer.
+        """
         self._is_hovering = False
         self._start_auto_hide_timer()
 
@@ -101,7 +105,7 @@ class LogoutPopup(PopupWindow):
         return False
 
     def toggle_popup(self):
-        """toggle the visibility of the popup with animation"""
+        """Toggle the visibility of the popup with animation"""
         if self.is_visible():
             self.revealer.set_reveal_child(False)
             GLib.timeout_add(350, self.hide)

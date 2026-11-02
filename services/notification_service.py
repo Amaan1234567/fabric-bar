@@ -1,15 +1,16 @@
 """Notification Service Module"""
 
 from typing import Dict, cast
-from loguru import logger
-from gi.repository import GLib  # type: ignore
+
 from fabric import Property
+from fabric.core.service import Service, Signal
 from fabric.notifications.service import (
-    Notifications,
     Notification,
     NotificationCloseReason,
+    Notifications,
 )
-from fabric.core.service import Service, Signal
+from gi.repository import GLib  # type: ignore
+from loguru import logger
 
 
 class NotificationService(Service):
@@ -34,7 +35,7 @@ class NotificationService(Service):
 
     @Signal
     def dnd_toggled(self, dnd_is_on: bool) -> None:
-        """dnd toggle signal"""
+        """Dnd toggle signal"""
 
     @Property(Dict[int, Notification], "readable")
     def notifications(self) -> Dict[int, Notification]:
@@ -59,7 +60,7 @@ class NotificationService(Service):
 
     @property
     def dnd(self):
-        """dnd property"""
+        """Dnd property"""
         return self._is_dnd_on
 
     @dnd.setter
@@ -112,7 +113,7 @@ class NotificationService(Service):
         return self._notifications[notification_id]
 
     def toggle_dnd(self):
-        """function to toggle dnd"""
+        """Function to toggle dnd"""
         print("toggling")
         self._is_dnd_on = not self._is_dnd_on
         print("dnd: ", self._is_dnd_on)

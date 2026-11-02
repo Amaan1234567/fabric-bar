@@ -8,11 +8,9 @@ import signal
 import struct
 import subprocess
 
-
-from fabric.widgets.box import Box
 from fabric.utils import get_relative_path
+from fabric.widgets.box import Box
 from fabric.widgets.overlay import Overlay
-
 from gi.repository import Gdk, GLib, Gtk
 from loguru import logger
 
@@ -30,7 +28,7 @@ class CavaWidget(Box):
             name="cava",
             visible=True,
             all_visible=True,
-            **kwargs
+            **kwargs,
         )
 
         self.bars = 14
@@ -50,8 +48,7 @@ bars = get_bars(CAVA_CONFIG)
 
 
 def set_death_signal():
-    """
-    Set the death signal of the child process to SIGTERM so that if the parent
+    """Set the death signal of the child process to SIGTERM so that if the parent
     process is killed, the child (cava) is automatically terminated.
     """
     libc = ctypes.CDLL("libc.so.6")
@@ -60,8 +57,7 @@ def set_death_signal():
 
 
 class Cava:
-    """
-    CAVA wrapper.
+    """CAVA wrapper.
     Launch cava process with certain settings and read output.
     """
 

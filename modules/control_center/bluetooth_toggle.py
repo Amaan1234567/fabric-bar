@@ -1,15 +1,14 @@
 """hold the bluetooth toggle module"""
 
 import subprocess
-from loguru import logger
 
-from fabric.widgets.button import Button
 from fabric.bluetooth.service import BluetoothClient
+from fabric.widgets.button import Button
+from loguru import logger
 
 
 class BluetoothToggle(Button):
-    """
-    A single large button that toggles Bluetooth power.
+    """A single large button that toggles Bluetooth power.
     Shows " Bluetooth" label with Nerd Font icon.
     Background changes based on state via CSS classes.
     """

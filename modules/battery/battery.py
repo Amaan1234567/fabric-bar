@@ -1,12 +1,14 @@
 """holds the battery module that shows the current battery percentage
-and also extra details in tooltip"""
+and also extra details in tooltip
+"""
 
 import subprocess
+
+import psutil
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from gi.repository import GLib  # type: ignore
 from loguru import logger
-import psutil
 
 
 class BatteryWidget(Box):
@@ -52,7 +54,9 @@ class BatteryWidget(Box):
         status = (
             "fully-charged"
             if self.charging and self.percent >= 99
-            else "charging" if self.charging else "discharging"
+            else "charging"
+            if self.charging
+            else "discharging"
         )
 
         glyph = self._map_glyph(self.percent, self.charging)
@@ -113,7 +117,6 @@ class BatteryWidget(Box):
 
     def _get_color_for_percent(self, percent: float) -> str:
         """Return a pastel gradient color from red to green based on percent."""
-
         percent = max(0, min(percent, 100)) / 100.0
 
         # Pastel red (low %) to pastel green (high %)
@@ -128,8 +131,7 @@ class BatteryWidget(Box):
         return f"#{r:02x}{g:02x}{b:02x}"
 
     def _format_time(self, secs: int) -> str:
-        """returns the time if available in proper format"""
-
+        """Returns the time if available in proper format"""
         if secs == psutil.POWER_TIME_UNKNOWN:
             logger.warning("psutil not able to get Power time :(")
             return "Unknown"
@@ -140,7 +142,7 @@ class BatteryWidget(Box):
         return f"{hours}h {minutes}m"
 
     def _make_tooltip(self, state: str, percent: float, time: str, health: str) -> str:
-        """creates the pango markup tooltip based on battery state and returns as str"""
+        """Creates the pango markup tooltip based on battery state and returns as str"""
         percent_str = f"{percent:.0f}%"
 
         if state == "charging":

@@ -1,10 +1,10 @@
 """holds performance toggle widget"""
 
-from loguru import logger
-from fabric.widgets.button import Button
-from fabric.widgets.box import Box
-from fabric.widgets.label import Label
 from fabric.power_profiles.service import PowerProfiles
+from fabric.widgets.box import Box
+from fabric.widgets.button import Button
+from fabric.widgets.label import Label
+from loguru import logger
 
 
 class PerformanceToggle(Button):

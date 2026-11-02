@@ -1,10 +1,11 @@
-from loguru import logger
-from gi.repository import Playerctl, Gdk  # type: ignore
-from fabric.widgets.stack import Stack
 from fabric.utils.helpers import cooldown
-from modules.mpris.mpris_player import MprisPlayer
-from services.playerctlservice import SimplePlayerctlService, Player
+from fabric.widgets.stack import Stack
+from gi.repository import Gdk, Playerctl  # type: ignore
+from loguru import logger
+
 from custom_widgets.HackedStackRevealer import HackedStack
+from modules.mpris.mpris_player import MprisPlayer
+from services.playerctlservice import Player, SimplePlayerctlService
 
 
 class MprisPlayerStack(Stack):
@@ -12,12 +13,10 @@ class MprisPlayerStack(Stack):
 
     def __init__(self, **kwargs):
         super().__init__(
-            name="mpris-stack",
-            transition_type="slide-left-right",
-            **kwargs
+            name="mpris-stack", transition_type="slide-left-right", **kwargs
         )
         self.add_events("scroll")
-        
+
         # CRITICAL: Enable smooth scroll events for trackpad two-finger swipes
         self.add_events(Gdk.EventMask.SMOOTH_SCROLL_MASK)
 

@@ -3,15 +3,13 @@
 import calendar
 from datetime import datetime
 
+from fabric.widgets.box import Box
+from fabric.widgets.eventbox import EventBox
+from fabric.widgets.label import Label
 from gi.repository import Gtk  # type: ignore
 
-from fabric.widgets.box import Box
-from fabric.widgets.label import Label
-from fabric.widgets.eventbox import EventBox
-
-from custom_widgets.popup_window import PopupWindow
 from custom_widgets.HackedStackRevealer import HackedRevealer
-
+from custom_widgets.popup_window import PopupWindow
 
 CELL_SIZE = 34
 
@@ -35,7 +33,10 @@ class CalendarGrid(Box):
         header.add(self._nav("«", -1, True))
         header.add(self._nav("‹", -1, False))
         self._title = Label(
-            label="", name="cal-month-label", h_expand=True, size=12,
+            label="",
+            name="cal-month-label",
+            h_expand=True,
+            size=12,
         )
         header.add(self._title)
         header.add(self._nav("›", 1, False))
@@ -55,7 +56,7 @@ class CalendarGrid(Box):
             self._grid.attach(lbl, c, 0, 1, 1)
 
         # cells — created once, restyled on navigate
-                # cells — created once, restyled on navigate
+        # cells — created once, restyled on navigate
         self._cells = []
         for r in range(6):
             row = []
@@ -82,7 +83,6 @@ class CalendarGrid(Box):
                 self._grid.attach(wrapper, c, r + 1, 1, 1)
                 row.append((wrapper, lbl))
             self._cells.append(row)
-
 
         self.add(header)
         self.add(self._grid)
@@ -131,9 +131,7 @@ class CalendarGrid(Box):
             self._rebuild()
 
     def _rebuild(self):
-        self._title.set_text(
-            f"{calendar.month_name[self._month]} {self._year}"
-        )
+        self._title.set_text(f"{calendar.month_name[self._month]} {self._year}")
         first_dow, num_days = calendar.monthrange(self._year, self._month)
         day = 1
         # how many rows this month actually needs
@@ -184,7 +182,6 @@ class CalendarGrid(Box):
         self._grid.show_all()
 
 
-
 class ClockPopup(PopupWindow):
     """Popup with live clock and interactive calendar."""
 
@@ -207,18 +204,20 @@ class ClockPopup(PopupWindow):
         content = Box(orientation="v", name="clock-popup-content", spacing=10)
 
         self._date_label = Label(
-            label="", name="clock-popup-date", h_align="center",
+            label="",
+            name="clock-popup-date",
+            h_align="center",
         )
         self._time_label = Label(
-            label="", name="clock-popup-time", h_align="center",
+            label="",
+            name="clock-popup-time",
+            h_align="center",
         )
 
         today_row = Box(orientation="h", h_expand=True, name="clock-today-row")
         spacer = Box(h_expand=True)
         self._today_btn = EventBox(name="clock-today-btn")
-        self._today_btn.add(
-            Label(label="Today", name="clock-today-label", size=10)
-        )
+        self._today_btn.add(Label(label="Today", name="clock-today-label", size=10))
         self._today_btn.connect("button-press-event", self._go_to_today)
         today_row.add(spacer)
         today_row.add(self._today_btn)

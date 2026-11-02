@@ -1,14 +1,15 @@
 """A simple animator class that can be used to animate values
-over time based on a given timing function."""
+over time based on a given timing function.
+"""
 
 # Author: Yousef EL-Darsh
 # License (SPDX): AGPL-3.0-or-later
 
 from functools import cache
 from typing import Protocol, cast
-from fabric.core.service import Service, Property, Signal
-from fabric.utils import clamp
 
+from fabric.core.service import Property, Service, Signal
+from fabric.utils import clamp
 from gi.repository import GLib, Gtk  # type: ignore
 
 
@@ -83,8 +84,7 @@ class TimingFunctionCallback(Protocol):
 
 
 class Animator(Service):
-    """
-    An animator is a simple way for animating a value on
+    """An animator is a simple way for animating a value on
     a set timeline based on a given timing function
     """
 
@@ -117,7 +117,8 @@ class Animator(Service):
     @Property(float, "read-write")
     def value(self):  # pyright: ignore
         """Get the current value of the animation. This is the value that
-        will be animated over time."""
+        will be animated over time.
+        """
         return self._value
 
     @value.setter  # pyright: ignore
@@ -128,7 +129,8 @@ class Animator(Service):
     @Property(float, "read-write")
     def max_value(self):  # pyright: ignore
         """Get the maximum value of the animation. This is the value
-        that the animation will animate towards."""
+        that the animation will animate towards.
+        """
         return self._max_value
 
     @max_value.setter  # pyright: ignore
@@ -139,7 +141,8 @@ class Animator(Service):
     @Property(float, "read-write")
     def min_value(self):  # pyright: ignore
         """Get the minimum value of the animation. This is the value that
-        the animation will animate from."""
+        the animation will animate from.
+        """
         return self._min_value
 
     @min_value.setter  # pyright: ignore
@@ -204,12 +207,14 @@ class Animator(Service):
 
     def do_get_time_now(self):
         """Get the current time in seconds. This is used for calculating
-        the progress of the animation."""
+        the progress of the animation.
+        """
         return GLib.get_monotonic_time() / 1_000_000
 
     def do_update_value(self, delta_time: float):
         """Update the value of the animation based on the elapsed time
-        since the animation started."""
+        since the animation started.
+        """
         if not self._playing:
             return
 
@@ -239,7 +244,8 @@ class Animator(Service):
 
     def do_handle_tick(self, *_):
         """Handle a tick event from the tick widget or GLib timeout.
-        This is where the animation updatesits value based on the elapsed time."""
+        This is where the animation updatesits value based on the elapsed time.
+        """
         current_time = self.do_get_time_now()
         self.do_update_value(current_time)
         return True
@@ -283,7 +289,8 @@ class Animator(Service):
 
     def stop(self):
         """Stop the animation and reset its value to the minimum value.
-        If the animation is already stopped, this will do nothing."""
+        If the animation is already stopped, this will do nothing.
+        """
         if not self._tick_handler:
             self._timeline_pos = 0
             self.playing = False

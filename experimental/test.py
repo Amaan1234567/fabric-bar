@@ -1,12 +1,12 @@
-from fabric import Application
-from fabric.widgets.wayland import WaylandWindow
-from fabric.widgets.box import Box
-from fabric.utils import get_relative_path
 import gi
+from fabric import Application
+from fabric.utils import get_relative_path
+from fabric.widgets.box import Box
+from fabric.widgets.wayland import WaylandWindow
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib
 import cairo
+from gi.repository import GLib, Gtk
 
 
 class MarqueeLabel(Gtk.DrawingArea):

@@ -1,16 +1,18 @@
 """A wallpaper selector widget that allows users to preview and
-apply different wallpapers for their desktop background."""
+apply different wallpapers for their desktop background.
+"""
 
 import os
-from screeninfo import get_monitors
-from gi.repository import Gdk  # type: ignore
-from PIL import Image
-from fabric.widgets.wayland import WaylandWindow as Window
+
+from fabric.utils.helpers import exec_shell_command_async
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
-from fabric.widgets.scrolledwindow import ScrolledWindow
 from fabric.widgets.eventbox import EventBox
-from fabric.utils.helpers import exec_shell_command_async
+from fabric.widgets.scrolledwindow import ScrolledWindow
+from fabric.widgets.wayland import WaylandWindow as Window
+from gi.repository import Gdk  # type: ignore
+from PIL import Image
+from screeninfo import get_monitors
 
 scale_map = {
     1920: 1280,
@@ -155,7 +157,7 @@ class WallpaperSelector(Window):
             self.buttons_box.add(button)
 
     def toggle_window(self):
-        """function to toggle window"""
+        """Function to toggle window"""
         if self.is_hidden:
             self.show()
             self.grab_focus()

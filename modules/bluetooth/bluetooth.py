@@ -3,20 +3,22 @@ and battery of bluetooth device if supported
 """
 
 from typing import List
-from loguru import logger
+
+from fabric.bluetooth.service import BluetoothClient, BluetoothDevice
+from fabric.utils import cooldown, exec_shell_command_async
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
-from fabric.widgets.label import Label
 from fabric.widgets.eventbox import EventBox
-from fabric.utils import cooldown, exec_shell_command_async
-from fabric.bluetooth.service import BluetoothClient, BluetoothDevice
+from fabric.widgets.label import Label
 from gi.repository import Gdk  # type: ignore
+from loguru import logger
 
 
 class BluetoothWidget(Box):
     """Bluetooth widget that displays the status of bluetooth,
     battery of the bluetooth device if supported, and extra info
-    on the device in tooltip"""
+    on the device in tooltip
+    """
 
     def __init__(self, interval=1, **kwargs):
         super().__init__(**kwargs)

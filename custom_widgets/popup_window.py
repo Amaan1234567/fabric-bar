@@ -1,18 +1,17 @@
-"""
-This module defines the PopupWindow class, a custom Wayland window
+"""This module defines the PopupWindow class, a custom Wayland window
 designed to function as a popup, often used for menus or tooltips.
 It positions itself relative to a parent window and optionally points
 to a specific widget.
 """
 
-from typing import Tuple, Union, Optional
+from typing import Optional, Tuple, Union
+
 from fabric.widgets.wayland import WaylandWindow
 from gi.repository import Gtk, GtkLayerShell
 
 
 class PopupWindow(WaylandWindow):
-    """
-    A Wayland-based popup window that can be positioned relative to a parent
+    """A Wayland-based popup window that can be positioned relative to a parent
     window and optionally point to a specific widget.
     """
 
@@ -23,8 +22,7 @@ class PopupWindow(WaylandWindow):
         margin: Union[Tuple[int, ...], str] = "0px 0px 0px 0px",
         **kwargs,
     ):
-        """
-        Initializes a new PopupWindow instance.
+        """Initializes a new PopupWindow instance.
 
         Args:
             parent (WaylandWindow): The parent Wayland window. The popup will
@@ -37,6 +35,7 @@ class PopupWindow(WaylandWindow):
                 Defaults to "0px 0px 0px 0px".
             **kwargs: Additional keyword arguments to pass to the
                 WaylandWindow constructor.
+
         """
         super().__init__(**kwargs)
         self.exclusivity = "none"
@@ -50,8 +49,7 @@ class PopupWindow(WaylandWindow):
         self.connect("notify::visible", self.do_update_handlers)
 
     def get_coords_for_widget(self, widget: Gtk.Widget) -> Tuple[int, int]:
-        """
-        Calculates the coordinates of a widget relative to the toplevel
+        """Calculates the coordinates of a widget relative to the toplevel
         window.
 
         Args:
@@ -60,6 +58,7 @@ class PopupWindow(WaylandWindow):
         Returns:
             Tuple[int, int]: A tuple containing the x and y coordinates
                 of the widget's center, relative to the toplevel window.
+
         """
         if not ((toplevel := widget.get_toplevel()) and toplevel.is_toplevel()):  # type: ignore
             return 0, 0
@@ -71,8 +70,7 @@ class PopupWindow(WaylandWindow):
         return round(x / 2), round(y / 2)
 
     def set_pointing_to(self, widget: Optional[Gtk.Widget]) -> bool:
-        """
-        Sets the widget that the popup should point to.
+        """Sets the widget that the popup should point to.
 
         If a previous pointing widget was set, it disconnects the
         "size-allocate" signal handler from it.
@@ -83,6 +81,7 @@ class PopupWindow(WaylandWindow):
 
         Returns:
             bool: The return value of `do_update_handlers`.
+
         """
         if self._pointing_widget:
             try:
@@ -93,8 +92,7 @@ class PopupWindow(WaylandWindow):
         return self.do_update_handlers()
 
     def do_update_handlers(self, *_):
-        """
-        Updates the signal handlers for size allocation based on the
+        """Updates the signal handlers for size allocation based on the
         visibility of the popup and the presence of a pointing widget.
         """
         if not self._pointing_widget:
@@ -114,20 +112,19 @@ class PopupWindow(WaylandWindow):
         return self.do_handle_size_allocate()
 
     def do_handle_size_allocate(self, *_):
-        """
-        Handles the size allocation event, recalculating and repositioning
+        """Handles the size allocation event, recalculating and repositioning
         the popup.
         """
         return self.do_reposition(self.do_calculate_edges())
 
     def do_calculate_edges(self) -> str:
-        """
-        Calculates which axis (x or y) the popup should move on based on
+        """Calculates which axis (x or y) the popup should move on based on
         the parent window's anchor.
 
         Returns:
             str: "x" if the popup should move horizontally, "y" if it
                 should move vertically.
+
         """
         move_axe = "x"
         parent_anchor = self._parent.anchor
@@ -159,13 +156,13 @@ class PopupWindow(WaylandWindow):
         return move_axe
 
     def do_reposition(self, move_axe: str):
-        """
-        Repositions the popup based on the parent window's margins,
+        """Repositions the popup based on the parent window's margins,
         the pointing widget's coordinates (if any), and the calculated
         movement axis.
 
         Args:
             move_axe (str): The axis ("x" or "y") to move the popup on.
+
         """
         parent_margin = self._parent.margin
         parent_x_margin, parent_y_margin = parent_margin[0], parent_margin[3]

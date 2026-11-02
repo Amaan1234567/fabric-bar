@@ -8,9 +8,9 @@
 # sbc.set_brightness(100, display=0, method='ddcutil')
 
 
-import time
-import subprocess
 import re
+import subprocess
+import time
 
 # To make this fast, find your bus number first with 'ddcutil detect'
 MONITOR_BUS = "10"

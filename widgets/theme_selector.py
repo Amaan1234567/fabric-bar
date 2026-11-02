@@ -3,15 +3,16 @@
 import os
 import shutil
 import subprocess
-from loguru import logger
-from gi.repository import Gdk  # type: ignore
-from fabric.widgets.wayland import WaylandWindow as Window
+
+from fabric.utils.helpers import cooldown, exec_shell_command
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
-from fabric.widgets.scrolledwindow import ScrolledWindow
-from fabric.widgets.eventbox import EventBox
 from fabric.widgets.entry import Entry
-from fabric.utils.helpers import exec_shell_command, cooldown
+from fabric.widgets.eventbox import EventBox
+from fabric.widgets.scrolledwindow import ScrolledWindow
+from fabric.widgets.wayland import WaylandWindow as Window
+from gi.repository import Gdk  # type: ignore
+from loguru import logger
 
 # Configuration
 # Update path to be relative to your project root or use an absolute path
@@ -119,7 +120,8 @@ class ThemeSelector(Window):
 
     def apply_color_scheme(self, theme):
         """Apply the given color scheme to the COLORS_CSS_PATH file. The theme is expected to
-        be a list of 16 HEX color codes corresponding to ANSI colors."""
+        be a list of 16 HEX color codes corresponding to ANSI colors.
+        """
         theme_schema = f""":vars {{
     --cursor: lighter({theme[12]});
     --background: darker({theme[0]});
@@ -147,7 +149,7 @@ class ThemeSelector(Window):
 
     @cooldown(0.2)
     def preview_theme(self, theme):
-        """previews theme temporarily by applying it, and sets up a backup to revert if needed."""
+        """Previews theme temporarily by applying it, and sets up a backup to revert if needed."""
         if not self.backup_created and os.path.exists(COLORS_CSS_PATH):
             shutil.copy2(COLORS_CSS_PATH, BACKUP_CSS_PATH)
             self.backup_created = True

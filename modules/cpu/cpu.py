@@ -3,17 +3,15 @@
 from collections import deque
 
 import psutil
-
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
 from gi.repository import GLib  # type: ignore
 
-from utils.popup_manager import popup_manager
 from custom_widgets.animated_cirular_scale import AnimatedCircularScale
-
 from modules.cpu.cpu_popup import CpuPopup
+from utils.popup_manager import popup_manager
 
 
 class Cpu(Box):
@@ -79,7 +77,7 @@ class Cpu(Box):
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
 
-        #self.popup.do_reposition("x")
+        # self.popup.do_reposition("x")
 
         # ── polling ─────────────────────────────────────────────────
         self._tick()
@@ -144,7 +142,9 @@ class Cpu(Box):
                 psutil.cpu_freq(),
                 psutil.cpu_percent(percpu=True),
                 psutil.sensors_temperatures()["coretemp"][0],
-                psutil.sensors_fans().get(next(iter(psutil.sensors_fans().keys())), [None])[0],
+                psutil.sensors_fans().get(
+                    next(iter(psutil.sensors_fans().keys())), [None]
+                )[0],
             )
         except (KeyError, IndexError):
             return None
@@ -165,12 +165,16 @@ class Cpu(Box):
         freq_color = (
             "#A3DC9A"
             if cur_freq.current <= 1000
-            else "#FCF67E" if cur_freq.current < 3500 else "#FF5454"
+            else "#FCF67E"
+            if cur_freq.current < 3500
+            else "#FF5454"
         )
         temp_color = (
             "#A3DC9A"
             if cpu_temp.current <= 45
-            else "#FCF67E" if cpu_temp.current <= 75 else "#FF5454"
+            else "#FCF67E"
+            if cpu_temp.current <= 75
+            else "#FF5454"
         )
 
         return "\n".join(

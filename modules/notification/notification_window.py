@@ -1,9 +1,11 @@
 """holds the notification window widget"""
 
 from typing import cast
+
 from fabric.notifications.service import Notification
-from fabric.widgets.wayland import WaylandWindow
 from fabric.widgets.box import Box
+from fabric.widgets.wayland import WaylandWindow
+
 from modules.notification.notification_popup import NotificationPopup
 from services.notification_service import NotificationService
 

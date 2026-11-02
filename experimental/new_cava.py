@@ -6,23 +6,19 @@ import signal
 import struct
 import subprocess
 from math import pi
-
 from typing import cast
 
 from fabric import Application
-from fabric.widgets.box import Box
-from fabric.widgets.label import Label
-from fabric.widgets.image import Image
-from fabric.widgets.button import Button
-from fabric.widgets.wayland import WaylandWindow
-from fabric.notifications import Notifications, Notification
-from fabric.utils import invoke_repeater, get_relative_path
-
-from gi.repository import GdkPixbuf
-
+from fabric.notifications import Notification, Notifications
+from fabric.utils import get_relative_path, invoke_repeater
 from fabric.utils.helpers import get_relative_path
+from fabric.widgets.box import Box
+from fabric.widgets.button import Button
+from fabric.widgets.image import Image
+from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
-from gi.repository import Gdk, GLib, Gtk
+from fabric.widgets.wayland import WaylandWindow
+from gi.repository import Gdk, GdkPixbuf, GLib, Gtk
 from loguru import logger
 
 
@@ -38,8 +34,7 @@ bars = get_bars(CAVA_CONFIG)
 
 
 def set_death_signal():
-    """
-    Set the death signal of the child process to SIGTERM so that if the parent
+    """Set the death signal of the child process to SIGTERM so that if the parent
     process is killed, the child (cava) is automatically terminated.
     """
     libc = ctypes.CDLL("libc.so.6")
@@ -48,8 +43,7 @@ def set_death_signal():
 
 
 class Cava:
-    """
-    CAVA wrapper.
+    """CAVA wrapper.
     Launch cava process with certain settings and read output.
     """
 

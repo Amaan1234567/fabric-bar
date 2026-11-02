@@ -3,9 +3,9 @@
 
 from functools import cache
 from typing import Protocol, cast
-from fabric.core.service import Service, Property, Signal
-from fabric.utils import clamp
 
+from fabric.core.service import Property, Service, Signal
+from fabric.utils import clamp
 from gi.repository import GLib, Gtk  # type: ignore
 
 
@@ -78,8 +78,7 @@ class TimingFunctionCallback(Protocol):
 
 
 class Animator(Service):
-    """
-    An animator is a simple way for animating a value on
+    """An animator is a simple way for animating a value on
     a set timeline based on a given timing function
     """
 

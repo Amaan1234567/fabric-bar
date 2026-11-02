@@ -5,8 +5,8 @@ import sys
 import setproctitle
 from fabric import Application
 from fabric.utils.helpers import get_relative_path, monitor_file
-from fabric.widgets.wayland import WaylandWindow
 from fabric.widgets.box import Box
+from fabric.widgets.wayland import WaylandWindow
 from loguru import logger
 
 from modules.control_center import control_center
@@ -65,7 +65,7 @@ def main(monitor_id=0):
             brightness_osd,
             wallpaper_selector,
             theme_selector,
-            alttab
+            alttab,
         ],
     )
 

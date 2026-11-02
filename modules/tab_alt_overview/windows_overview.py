@@ -4,22 +4,22 @@ Follows the Fabrika Pager pattern for Glace lifecycle and capture,
 with a file-based toggle_window() like WallpaperSelector.
 """
 
+import json
 import random
 from typing import Callable
 
 import gi
-import json
 
 gi.require_version("Glace", "0.1")
-from gi.repository import Glace, GdkPixbuf, GLib, Gtk, Gdk  # type: ignore
-from loguru import logger
-
-from fabric.widgets.wayland import WaylandWindow as Window
+from fabric.hyprland.widgets import get_hyprland_connection
 from fabric.widgets.box import Box
+from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
-from fabric.widgets.eventbox import EventBox
-from fabric.hyprland.widgets import get_hyprland_connection
+from fabric.widgets.wayland import WaylandWindow as Window
+from gi.repository import Gdk, GdkPixbuf, Glace, GLib, Gtk  # type: ignore
+from loguru import logger
+
 from custom_widgets.image_rounded import CustomImage
 
 _SCALE = 0.2
@@ -147,7 +147,8 @@ class ClientPreview(Box):
 
     def set_monitor_scale(self, scale: float):
         """Set the scale factor of the monitor this client is on. This is used to rescale the
-        preview image appropriately."""
+        preview image appropriately.
+        """
         if abs(self._monitor_scale - scale) < 0.01:
             return
         self._monitor_scale = scale
@@ -327,7 +328,8 @@ class AltTab(Window):
 
     def _deferred_reorder(self, client: Glace.Client):
         """Reorder _focus_order after the switcher has hidden.
-        Called as an idle callback so all activation signals settle first."""
+        Called as an idle callback so all activation signals settle first.
+        """
         self._deferred_reorder_id = 0
         if client.get_activated():
             if client in self._focus_order:
@@ -346,7 +348,8 @@ class AltTab(Window):
 
     def remove_client_view(self, address: int):
         """Remove a client view from the switcher, cleaning up its resources and
-        removing it from the focus order."""
+        removing it from the focus order.
+        """
         if view := self._client_views.pop(address, None):
             parent = view.get_parent()
             if parent:
@@ -458,7 +461,8 @@ class AltTab(Window):
 
     def toggle_window(self):
         """Toggle the visibility of the AltTab switcher. If hidden,
-        show it and select the first window. If visible, hide it."""
+        show it and select the first window. If visible, hide it.
+        """
         if self.is_hidden:
             self._selected = 1
             self._show()
@@ -533,7 +537,8 @@ class AltTab(Window):
 
     def cmd_next(self):
         """Select the next window in the list, wrapping around. If the
-        switcher is hidden, show it and select the first window."""
+        switcher is hidden, show it and select the first window.
+        """
         now = GLib.get_monotonic_time() / 1_000_000
 
         if self.is_hidden:
@@ -548,7 +553,8 @@ class AltTab(Window):
 
     def cmd_activate(self):
         """Activate the currently selected window and hide the switcher.
-        If the switcher is hidden, do nothing."""
+        If the switcher is hidden, do nothing.
+        """
         if self.is_hidden:
             return
 
@@ -565,5 +571,6 @@ class AltTab(Window):
 
     def cmd_cancel(self):
         """Cancel the switcher and hide it without changing focus.
-        If the switcher is hidden, do nothing."""
+        If the switcher is hidden, do nothing.
+        """
         self._hide()

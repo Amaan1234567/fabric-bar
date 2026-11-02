@@ -1,11 +1,12 @@
 from functools import partial
+
 import cairo
 import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Pango", "1.0")
 gi.require_version("PangoCairo", "1.0")
-from gi.repository import Gtk, GLib, Pango, PangoCairo
+from gi.repository import GLib, Gtk, Pango, PangoCairo
 
 from utils.animator import Animator, _cubic_bezier
 
@@ -18,7 +19,7 @@ class ScrollingLabel(Gtk.DrawingArea):
         speed=0.8,
         pause_ms=2000,
         max_width=200,
-        **kwargs
+        **kwargs,
     ):
         super().__init__(**kwargs)
         self.set_name("song-title")

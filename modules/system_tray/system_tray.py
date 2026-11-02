@@ -1,5 +1,5 @@
-from fabric.widgets.box import Box
 from fabric.system_tray.widgets import SystemTray
+from fabric.widgets.box import Box
 
 
 class barSystemTray(Box):

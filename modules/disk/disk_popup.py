@@ -3,12 +3,11 @@
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 
-from custom_widgets.popup_window import PopupWindow
 from custom_widgets.HackedStackRevealer import HackedRevealer
+from custom_widgets.popup_window import PopupWindow
 
 
 class DiskPopup(PopupWindow):
-
     def __init__(self, parent, pointing_to, **kwargs):
         super().__init__(
             parent=parent,

@@ -1,19 +1,20 @@
 """contains notification Popups widget and the window that it belongs to"""
 
 import os
-from loguru import logger
-from fabric.widgets.box import Box
-from fabric.widgets.label import Label
-from fabric.widgets.button import Button
+
 from fabric.notifications.service import Notification
+from fabric.utils import get_relative_path, invoke_repeater
+from fabric.widgets.box import Box
+from fabric.widgets.button import Button
+from fabric.widgets.label import Label
 from fabric.widgets.revealer import Revealer
-from fabric.utils import invoke_repeater, get_relative_path
 from gi.repository import GdkPixbuf, GLib, Gtk
+from loguru import logger
+
+from custom_widgets.HackedStackRevealer import HackedRevealer
 from custom_widgets.image_rounded import CustomImage
 from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 from utils.variables import APP_ICON_MAP
-
-from custom_widgets.HackedStackRevealer import HackedRevealer
 
 NOTIFICATION_TIMEOUT = 3 * 1000
 NOTIFICATION_TIMEOUT_WITH_ACTIONS = 5 * 1000

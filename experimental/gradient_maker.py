@@ -1,12 +1,13 @@
-from curses import window
-from PIL import Image
-from fabric import Application
-from fabric.widgets.wayland import WaylandWindow
-from fabric.widgets.label import Label
-from fabric.widgets.box import Box
-import numpy as np
-from fabric.utils.helpers import monitor_file, get_relative_path
 import re
+from curses import window
+
+import numpy as np
+from fabric import Application
+from fabric.utils.helpers import get_relative_path, monitor_file
+from fabric.widgets.box import Box
+from fabric.widgets.label import Label
+from fabric.widgets.wayland import WaylandWindow
+from PIL import Image
 from watcher import Watcher
 
 

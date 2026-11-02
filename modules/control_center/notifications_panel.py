@@ -1,20 +1,22 @@
-from operator import le
 import os
+from operator import le
 from socket import SocketIO
-from loguru import logger
-from fabric.widgets.box import Box
-from fabric.widgets.scrolledwindow import ScrolledWindow
-from fabric.widgets.label import Label
-from fabric.widgets.button import Button
-from fabric.widgets.centerbox import CenterBox
-from fabric.widgets.revealer import Revealer
+
 from fabric.notifications.service import Notification
 from fabric.utils import get_relative_path
-from gi.repository import GdkPixbuf, Gtk, GLib
+from fabric.widgets.box import Box
+from fabric.widgets.button import Button
+from fabric.widgets.centerbox import CenterBox
+from fabric.widgets.label import Label
+from fabric.widgets.revealer import Revealer
+from fabric.widgets.scrolledwindow import ScrolledWindow
+from gi.repository import GdkPixbuf, GLib, Gtk
+from loguru import logger
+
 from custom_widgets.image_rounded import CustomImage
 from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
-from utils.variables import APP_ICON_MAP
 from services.notification_service import NotificationService
+from utils.variables import APP_ICON_MAP
 
 NOTIFICATION_IMAGE_SIZE = 120
 NOTIFICATION_BUTTONS_WRAP_THRESHOLD = 2
@@ -127,7 +129,9 @@ class NotificationItem(Box):
                                     h_expand=True,
                                     v_expand=True,
                                     label=action.label,
-                                    on_clicked=lambda *_, action=action: action.invoke(),
+                                    on_clicked=lambda *_, action=action: (
+                                        action.invoke()
+                                    ),
                                 )
                                 for action in actions[
                                     i : i + NOTIFICATION_BUTTONS_WRAP_THRESHOLD

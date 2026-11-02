@@ -1,14 +1,13 @@
 from typing import cast
 
 from fabric import Application
+from fabric.notifications import Notification, Notifications
+from fabric.utils import get_relative_path, invoke_repeater
 from fabric.widgets.box import Box
-from fabric.widgets.label import Label
-from fabric.widgets.image import Image
 from fabric.widgets.button import Button
+from fabric.widgets.image import Image
+from fabric.widgets.label import Label
 from fabric.widgets.wayland import WaylandWindow
-from fabric.notifications import Notifications, Notification
-from fabric.utils import invoke_repeater, get_relative_path
-
 from gi.repository import GdkPixbuf
 
 NOTIFICATION_WIDTH = 360

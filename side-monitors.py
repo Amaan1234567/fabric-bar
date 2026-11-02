@@ -1,13 +1,14 @@
 """initialises the side montiors' shell"""
 
-import setproctitle
 import sys
+
+import setproctitle
+from fabric import Application
+from fabric.utils.helpers import get_relative_path, monitor_file
 from loguru import logger
 
-from fabric.utils.helpers import monitor_file, get_relative_path
-from fabric import Application
-from widgets.corners import ScreenCorners
 from widgets.brightness_osd import BrightnessOSD  # Added Import
+from widgets.corners import ScreenCorners
 
 if __name__ == "__main__":
     setproctitle.setproctitle("hypr-fabric-bar-side")

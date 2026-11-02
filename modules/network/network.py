@@ -1,24 +1,22 @@
 """holds the network widget shown in bar"""
 
-from loguru import logger
+from fabric.utils.helpers import exec_shell_command_async
 from fabric.widgets.box import Box
-from fabric.widgets.label import Label
-from fabric.widgets.eventbox import EventBox
-from fabric.widgets.revealer import Revealer
 from fabric.widgets.button import Button
 from fabric.widgets.entry import Entry
-from fabric.utils.helpers import exec_shell_command_async
-from gi.repository import GLib, Gdk  # type: ignore
+from fabric.widgets.eventbox import EventBox
+from fabric.widgets.label import Label
+from fabric.widgets.revealer import Revealer
+from gi.repository import Gdk, GLib  # type: ignore
+from loguru import logger
 
-
-from custom_widgets.popup_window import PopupWindow
 from custom_widgets.HackedStackRevealer import HackedRevealer
-from services.networkservice import NetworkService, WifiService, EthernetService
+from custom_widgets.popup_window import PopupWindow
+from services.networkservice import EthernetService, NetworkService, WifiService
 
 
 class NetworkWidget(Box):
-    """
-    A Fabric widget displaying network type & strength using JetBrainsMono Nerd Font glyphs.
+    """A Fabric widget displaying network type & strength using JetBrainsMono Nerd Font glyphs.
     Polls ActiveConnections via NetworkManager for both Wi-Fi and Ethernet.
     """
 
@@ -172,7 +170,6 @@ class NetworkWidget(Box):
             return
 
         if self.networks_popup.get_visible():
-
             self.networks_revealer.set_reveal_child(False)
             GLib.timeout_add(250, self.networks_popup.set_visible, False)
         else:
@@ -312,8 +309,8 @@ class NetworkWidget(Box):
             cancel_btn = Button(
                 name="wifi-password-cancel",
                 label="✕",
-                on_clicked=lambda btn, container=network_container: self._hide_password_entry(
-                    container
+                on_clicked=lambda btn, container=network_container: (
+                    self._hide_password_entry(container)
                 ),
             )
 
@@ -348,8 +345,8 @@ class NetworkWidget(Box):
             name="wifi-network-available",
             label=label,
             h_align="start",
-            on_clicked=lambda btn, s=ssid, sec=is_secure, saved=is_saved: self._handle_network_click(
-                s, sec, saved, btn
+            on_clicked=lambda btn, s=ssid, sec=is_secure, saved=is_saved: (
+                self._handle_network_click(s, sec, saved, btn)
             ),
         )
         network_button.connect(
@@ -460,9 +457,7 @@ class NetworkWidget(Box):
             return status, strength, tooltip
 
     def _map_glyph(self, status: str, strength: int | None) -> str:
-        """
-        Maps connection status and signal strength to JetBrainsMono Nerd Font glyphs.
-        """
+        """Maps connection status and signal strength to JetBrainsMono Nerd Font glyphs."""
         wifi = {"empty": "󰤯", "low": "󰤟", "medium": "󰤢", "high": "󰤥", "full": "󰤨"}
         eth = "󰈀"
         usb = ""

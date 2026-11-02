@@ -1,20 +1,19 @@
 """holds the mpris widget shown in bar"""
 
-from loguru import logger
-from gi.repository import GdkPixbuf, GLib, Gio  # type: ignore
+from fabric.utils import get_relative_path, invoke_repeater
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
-from fabric.utils import invoke_repeater, get_relative_path
 from fabric.widgets.overlay import Overlay
+from gi.repository import GdkPixbuf, Gio, GLib  # type: ignore
+from loguru import logger
 
-from custom_widgets.scolling_text_widget import ScrollingLabel
-from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_cirular_scale import AnimatedCircularScale
-from services.playerctlservice import SimplePlayerctlService
+from custom_widgets.image_rounded import CustomImage
+from custom_widgets.scolling_text_widget import ScrollingLabel
 from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1
-
 from modules.mpris.mpris_popup import MprisPopup
+from services.playerctlservice import SimplePlayerctlService
 
 
 class Mpris(Box):
@@ -41,11 +40,15 @@ class Mpris(Box):
             line_width=4,
             size=35,
             start_angle=105,
-            end_angle=465,   
+            end_angle=465,
             # invert=True,
         )
 
-        self.song_progress_overlay = Overlay(name="song-progress-overlay",child=self.song_progress, overlays=self.pause_icon)
+        self.song_progress_overlay = Overlay(
+            name="song-progress-overlay",
+            child=self.song_progress,
+            overlays=self.pause_icon,
+        )
         self.content.add(self.song_progress_overlay)
         self.content.add(self.album_art)
         self.content.add(self.title_label)
@@ -136,7 +139,7 @@ class Mpris(Box):
             pix = GdkPixbuf.Pixbuf.new_from_file(
                 get_relative_path("../../assets/mpris_default.png")
             )
-            pix = pixbuf_cropping_if_image_is_not_1_1(pix,30)
+            pix = pixbuf_cropping_if_image_is_not_1_1(pix, 30)
             self.album_art.set_from_pixbuf(pix)
 
     def _update_widget(self):
@@ -162,7 +165,7 @@ class Mpris(Box):
                 self.song_progress.max_value = self.song_length
             self.title_label.set_text(title.strip())
             if art_url not in (self.temp_url_cache, ""):
-                logger.info(f"updating album art with url: {art_url}") 
+                logger.info(f"updating album art with url: {art_url}")
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
             elif art_url == "":
