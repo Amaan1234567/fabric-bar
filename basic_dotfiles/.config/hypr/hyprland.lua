@@ -28,26 +28,7 @@ end)
 local home = os.getenv("HOME")
 
 -- ==========================================
--- 2. AUTOSTART HOOKS
--- ==========================================
-hl.on("hyprland.start", function()
-    hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
-    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
-    hl.exec_cmd("dbus-update-activation-environment --systemd --all")
-    hl.exec_cmd("awww-daemon")
-    hl.exec_cmd("hypridle")
-    hl.exec_cmd(home .. "/fabric-bar/scripts/start.sh")
-    hl.exec_cmd(home .. "/fabric-bar/scripts/wallpaper_loop.sh")
-    hl.exec_cmd("wl-paste --watch cliphist store")
-end)
-
-load_override("autostart", function()
-    hl.on("hyprland.start", function()
-    end)
-end)
-
--- ==========================================
--- 3. ENVIRONMENT VARIABLES
+-- 2. ENVIRONMENT VARIABLES
 -- ==========================================
 hl.env("SSH_AUTH_SOCK", "$XDG_RUNTIME_DIR/keyring/ssh")
 hl.env("HYPRCURSOR_SIZE", "24")
@@ -68,6 +49,27 @@ hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 load_override("env", function()
 
 end)
+
+-- ==========================================
+-- 3. AUTOSTART HOOKS
+-- ==========================================
+hl.on("hyprland.start", function()
+    hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+    hl.exec_cmd("dbus-update-activation-environment --systemd --all")
+    hl.exec_cmd("awww-daemon")
+    hl.exec_cmd("hypridle")
+    hl.exec_cmd(home .. "/fabric-bar/scripts/start.sh")
+    hl.exec_cmd(home .. "/fabric-bar/scripts/wallpaper_loop.sh")
+    hl.exec_cmd("wl-paste --watch cliphist store")
+end)
+
+load_override("autostart", function()
+    hl.on("hyprland.start", function()
+    end)
+end)
+
+
 
 -- ==========================================
 -- 4. GENERAL CONFIGURATION, STYLES & ANIMATIONS
