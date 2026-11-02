@@ -19,7 +19,7 @@ from modules.control_center.wifi_toggle_button import WifiToggle
 class ControlCenter(PopupWindow):
     """control center widget."""
 
-    def __init__(self, app_data, parent, monitor=0, **kwargs):
+    def __init__(self, app_data, parent,monitor=0, **kwargs):
         super().__init__(
             layer="top",
             title="control_center",

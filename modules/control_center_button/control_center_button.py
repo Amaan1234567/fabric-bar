@@ -10,7 +10,7 @@ from modules.control_center.control_center import ControlCenter
 class ControlCenterButton(Box):
     """control center trigger button."""
 
-    def __init__(self, app_data, monitor=0, **kwargs):
+    def __init__(self, app_data,monitor=0, **kwargs):
         super().__init__(**kwargs, name="notification-button")
         self.control_center = ControlCenter(
             app_data=app_data,
