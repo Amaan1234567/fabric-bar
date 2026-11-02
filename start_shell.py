@@ -60,7 +60,6 @@ def main(monitor_id=0):
         windows=[
             status_bar,
             corners,
-            control_center,
             notifications,
             volume_osd,
             brightness_osd,

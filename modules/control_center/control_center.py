@@ -20,7 +20,7 @@ from modules.control_center.gamemode_toggle import GamemodeToggleButton
 class ControlCenter(PopupWindow):
     """control center widget"""
 
-    def __init__(self, app_data, parent, **kwargs):
+    def __init__(self, app_data, parent,monitor=0, **kwargs):
         super().__init__(
             layer="overlay",
             title="control_center",
@@ -30,6 +30,7 @@ class ControlCenter(PopupWindow):
             type="popup",
             margin="30px 0px 40px 0px",
             parent=parent,
+            monitor=monitor,
             **kwargs
         )
 

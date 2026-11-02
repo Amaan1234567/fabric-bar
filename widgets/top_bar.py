@@ -79,7 +79,7 @@ class TopBar(Window):
         self.bluetooth = BluetoothWidget(interval=1)
         self.network = NetworkWidget(self, interval=1)
         self.battery = BatteryWidget()
-        self.right_module = ControlCenterButton(app_data=app_data)
+        self.right_module = ControlCenterButton(app_data=app_data,monitor=monitor)  # Pass monitor to ControlCenterButton
         self.logout_btn = LogoutButton(window=self)
 
         right_box = Box(
