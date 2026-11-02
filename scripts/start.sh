@@ -13,9 +13,10 @@ pkill -f "hypr-fabric-bar-side"
 # 1. Dynamically find all monitors EXCEPT the primary one
 OTHER_MONITORS=$(hyprctl monitors -j | jq -r --argjson primary "${PRIMARY_MONITOR_ID:-0}" '.[] | select(.id != $primary) | .id')
 
+echo "Other monitors detected: $OTHER_MONITORS"
 # 2. Launch Main Shell on the designated Primary Monitor
 echo "Launching main shell on Primary Monitor ID: ${PRIMARY_MONITOR_ID:-0}"
-setsid python3 start_shell.py --monitor-id "${PRIMARY_MONITOR_ID:-0}" > /dev/null 2>&1
+setsid python3 start_shell.py --monitor-id "${PRIMARY_MONITOR_ID:-0}" > /dev/null 2>&1 &
 disown
 # 3. Launch Side Shells only if other monitors exist
 if [ -z "$OTHER_MONITORS" ]; then
