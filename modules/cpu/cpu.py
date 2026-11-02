@@ -144,7 +144,7 @@ class Cpu(Box):
                 psutil.cpu_freq(),
                 psutil.cpu_percent(percpu=True),
                 psutil.sensors_temperatures()["coretemp"][0],
-                psutil.sensors_fans()["asus"][0],
+                psutil.sensors_fans().get(list(psutil.sensors_fans().keys())[0], [None])[0],
             )
         except (KeyError, IndexError):
             return None
