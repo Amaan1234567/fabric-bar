@@ -1,17 +1,18 @@
 """Audio widget with per-application volume mixer popup."""
 
 from typing import Any
-from loguru import logger
-from fabric.widgets.box import Box
-from fabric.widgets.label import Label
-from fabric.widgets.eventbox import EventBox
+
 from fabric.audio.service import Audio
 from fabric.utils import cooldown
+from fabric.widgets.box import Box
+from fabric.widgets.eventbox import EventBox
+from fabric.widgets.label import Label
 from gi.repository import GLib  # type: ignore
+from loguru import logger
 
-from utils.popup_manager import popup_manager
 from custom_widgets.animated_scale import AnimatedScale
 from modules.audio.audio_popup import AudioPopup
+from utils.popup_manager import popup_manager
 
 
 class AudioWidget(Box):
@@ -71,7 +72,7 @@ class AudioWidget(Box):
         self.content_event_box.connect("leave-notify-event", self._on_hover_leave)
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
-        #self.popup.do_reposition("x")
+        # self.popup.do_reposition("x")
 
         # ── tick ───────────────────────────────────────────────
         GLib.timeout_add(1000, self._tick)

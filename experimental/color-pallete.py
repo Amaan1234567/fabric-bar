@@ -1,8 +1,9 @@
+import subprocess
+
 import numpy as np
+from colorist import BgColorRGB
 from PIL import Image
 from sklearn.cluster import KMeans
-from colorist import BgColorRGB
-import subprocess
 
 
 def extract_colors_kmeans(image_path: str, n_colors: int = 16):
@@ -65,7 +66,7 @@ def display_color_palette(colors, percentages):
 
         hex_color = f"#{r:02x}{g:02x}{b:02x}"
         print(
-            f"Color {i+1}: {bg_color}  {bg_color.OFF} RGB({r},{g},{b}) {hex_color} ({percentage:.1f}%)"
+            f"Color {i + 1}: {bg_color}  {bg_color.OFF} RGB({r},{g},{b}) {hex_color} ({percentage:.1f}%)"
         )
 
     print(f"\nPalette: {palette_row}")

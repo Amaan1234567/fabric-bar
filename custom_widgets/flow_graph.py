@@ -1,15 +1,16 @@
-"""
-FlowGraph — a smooth, animated graph widget for fabric / PyGTK desktop shells.
+"""FlowGraph — a smooth, animated graph widget for fabric / PyGTK desktop shells.
 
 Renders flowing line graphs with gradient fills, using cubic spline interpolation
 for silky curves and the fabric Animator for graceful data transitions.
 """
 
-import gi
-import cairo
-from gi.repository import Gtk, Pango, PangoCairo  # type: ignore
-from typing import Any, List, Optional, Tuple
 from functools import partial
+from typing import Any, List, Optional, Tuple
+
+import cairo
+import gi
+from gi.repository import Gtk, Pango, PangoCairo  # type: ignore
+
 from utils.animator import Animator, _cubic_bezier
 
 gi.require_version("Gtk", "3.0")
@@ -331,9 +332,7 @@ class FlowGraph(Gtk.DrawingArea):
 
         grad_y_top = min(p[1] for p in data_pts)
         grad_y_bot = h - pad
-        pat = cairo.LinearGradient(
-            0, grad_y_top, 0, grad_y_bot
-        )  # pylint: disable=no-member
+        pat = cairo.LinearGradient(0, grad_y_top, 0, grad_y_bot)  # pylint: disable=no-member
         pat.add_color_stop_rgba(0.0, rgba.red, rgba.green, rgba.blue, 0.14)
         pat.add_color_stop_rgba(0.6, rgba.red, rgba.green, rgba.blue, 0.10)
         pat.add_color_stop_rgba(1.0, rgba.red, rgba.green, rgba.blue, 0.0)

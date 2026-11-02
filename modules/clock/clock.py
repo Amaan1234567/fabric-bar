@@ -1,12 +1,12 @@
 """Clock widget with calendar popup."""
 
-from fabric.widgets.datetime import DateTime
 from fabric.widgets.box import Box
+from fabric.widgets.datetime import DateTime
 from fabric.widgets.eventbox import EventBox
 from gi.repository import GLib  # type: ignore
 
-from utils.popup_manager import popup_manager
 from modules.clock.clock_popup import ClockPopup
+from utils.popup_manager import popup_manager
 
 
 class Clock(Box):
@@ -40,15 +40,11 @@ class Clock(Box):
             exclusivity="none",
         )
 
-        self.content_event_box.connect(
-            "enter-notify-event", self._hover_trigger
-        )
-        self.content_event_box.connect(
-            "leave-notify-event", self._on_hover_leave
-        )
+        self.content_event_box.connect("enter-notify-event", self._hover_trigger)
+        self.content_event_box.connect("leave-notify-event", self._on_hover_leave)
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
-        #self.popup.do_reposition("x")
+        # self.popup.do_reposition("x")
 
         # ── tick for popup time update ─────────────────────────
         GLib.timeout_add(1000, self._tick)

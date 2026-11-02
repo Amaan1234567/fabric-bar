@@ -1,15 +1,13 @@
 """contains the mic toggle widget"""
 
-from loguru import logger
-
+from fabric.audio.service import Audio
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
-from fabric.audio.service import Audio
+from loguru import logger
 
 
 class MicToggle(Button):
-    """
-    A single large button that toggles microphone mute.
+    """A single large button that toggles microphone mute.
     Shows microphone icon with Nerd Font icon.
     Background changes based on state via CSS classes.
     """
@@ -42,7 +40,6 @@ class MicToggle(Button):
 
     def _mic_is_muted(self) -> bool:
         """Returns True if microphone is muted"""
-
         return self.audio.microphone.muted
 
     def _refresh(self) -> bool:

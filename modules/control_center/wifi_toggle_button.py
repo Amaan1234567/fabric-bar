@@ -1,15 +1,15 @@
 """holds the widget to toggle wifi"""
 
-from gi.repository import GLib  # type: ignore
-from fabric.widgets.button import Button
 from fabric.utils.helpers import exec_shell_command_async
+from fabric.widgets.button import Button
+from gi.repository import GLib  # type: ignore
 from loguru import logger
+
 from services.networkservice import NetworkService
 
 
 class WifiToggle(Button):
-    """
-    Simple WiFi toggle button.
+    """Simple WiFi toggle button.
     Shows WiFi with slash if no WiFi card/driver issues.
     Background changes based on state via CSS classes.
     """
@@ -98,7 +98,6 @@ class WifiToggle(Button):
             ctx.remove_class("wifi-on")
             ctx.remove_class("wifi-off")
         else:
-
             if self.wifi_on:
                 self.set_label("󰤨")  # WiFi on icon
                 ctx.add_class("wifi-on")

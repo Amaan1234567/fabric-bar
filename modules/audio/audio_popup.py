@@ -2,16 +2,16 @@
 
 import subprocess
 
-from loguru import logger
-from fabric.widgets.box import Box
-from fabric.widgets.label import Label
-from fabric.widgets.eventbox import EventBox
-from fabric.widgets.button import Button
 from fabric.utils import cooldown
+from fabric.widgets.box import Box
+from fabric.widgets.button import Button
+from fabric.widgets.eventbox import EventBox
+from fabric.widgets.label import Label
+from loguru import logger
 
-from custom_widgets.popup_window import PopupWindow
 from custom_widgets.animated_scale import AnimatedScale
 from custom_widgets.HackedStackRevealer import HackedRevealer
+from custom_widgets.popup_window import PopupWindow
 
 _APP_ICONS = {
     "firefox": "󰈹",
@@ -206,7 +206,8 @@ class AppRow(Box):
 
     def disconnect_stream(self):
         """Disconnect all signal handlers from the stream to avoid
-        callbacks after the row is removed."""
+        callbacks after the row is removed.
+        """
         try:
             self._stream.disconnect(self._vh)
             self._stream.disconnect(self._mh)

@@ -4,13 +4,15 @@ import os
 import subprocess
 import threading
 import time
-from gi.repository import GLib #type: ignore
-from fabric.core.service import Service, Signal
+
 from fabric import Fabricator
+from fabric.core.service import Service, Signal
+from gi.repository import GLib  # type: ignore
 
 
 class BrightnessService(Service):
     """Service to manage brightness for both internal and external displays."""
+
     _instance = None
 
     @Signal

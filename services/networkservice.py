@@ -1,13 +1,14 @@
 """holds the network service"""
 
-from ast import Dict
 import os
 import signal
-from typing import Any, Callable, List, AnyStr, Literal
-from loguru import logger
-from gi.repository import NM, Gio  # type: ignore
+from ast import Dict
+from typing import Any, AnyStr, Callable, List, Literal
+
 from fabric.core.service import Property, Service, Signal
 from fabric.utils.helpers import bulk_connect, exec_shell_command_async
+from gi.repository import NM, Gio  # type: ignore
+from loguru import logger
 
 
 class WifiService(Service):
@@ -15,27 +16,27 @@ class WifiService(Service):
 
     @Signal
     def scanning(self) -> None:
-        """signal to indicate AP scan is going on"""
+        """Signal to indicate AP scan is going on"""
 
     @Signal
     def scan_complete(self) -> None:
-        """signal to indicate AP scan is complete"""
+        """Signal to indicate AP scan is complete"""
 
     @Signal
     def network_change(self) -> None:
-        """signal to indicate a change in network"""
+        """Signal to indicate a change in network"""
 
     @Signal
     def enabled(self) -> None:
-        """signal to show wifi enabled"""
+        """Signal to show wifi enabled"""
 
     @Signal
     def disabled(self) -> None:
-        """signal to show wifi disabled"""
+        """Signal to show wifi disabled"""
 
     @Signal
     def changed(self):
-        """signal to show any other change of state in service"""
+        """Signal to show any other change of state in service"""
 
     def __init__(self, client, device, **kwargs):
         self._client: NM.Client = client
@@ -69,7 +70,6 @@ class WifiService(Service):
         reason: NM.DeviceStateReason,
     ):
         """Handler for the 'state-changed' signal."""
-
         if (
             new_state == NM.DeviceState.ACTIVATED
             or new_state == NM.DeviceState.DISCONNECTED
@@ -115,7 +115,7 @@ class WifiService(Service):
 
     @Property(bool, "read-write", default_value=False)
     def wireless_enabled(self):  # type: ignore
-        """property to read if wifi enabled or disabled"""
+        """Property to read if wifi enabled or disabled"""
         return bool(self._client.wireless_get_enabled())
 
     @wireless_enabled.setter
@@ -128,7 +128,7 @@ class WifiService(Service):
 
     @Property(str, "readable")
     def ssid(self):
-        """ssid property"""
+        """Ssid property"""
         if self._access_point is not None:
             return NM.utils_ssid_to_utf8(self._access_point.get_ssid().get_data())  # type: ignore
         else:
@@ -136,17 +136,17 @@ class WifiService(Service):
 
     @Property(NM.AccessPoint, "readable")
     def active_ap(self):
-        """active AP"""
+        """Active AP"""
         return self._access_point
 
     @Property(int, "readable")
     def strength(self):
-        """signal strength of AP"""
+        """Signal strength of AP"""
         return self._access_point_strength if self._access_point else -1
 
     @Property(str, "readable")
     def ip(self):
-        """ip address of current connection"""
+        """Ip address of current connection"""
         if active_connection := self._device.get_active_connection():
             if ipconfig := active_connection.get_ip4_config():
                 return ipconfig.get_addresses()[0].get_address()
@@ -157,14 +157,14 @@ class WifiService(Service):
 
     @Property(int, "readable")
     def frequency(self):
-        """freq of AP in MHz"""
+        """Freq of AP in MHz"""
         if self._access_point:
             return self._access_point.get_frequency()
         else:
             return -1
 
     def trigger_scan(self):
-        """trigger a network scan async"""
+        """Trigger a network scan async"""
         if self._device:
             self.emit("scanning")  # Emit signal that scanning has started
             self._device.request_scan_async(
@@ -176,7 +176,7 @@ class WifiService(Service):
             )
 
     def get_ap_security(self, ap: NM.AccessPoint):
-        """get security protocol used by AP"""
+        """Get security protocol used by AP"""
         flags = ap.get_flags()
         wpa_flags = ap.get_wpa_flags()
         rsn_flags = ap.get_rsn_flags()
@@ -202,13 +202,15 @@ class WifiService(Service):
         return sec_str.lstrip()
 
     def list_all_network(self) -> List[Any]:
-        """list all networks available"""
+        """List all networks available"""
         access_points: List[NM.AccessPoint] = self._device.get_access_points()
 
         unique_access_points: Dict = {}  # type: ignore
         logger.debug(f"Access points: {access_points}")
         for ap in access_points:
-            ssid = NM.utils_ssid_to_utf8(ap.get_ssid().get_data() if ap.get_ssid() is not None else [0])  # type: ignore
+            ssid = NM.utils_ssid_to_utf8(
+                ap.get_ssid().get_data() if ap.get_ssid() is not None else [0]
+            )  # type: ignore
             if ssid in unique_access_points:
                 if ap.get_strength() < unique_access_points[ssid]["strength"]:  # type: ignore
                     continue
@@ -221,13 +223,15 @@ class WifiService(Service):
                 "ssid": ssid,
                 "bssid": ap.get_bssid(),
             }
-        sorted_networks = sorted(unique_access_points.values(), key=lambda e: e["strength"], reverse=True)  # type: ignore
+        sorted_networks = sorted(
+            unique_access_points.values(), key=lambda e: e["strength"], reverse=True
+        )  # type: ignore
         return list(map(lambda data: data, sorted_networks))
 
     def connect_to_ssid(
         self, ssid, password: str = "", callback: Callable[[str], bool] | None = None
     ):
-        """connect to given ssid"""
+        """Connect to given ssid"""
         exec_shell_command_async(["nmcli", "con", "up", ssid], callback)
         exec_shell_command_async(
             [
@@ -243,7 +247,7 @@ class WifiService(Service):
         )
 
     def disconnect_active_connection(self):
-        """disconnect from current AP"""
+        """Disconnect from current AP"""
         self.emit("network_change")
         self._device.disconnect_async()
 
@@ -293,8 +297,7 @@ class EthernetService(Service):
 
     @Property(str, "readable")
     def ip(self):
-        """ip address of current connection"""
-
+        """Ip address of current connection"""
         if active_connection := self._client.get_active_connections()[0]:
             if ip_config := active_connection.get_ip4_config():
                 return ip_config.get_addresses()[0].get_address()
@@ -305,7 +308,7 @@ class EthernetService(Service):
 
     @Property(str, "readable")
     def interface_type(self):
-        """name of ethernet interface type"""
+        """Name of ethernet interface type"""
         return self._device.get_iface()
 
     def __init__(self, client: NM.Client, device: NM.DeviceEthernet, **kwargs) -> None:
@@ -342,7 +345,7 @@ class NetworkService(Service):
 
     @Signal
     def device_ready(self) -> None:
-        """signal for indicating device is ready"""
+        """Signal for indicating device is ready"""
 
     def __init__(self, **kwargs):
         self._client: NM.Client | None = None
@@ -396,5 +399,5 @@ class NetworkService(Service):
 
     @Property(str, "readable")
     def primary_device(self) -> str:
-        """returns primary_network device"""
+        """Returns primary_network device"""
         return self._get_primary_device()

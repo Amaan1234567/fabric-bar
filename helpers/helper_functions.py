@@ -1,7 +1,7 @@
 """Module of Helper functions for the project"""
 
-from loguru import logger
 from gi.repository import GdkPixbuf  # type: ignore
+from loguru import logger
 
 
 def pixbuf_cropping_if_image_is_not_1_1(
@@ -18,6 +18,7 @@ def pixbuf_cropping_if_image_is_not_1_1(
 
     Returns:
         GdkPixbuf.Pixbuf | None: return 1:1 pixbuf image else returns None if cropping went wrong
+
     """
     original_width = original_pixbuf.get_width()
     original_height = original_pixbuf.get_height()
@@ -59,5 +60,5 @@ def pixbuf_cropping_if_image_is_not_1_1(
 
 
 def truncate(text, max_len=15):
-    """truncates text to given char len"""
+    """Truncates text to given char len"""
     return text if len(text) <= max_len else text[: max_len - 1] + "…"

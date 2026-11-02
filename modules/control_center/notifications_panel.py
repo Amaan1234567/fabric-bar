@@ -1,8 +1,6 @@
-import gc
-import os
 
-from fabric.notifications.service import Notification
-from fabric.utils import get_relative_path
+import os
+from loguru import logger
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.centerbox import CenterBox
@@ -128,7 +126,9 @@ class NotificationItem(Box):
                                     h_expand=True,
                                     v_expand=True,
                                     label=action.label,
-                                    on_clicked=lambda *_, action=action: action.invoke(),
+                                    on_clicked=lambda *_, action=action: (
+                                        action.invoke()
+                                    ),
                                 )
                                 for action in actions[
                                     i : i + NOTIFICATION_BUTTONS_WRAP_THRESHOLD

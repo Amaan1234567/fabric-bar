@@ -1,31 +1,29 @@
-"""
-This module defines the CustomImage widget, which extends the Image widget
+"""This module defines the CustomImage widget, which extends the Image widget
 from the fabric library to add rounded corners to the image.
 """
 
-from typing import cast
 import math
+from typing import cast
+
 import cairo
 from fabric.widgets.image import Image
 from gi.repository import Gtk
 
 
 class CustomImage(Image):
-    """
-    A custom image widget with rounded corners.
-    """
+    """A custom image widget with rounded corners."""
 
     def do_render_rectangle(
         self, cr: cairo.Context, width: int, height: int, radius: int = 0
     ) -> None:
-        """
-        Renders a rounded rectangle path on the given cairo context.
+        """Renders a rounded rectangle path on the given cairo context.
 
         Args:
             cr (cairo.Context): The cairo context to draw on.
             width (int): The width of the rectangle.
             height (int): The height of the rectangle.
             radius (int): The radius of the rounded corners. Defaults to 0.
+
         """
         cr.move_to(radius, 0)
         cr.line_to(width - radius, 0)
@@ -39,11 +37,11 @@ class CustomImage(Image):
         cr.close_path()
 
     def do_draw(self, cr: cairo.Context) -> None:
-        """
-        Draws the image with rounded corners on the given cairo context.
+        """Draws the image with rounded corners on the given cairo context.
 
         Args:
             cr (cairo.Context): The cairo context to draw on.
+
         """
         context = self.get_style_context()
         width, height = self.get_allocated_width(), self.get_allocated_height()

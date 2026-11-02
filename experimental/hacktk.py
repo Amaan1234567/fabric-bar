@@ -1,10 +1,11 @@
 from functools import partial
 
 from cffi import FFI
-from fabric.widgets.stack import Stack
-from fabric.widgets.revealer import Revealer
-from .animator import Animator, cubic_bezier
 from fabric.utils import get_relative_path
+from fabric.widgets.revealer import Revealer
+from fabric.widgets.stack import Stack
+
+from .animator import Animator, cubic_bezier
 
 ffi = FFI()
 

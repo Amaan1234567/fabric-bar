@@ -3,7 +3,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Glace", "0.1")
 gi.require_version("GtkLayerShell", "0.1")
-from gi.repository import Gtk, Gdk, Glace, GtkLayerShell
+from gi.repository import Gdk, Glace, Gtk, GtkLayerShell
 
 
 class GlaceClientMenu(Gtk.Menu):
@@ -20,9 +20,11 @@ class GlaceClientMenu(Gtk.Menu):
         minimize_item.connect("activate", lambda *args: self.client.minimize())
         fullscreen_item.connect(
             "activate",
-            lambda *args: self.client.unfullscreen()
-            if self.client.get_fullscreen()
-            else self.client.fullscreen(),
+            lambda *args: (
+                self.client.unfullscreen()
+                if self.client.get_fullscreen()
+                else self.client.fullscreen()
+            ),
         )
         close_item.connect("activate", lambda *args: self.client.close())
         self.append(activate_item)

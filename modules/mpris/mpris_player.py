@@ -1,16 +1,16 @@
 """hold mpris player"""
 
-from loguru import logger
-from gi.repository import GdkPixbuf, Gio  # type: ignore
+from fabric.utils import cooldown, get_relative_path, invoke_repeater
 from fabric.widgets.box import Box
-from fabric.widgets.label import Label
 from fabric.widgets.button import Button
-from fabric.utils import invoke_repeater, cooldown, get_relative_path
+from fabric.widgets.label import Label
+from gi.repository import GdkPixbuf, Gio  # type: ignore
+from loguru import logger
 
-from custom_widgets.image_rounded import CustomImage
 from custom_widgets.animated_scale import AnimatedScale
-from services.playerctlservice import SimplePlayerctlService, Player
+from custom_widgets.image_rounded import CustomImage
 from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
+from services.playerctlservice import Player, SimplePlayerctlService
 
 
 class MprisPlayer(Box):
@@ -23,7 +23,7 @@ class MprisPlayer(Box):
         self.song_length = 0
         self.art_url = ""
         self._player = player
-        self.stop_update= True
+        self.stop_update = True
 
         self.service = SimplePlayerctlService()
         self._player.connect("changed", self._update_widget)
@@ -210,14 +210,14 @@ class MprisPlayer(Box):
             self.song_title.set_label(truncate(title.strip() or "—", max_len=20))
             self.song_artist.set_label(truncate(artist.strip() or "—", max_len=20))
             if self.song_length == 0:
-                self.stop_update= True
+                self.stop_update = True
                 self.song_length = self.scale.value if self.scale.value > 0 else 300000
             else:
                 self.stop_update = False
             self.scale.max_value = self.song_length
 
             if art_url not in (self.temp_url_cache, ""):
-                logger.info(f"updating album art with url: {art_url}") 
+                logger.info(f"updating album art with url: {art_url}")
                 Gio.File.new_for_uri(art_url).read_async(0, None, self._art_update)
                 self.temp_url_cache = art_url
             elif art_url == "":

@@ -1,10 +1,9 @@
 import fabric
 from fabric import Application
-from fabric.widgets.window import Window
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
-
+from fabric.widgets.window import Window
 from hacktk import HackedRevealer
 
 
