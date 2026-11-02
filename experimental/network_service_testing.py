@@ -11,8 +11,8 @@ from gi.repository import NM, Gio, GLib, GObject
 # --- Fabric Imports ---
 # (Assuming you have this 'fabric' framework installed)
 try:
-    from fabric.core.service import Property, Service, Signal
-    from fabric.utils.helpers import bulk_connect
+    from fabric.core.service import Property, Service, Signal  # type: ignore
+    from fabric.utils.helpers import bulk_connect  # type: ignore
 except ImportError:
     logger.error("Fabric library not found.")
     logger.error("Please ensure 'fabric.core.service' is in your PYTHONPATH.")

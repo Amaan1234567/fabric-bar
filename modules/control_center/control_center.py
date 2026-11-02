@@ -2,8 +2,6 @@
 
 from fabric.utils import cooldown
 from fabric.widgets.box import Box
-from fabric.widgets.revealer import Revealer
-from fabric.widgets.wayland import WaylandWindow as Window
 
 from custom_widgets.HackedStackRevealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
