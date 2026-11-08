@@ -45,6 +45,16 @@
   }
 }
 
+#h-padding{
+  padding-left:3px;
+  padding-right:3px;
+}
+
+#v-padding{
+  padding-top:3px;
+  padding-bottom:3px;
+}
+
 #bar {
   background-color: var(--background);
 }

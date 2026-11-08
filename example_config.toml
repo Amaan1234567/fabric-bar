@@ -1,0 +1,52 @@
+[layout]
+type = "dynamic" #or "single"
+dynamic_widgets = [
+    "h-padding",
+    "cpu",
+    "mem",
+    "gpu",
+    "network-speed",
+    "disk-usage",
+    "spacer", # Use "spacer" to add expandable space between widget sections
+    "mpris",
+    "h-padding",
+    "cava",
+    "h-padding",
+    "window-title",
+    "hyprland-workspaces",
+    "spacer",
+    "clock",
+    "system-tray",
+    "system-controls",
+    "h-padding",
+    "battery",
+    "h-padding",
+    "control-center",
+]
+
+#if type is left-center-right, you can define the widgets for each section like this:
+# left_widgets = [
+#     "cpu",
+#     "mem",
+#     "gpu",
+#     "network-speed",
+#     "disk-usage"
+# ]
+
+# center_widgets = [
+#     "mpris",
+#     "cava",
+#     "window-title",
+#     "hyprland-workspaces"
+# ]
+
+# right_widgets = [
+#     "clock",
+#     "system-tray",
+#     "system-controls",
+#     "battery",
+#     "control-center",
+#     "powermenu"
+# ]
+
+
