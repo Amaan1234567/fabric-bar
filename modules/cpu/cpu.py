@@ -1,5 +1,3 @@
-"""CPU widget with circular progress bar and hover-activated graph popup."""
-
 from collections import deque
 
 import psutil
@@ -18,6 +16,7 @@ class Cpu(Box):
     """CPU widget — icon + circular bar in the bar, graph popup on hover."""
 
     HISTORY_LENGTH = 10  # 60 seconds at 1 s polling
+    CPU_DRIVERS = ["k10temp", "coretemp", "cpu_thermal", "soc_thermal", "zenpower"]
 
     def __init__(self, window, **kwargs):
         super().__init__(orientation="h", name="cpu")
@@ -39,7 +38,6 @@ class Cpu(Box):
             size=35,
             start_angle=105,
             end_angle=465,
-            # invert=True,
             min_value=0.0,
             max_value=100.0,
         )
@@ -50,7 +48,7 @@ class Cpu(Box):
             name="cpu-overlay",
         )
 
-        # ── event box for reliable hover events (same pattern as Mpris) ──
+        # ── event box for reliable hover events ─────────────────────
         self.content_event_box = EventBox()
         self.content_event_box.add(self.overlay)
         self.add(self.content_event_box)
@@ -73,18 +71,16 @@ class Cpu(Box):
         # hover on bar
         self.content_event_box.connect("enter-notify-event", self._hover_trigger)
         self.content_event_box.connect("leave-notify-event", self._on_hover_leave)
-        # hover on popup itself (pointer moved from bar into popup)
+        # hover on popup itself
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
-
-        # self.popup.do_reposition("x")
 
         # ── polling ─────────────────────────────────────────────────
         self._tick()
         GLib.timeout_add(1000, self._tick)
 
     # ────────────────────────────────────────────────────────────────
-    #  Hover / show / hide  (mirrors the Mpris pattern)
+    #  Hover / show / hide
     # ────────────────────────────────────────────────────────────────
 
     def _hover_trigger(self, *_):
@@ -96,7 +92,7 @@ class Cpu(Box):
         self._show_delay_id = None
 
         self.popup.update(self._history, self._build_stats_markup())
-        popup_manager.request_show(self.popup, self)  # ← add this
+        popup_manager.request_show(self.popup, self)
 
         return False
 
@@ -124,7 +120,7 @@ class Cpu(Box):
     def _hide_popup(self):
         self.popup.overlay_revealer.set_reveal_child(False)
         GLib.timeout_add(250, self.popup.set_visible, False)
-        popup_manager.request_hide(self.popup, self)  # ← add this
+        popup_manager.request_hide(self.popup, self)
         self._hide_timeout_id = None
         return False
 
@@ -133,65 +129,105 @@ class Cpu(Box):
     # ────────────────────────────────────────────────────────────────
 
     def get_cpu_usage(self) -> float:
-        """Get the current total CPU usage percentage."""
-        return psutil.cpu_percent()
+        """Get the current total CPU usage percentage safely."""
+        try:
+            return psutil.cpu_percent()
+        except Exception:
+            return 0.0
 
     def _get_details(self):
+        """Safely fetch system metrics with granular fallback handlers."""
+        # 1. Frequency
         try:
-            return (
-                psutil.cpu_freq(),
-                psutil.cpu_percent(percpu=True),
-                psutil.sensors_temperatures()["coretemp"][0],
-                psutil.sensors_fans().get(
-                    next(iter(psutil.sensors_fans().keys())), [None]
-                )[0],
-            )
-        except (KeyError, IndexError):
-            return None
+            cur_freq = psutil.cpu_freq()
+        except Exception:
+            cur_freq = None
+
+        # 2. Per-core usage
+        try:
+            per_core_usage = psutil.cpu_percent(percpu=True)
+        except Exception:
+            per_core_usage = []
+
+        # 3. Temperature with driver fallback lookup
+        cpu_temp = None
+        try:
+            temps = psutil.sensors_temperatures()
+            if temps:
+                for driver in self.CPU_DRIVERS:
+                    if driver in temps and temps[driver]:
+                        cpu_temp = temps[driver][0]
+                        break
+                # Fallback to the first available sensor if none of the known drivers matched
+                if not cpu_temp:
+                    first_key = next(iter(temps.keys()))
+                    if temps[first_key]:
+                        cpu_temp = temps[first_key][0]
+        except Exception:
+            cpu_temp = None
+
+        # 4. Fan speed (handles systems without fans gracefully)
+        cpu_fan_speed = None
+        try:
+            fans = psutil.sensors_fans()
+            if fans:
+                first_fan_key = next(iter(fans.keys()))
+                if fans[first_fan_key]:
+                    cpu_fan_speed = fans[first_fan_key][0]
+        except Exception:
+            cpu_fan_speed = None
+
+        return cur_freq, per_core_usage, cpu_temp, cpu_fan_speed
 
     def _build_stats_markup(self) -> str:
-        details = self._get_details()
-        if details is None:
-            return "<b>CPU</b>"
-
-        cur_freq, per_core_usage, cpu_temp, cpu_fan_speed = details
+        cur_freq, per_core_usage, cpu_temp, cpu_fan_speed = self._get_details()
         bar_chars = "▁▂▃▄▅▆▇█"
 
-        cores = "".join(
-            bar_chars[min(int((c / 100) * (len(bar_chars) - 1)), len(bar_chars) - 1)]
-            for c in per_core_usage
-        )
+        lines = ["<b>CPU</b>"]
 
-        freq_color = (
-            "#A3DC9A"
-            if cur_freq.current <= 1000
-            else "#FCF67E"
-            if cur_freq.current < 3500
-            else "#FF5454"
-        )
-        temp_color = (
-            "#A3DC9A"
-            if cpu_temp.current <= 45
-            else "#FCF67E"
-            if cpu_temp.current <= 75
-            else "#FF5454"
-        )
+        # Frequency line
+        if cur_freq and getattr(cur_freq, "current", None):
+            freq_val = cur_freq.current / 1000
+            freq_color = (
+                "#A3DC9A"
+                if freq_val <= 1.0
+                else "#FCF67E"
+                if freq_val < 3.5
+                else "#FF5454"
+            )
+            lines.append(
+                f'Freq: <span foreground="{freq_color}">{freq_val:.2f} GHz</span>'
+            )
 
-        return "\n".join(
-            [
-                "<b>CPU</b>",
-                (
-                    f'Freq: <span foreground="{freq_color}">'
-                    f"{cur_freq.current / 1000:.2f} GHz</span>"
-                ),
-                f"<tt>Core: {cores}</tt>",
-                (
-                    f'Temp: <span foreground="{temp_color}">'
-                    f"{cpu_temp.current}\u00b0C</span>"
-                ),
-                f"Fan: {cpu_fan_speed.current} RPM",
-            ]
-        )
+        # Core usage line
+        if per_core_usage:
+            cores = "".join(
+                bar_chars[
+                    min(int((c / 100) * (len(bar_chars) - 1)), len(bar_chars) - 1)
+                ]
+                for c in per_core_usage
+            )
+            lines.append(f"<tt>Core: {cores}</tt>")
+
+        # Temperature line (omitted gracefully if sensor is missing)
+        if cpu_temp and getattr(cpu_temp, "current", None):
+            temp_val = cpu_temp.current
+            temp_color = (
+                "#A3DC9A"
+                if temp_val <= 45
+                else "#FCF67E"
+                if temp_val <= 75
+                else "#FF5454"
+            )
+            lines.append(
+                f'Temp: <span foreground="{temp_color}">{temp_val}\u00b0C</span>'
+            )
+
+        # Fan speed line (omitted gracefully on fanless/unsupported systems)
+        if cpu_fan_speed and getattr(cpu_fan_speed, "current", None):
+            lines.append(f"Fan: {cpu_fan_speed.current} RPM")
+
+        return "\n".join(lines)
 
     # ────────────────────────────────────────────────────────────────
     #  Polling (every 1 s)
