@@ -212,3 +212,4 @@ styles/colors.css
 ./venv
 
 basic_dotfiles/.config/hypr/custom_config
+config.toml

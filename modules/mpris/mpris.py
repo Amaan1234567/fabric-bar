@@ -20,7 +20,7 @@ class Mpris(Box):
     """mpris widget that is shown in the bar, which shows truncated song name and album art"""
 
     def __init__(self, window, **kwargs):
-        super().__init__(orientation="horizontal", spacing=6, **kwargs)
+        super().__init__(orientation="horizontal", name="mpris",spacing=6, **kwargs)
 
         self.delay = None
         self.temp_art_pixbuf_cache = None
