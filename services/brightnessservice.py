@@ -1,15 +1,15 @@
 """Service to manage brightness for both internal and external displays."""
 
 import os
+import re
 import subprocess
 import threading
 import time
-import re
-from loguru import logger
 
 from fabric import Fabricator
 from fabric.core.service import Service, Signal
 from gi.repository import GLib  # type: ignore
+from loguru import logger
 
 LOWEST_VALUE = 5
 
@@ -25,7 +25,6 @@ class BrightnessService(Service):
         hardware_id is the identifier for the specific device.
         value is the new brightness level (0-100).
         """
-        pass
 
     def __new__(cls):
         if cls._instance is None:
@@ -60,7 +59,7 @@ class BrightnessService(Service):
         except:  # noqa: E722
             return "intel_backlight"
 
-    def external_device_polling_threads(self):
+    def _external_device_polling_threads(self):
         threads = []
         for bus_id in self._external_monitors_bus_ids:
             thread = threading.Thread(
@@ -87,7 +86,7 @@ class BrightnessService(Service):
         except Exception:
             return []
 
-    def _get_sysfs_value(self, *args) -> int:
+    def _get_sysfs_value(self, *_) -> int:
         try:
             with open(
                 f"{self._internal_path}/max_brightness", "r", encoding="utf-8"
@@ -132,14 +131,14 @@ class BrightnessService(Service):
                         if val != self._external_values.get(bus_id):
                             self._external_values[bus_id] = val
                             GLib.idle_add(self.emit, "changed", "external", "1", val)
-            except Exception:
+            except Exception:  # noqa: BLE001, S110
                 pass
 
             time.sleep(1)
 
     def set_brightness_all(self, value):
         """Set brightness for all devices to the internal value."""
-        value = max(value, LOWEST_VALUE)
+        value = min(max(value, LOWEST_VALUE), 100)
 
         self.set_brightness("internal", "internal", value)
         for bus_id in self._external_monitors_bus_ids:
@@ -147,11 +146,12 @@ class BrightnessService(Service):
 
     def set_brightness(self, device_type: str, hardware_id: str, value: int):
         """Set brightness for a given device and emit the change immediately."""
-        value = max(value, LOWEST_VALUE)
+        value = min(max(value, LOWEST_VALUE), 100)
         # 1. Update internal state and emit immediately so the UI is snappy
         if device_type == "internal":
             self._internal_val = value
             subprocess.Popen(["brightnessctl", "set", f"{value}%", "-q"])
+            self.emit("changed", device_type, hardware_id, value)
         else:
             self._external_values[hardware_id] = value
             # Run the ddcutil set command in a background thread
@@ -166,10 +166,10 @@ class BrightnessService(Service):
                         hardware_id,
                         "--sleep-multiplier",
                         ".1",
-                    ]
+                    ],
+                    check=False,
                 ),
                 daemon=True,
             ).start()
-
-        # 2. Force emit the signal so the OSD pops up instantly
-        self.emit("changed", device_type, hardware_id, value)
+            self.emit("changed", device_type, "1", value)
+      
