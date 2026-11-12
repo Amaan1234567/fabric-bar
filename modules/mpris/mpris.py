@@ -11,7 +11,7 @@ from loguru import logger
 from custom_widgets.animated_cirular_scale import AnimatedCircularScale
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.scolling_text_widget import ScrollingLabel
-from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1
+from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1
 from modules.mpris.mpris_popup import MprisPopup
 from services.playerctlservice import SimplePlayerctlService
 

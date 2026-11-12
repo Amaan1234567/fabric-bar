@@ -4,6 +4,8 @@ import os
 import subprocess
 import threading
 import time
+import re
+from loguru import logger
 
 from fabric import Fabricator
 from fabric.core.service import Service, Signal
@@ -38,11 +40,9 @@ class BrightnessService(Service):
         self._internal_path = f"/sys/class/backlight/{self._internal_dev}"
         self._internal_val = self._get_sysfs_value()
 
+        self._external_monitors_bus_ids = self._find_external_devices()
         self._external_values = {}
         self._inhibit_polling = False
-
-        # Your MSI monitor bus ID
-        self.external_bus = "10"
 
         # 1. Internal Poller (sysfs)
         self._int_poller = Fabricator(poll_from=self._get_sysfs_value, interval=100)
@@ -56,42 +56,67 @@ class BrightnessService(Service):
             return os.listdir("/sys/class/backlight")[0]
         except:  # noqa: E722
             return "intel_backlight"
+    def external_device_polling_threads(self):
+        threads = []
+        for bus_id in self._external_monitors_bus_ids:
+            thread = threading.Thread(
+                target=self._external_poll_loop, args=(bus_id,), daemon=True
+            )
+            threads.append(thread)
+            thread.start()
+        return threads
+
+    def _find_external_devices(self):
+        try: 
+            res = subprocess.run(
+                ["ddcutil", "detect","--ddc-checks-async-min","4"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            bus_ids = re.findall(r"(?<=Display \d{1}\n   I2C bus:  )/dev/i2c-(\d+)", res.stdout)
+            print(bus_ids)
+
+            return bus_ids
+        except Exception:
+            return []
 
     def _get_sysfs_value(self, *args) -> int:
         try:
-            with open(f"{self._internal_path}/max_brightness", "r") as f:
+            with open(f"{self._internal_path}/max_brightness", "r", encoding="utf-8") as f:
                 max_v = int(f.read())
-            with open(f"{self._internal_path}/actual_brightness", "r") as f:
+            with open(f"{self._internal_path}/actual_brightness", "r", encoding="utf-8") as f:
                 act_v = int(f.read())
             return round((act_v / max_v) * 100)
         except:  # noqa: E722
             return 0
 
     def _on_internal_poll(self, _, value):
-        # We removed the 'is_adjusting' check here
+        
         if value != self._internal_val:
             self._internal_val = value
             self.emit("changed", "internal", "internal", value)
 
-    def _external_poll_loop(self):
+    def _external_poll_loop(self, bus_id=None|str):
+        if bus_id is None:
+            logger.info("No bus_id provided for external polling loop. Exiting thread.")
+            return
         while True:
             try:
-                # Use context manager and avoid capture_output/check=True
-                with subprocess.Popen(
-                    ["ddcutil", "getvcp", "10", "--bus", self.external_bus, "--terse"],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.DEVNULL, # Discard stderr to prevent unneeded I/O wrappers
-                    text=True
-                ) as proc:
-                    stdout, _ = proc.communicate()
-                    
-                    if proc.returncode == 0:
-                        parts = stdout.split()
-                        if len(parts) >= 4:
-                            val = int(parts[3])
-                            if val != self._external_values.get(self.external_bus):
-                                self._external_values[self.external_bus] = val
-                                GLib.idle_add(self.emit, "changed", "external", "1", val)
+                res = subprocess.run(
+                    ["ddcutil", "getvcp", "10", "--bus", bus_id, "--terse"], # type: ignore
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                ) # type: ignore
+                if res.returncode == 0:
+                    parts = res.stdout.split()
+                    if len(parts) >= 4:
+                        val = int(parts[3])
+                        # Only emit if the hardware value actually changed from what we last saw
+                        if val != self._external_values.get(bus_id):
+                            self._external_values[bus_id] = val
+                            GLib.idle_add(self.emit, "changed", "external", "1", val)
             except Exception:
                 pass
 

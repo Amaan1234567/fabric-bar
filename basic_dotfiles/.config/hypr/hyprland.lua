@@ -57,9 +57,9 @@ hl.on("hyprland.start", function()
     hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
     hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
     hl.exec_cmd("dbus-update-activation-environment --systemd --all")
-    hl.exec_cmd("awww-daemon")
+    hl.exec_cmd("awww-daemon && sleep 2 && " .. home .. "/fabric-bar/scripts/wallpaper_change.sh")
     hl.exec_cmd("hypridle")
-    hl.exec_cmd(home .. "/fabric-bar/scripts/start.sh")
+    hl.exec_cmd(home .. "/fabric-bar/scripts/start.sh && sleep 2 && aplay " .. home .."/fabric-bar/assets/startup_sound.wav")
     hl.exec_cmd(home .. "/fabric-bar/scripts/wallpaper_loop.sh")
     hl.exec_cmd("wl-paste --watch cliphist store")
 end)
@@ -128,16 +128,19 @@ load_override("theme", function()
         misc = {
             force_default_wallpaper = 0,
             disable_hyprland_logo = true,
-            vrr = 1,
+            vrr = 0,
             mouse_move_enables_dpms = true,
             key_press_enables_dpms = true,
             animate_manual_resizes = true,
-            animate_mouse_windowdragging = true
+            animate_mouse_windowdragging = true,
         },
         xwayland = { force_zero_scaling = true },
         cursor = { no_hardware_cursors = true },
-        render = { new_render_scheduling = true },
-        debug = { vfr = true }
+        render = {
+            new_render_scheduling = true,
+            direct_scanout = 1,
+        },
+        -- debug = { vfr = true }
     })
 
     hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
@@ -198,8 +201,8 @@ end)
 
 local suppressMaximizeRule = hl.window_rule({
     -- Ignore maximize requests from all apps. You'll probably like this.
-    name  = "suppress-maximize-events",
-    match = { class = ".*" },
+    name           = "suppress-maximize-events",
+    match          = { class = ".*" },
 
     suppress_event = "maximize",
 })
@@ -207,8 +210,8 @@ local suppressMaximizeRule = hl.window_rule({
 
 hl.window_rule({
     -- Fix some dragging issues with XWayland
-    name  = "fix-xwayland-drags",
-    match = {
+    name     = "fix-xwayland-drags",
+    match    = {
         class      = "^$",
         title      = "^$",
         xwayland   = true,
