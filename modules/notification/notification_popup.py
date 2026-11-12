@@ -13,7 +13,7 @@ from loguru import logger
 
 from custom_widgets.HackedStackRevealer import HackedRevealer
 from custom_widgets.image_rounded import CustomImage
-from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
+from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 from utils.variables import APP_ICON_MAP
 
 NOTIFICATION_TIMEOUT = 3 * 1000

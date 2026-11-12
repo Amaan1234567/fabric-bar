@@ -14,7 +14,7 @@ from gi.repository import GdkPixbuf, GLib, Gtk
 from loguru import logger
 
 from custom_widgets.image_rounded import CustomImage
-from helpers.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
+from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 from services.notification_service import NotificationService
 from utils.variables import APP_ICON_MAP
 

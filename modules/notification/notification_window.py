@@ -1,10 +1,13 @@
 """holds the notification window widget"""
 
+from gi.repository import GLib
+
 from typing import cast
 
 from fabric.notifications.service import Notification
 from fabric.widgets.box import Box
 from fabric.widgets.wayland import WaylandWindow
+from fabric.utils.helpers import exec_shell_command_async, get_relative_path
 
 from modules.notification.notification_popup import NotificationPopup
 from services.notification_service import NotificationService
@@ -58,3 +61,6 @@ class NotificationPopupWindow(WaylandWindow):
         )
         self.content.add(notification)
         notification.revealer.set_reveal_child(True)
+        exec_shell_command_async(
+            "aplay " + get_relative_path("../../assets/notification_sound.wav")
+        )
