@@ -210,3 +210,6 @@ styles/colors.css
 
 .vscode
 ./venv
+
+basic_dotfiles/.config/hypr/custom_config
+config.toml

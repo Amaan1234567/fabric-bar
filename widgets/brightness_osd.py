@@ -1,24 +1,31 @@
 """Brightness OSD that appears when brightness changes."""
 
-from gi.repository import GLib  # type: ignore
+from loguru import logger
+
+from fabric.utils import remove_handler
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-from fabric.utils import remove_handler
-from custom_widgets.animated_scale import AnimatedScale
 from fabric.widgets.wayland import WaylandWindow as Window  # <--- Add this!
+from gi.repository import GLib  # type: ignore
+
+from custom_widgets.animated_scale import AnimatedScale
+from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
 from services.brightnessservice import BrightnessService
 from utils.monitor import get_monitor_info
-from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
 
 
 class BrightnessOSD(Window):
     """Brightness OSD that appears when brightness changes.
-    It listens to the BrightnessService for changes and shows an OSD with the current brightness level.
-    It automatically hides after a few seconds."""
+    It listens to the BrightnessService for changes and shows an OSD with the current 
+    brightness level. It automatically hides after a few seconds.
+    """
 
     def __init__(self, monitor_id=0, **kwargs):
         # Determine if this OSD is internal or external
         self.device_type, self.hardware_id = get_monitor_info(monitor_id)
+        logger.info(
+            f"BrightnessOSD initialized for {self.device_type} with ID {self.hardware_id}, monitor_id={monitor_id}"
+        )
 
         super().__init__(
             layer="top",
@@ -70,6 +77,9 @@ class BrightnessOSD(Window):
     def _on_brightness_changed(self, _, dev_type, dev_id, value):
         # Match against our dynamic detection
         # Convert both to strings to avoid "1" vs 1 mismatch
+        logger.info(
+            f"BrightnessOSD received change signal: dev_type={dev_type}, dev_id={dev_id}, value={value}, expected_type={self.device_type}, expected_id={self.hardware_id}"
+        )
         if dev_type != self.device_type or str(dev_id) != str(self.hardware_id):
             return
 

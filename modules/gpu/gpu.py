@@ -10,8 +10,8 @@ from fabric.widgets.label import Label
 from gi.repository import GLib
 
 from custom_widgets.animated_scale import AnimatedScale
-from utils.popup_manager import popup_manager
 from modules.gpu.gpu_popup import GpuPopup
+from utils.popup_manager import popup_manager
 
 MAX_DEVICES_DISPLAYED = 3
 
@@ -96,7 +96,7 @@ class GpuWidget(Box):
 
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
-        #self.popup.do_reposition("x")
+        # self.popup.do_reposition("x")
 
         # ── polling (background thread, every 2s) ───────────────
         GLib.timeout_add(1000, self._trigger_update)

@@ -1,10 +1,11 @@
 """holds the playerctl service"""
 
 import os
+
 from fabric import Property
 from fabric.core.service import Service, Signal
+from gi.repository import GLib, Playerctl  # type: ignore
 from loguru import logger
-from gi.repository import Playerctl, GLib  # type: ignore
 
 
 class Player(Service):
@@ -12,7 +13,7 @@ class Player(Service):
 
     @Signal
     def changed(self) -> None:
-        """signal to request focus"""
+        """Signal to request focus"""
 
     def __init__(self, player: Playerctl.Player, **kwargs):
         super().__init__(**kwargs)
@@ -22,7 +23,7 @@ class Player(Service):
 
     @Property(str, "readable")
     def name(self):
-        """property to get name of player"""
+        """Property to get name of player"""
         return self._player.props.player_name
 
     def _emit_update(self, _, __):
@@ -43,7 +44,6 @@ class Player(Service):
 
     def get_metadata(self):
         """Get metadata for player (or first available player if None)"""
-
         try:
             metadata = self._player.props.metadata
             if not metadata:
@@ -86,8 +86,7 @@ class Player(Service):
             return 0
 
     def set_position(self, position):
-        """set given position(time in seconds) in player"""
-
+        """Set given position(time in seconds) in player"""
         try:
             player: Playerctl.Player = self._player
             player.set_position(int(position * 1e6))
@@ -96,7 +95,6 @@ class Player(Service):
 
     def get_status(self):
         """Get playback status"""
-
         try:
             status = self._player.props.playback_status
             if hasattr(status, "value_nick"):
@@ -116,7 +114,6 @@ class Player(Service):
 
     def get_loop(self):
         """Get loop status"""
-
         try:
             loop_status = self._player.props.loop_status
             if hasattr(loop_status, "value_nick"):
@@ -130,7 +127,6 @@ class Player(Service):
     # Control methods
     def play_pause(self):
         """Toggle play/pause"""
-
         try:
             self._player.play_pause()
             return True
@@ -140,7 +136,6 @@ class Player(Service):
 
     def next_track(self):
         """Next track"""
-
         try:
             self._player.next()
             return True
@@ -150,7 +145,6 @@ class Player(Service):
 
     def previous_track(self):
         """Previous track"""
-
         try:
             self._player.previous()
             return True
@@ -160,7 +154,6 @@ class Player(Service):
 
     def toggle_shuffle(self):
         """Toggle shuffle"""
-
         try:
             current = self._player.props.shuffle
             self._player.set_shuffle(not current)
@@ -171,7 +164,6 @@ class Player(Service):
 
     def cycle_loop(self):
         """Cycle loop mode"""
-
         try:
             current = self._player.props.loop_status
             if current == Playerctl.LoopStatus.NONE:
@@ -255,7 +247,7 @@ class SimplePlayerctlService(Service):
 
     @Signal
     def changed(self) -> None:
-        """signal to show state-change"""
+        """Signal to show state-change"""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -272,7 +264,7 @@ class SimplePlayerctlService(Service):
 
     @Property(dict, "read-write")
     def players(self) -> dict:
-        """property to access players"""
+        """Property to access players"""
         return self._players
 
     def _discover_players(self):

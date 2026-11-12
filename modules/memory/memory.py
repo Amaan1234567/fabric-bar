@@ -3,15 +3,15 @@
 from collections import deque
 
 import psutil
-from gi.repository import GLib  # type: ignore
-
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
-from utils.popup_manager import popup_manager
+from gi.repository import GLib  # type: ignore
+
 from custom_widgets.animated_cirular_scale import AnimatedCircularScale
 from modules.memory.memory_popup import MemoryPopup
+from utils.popup_manager import popup_manager
 
 CONVERSION_CONST = 1073741824  # 1 Gigabyte = 1073741824 bytes
 
@@ -70,7 +70,7 @@ class Memory(Box):
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
 
-        #self.popup.do_reposition("x")
+        # self.popup.do_reposition("x")
 
         # ── polling ─────────────────────────────────────────────
         self._tick()
@@ -134,12 +134,16 @@ class Memory(Box):
         ram_color = (
             "#A3DC9A"
             if ram.percent <= 50
-            else "#FCF67E" if ram.percent <= 80 else "#FF5454"
+            else "#FCF67E"
+            if ram.percent <= 80
+            else "#FF5454"
         )
         swap_color = (
             "#A3DC9A"
             if swap.percent <= 50
-            else "#FCF67E" if swap.percent <= 80 else "#FF5454"
+            else "#FCF67E"
+            if swap.percent <= 80
+            else "#FF5454"
         )
 
         return "\n".join(

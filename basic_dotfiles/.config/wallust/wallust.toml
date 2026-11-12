@@ -1,0 +1,17 @@
+# Let's keep good old pywal look and feel
+backend = "wal"
+color_space = "labmixed" # idc about this one..
+#threshold =20 # neither about this, since I read wallust does it automagically..
+# classic look
+palette = "dark"
+# let's keep the contrast very very very clear.
+check_contrast = true
+fallback_generator = "complementary"
+
+[templates]
+hyprland = {template = 'hyprland',dst = "~/.config/hypr/colors.lua"}
+cava = {template = 'cava', dst = "~/.config/cava/config"}
+rofi_drun = {template = 'rofi_drun',dst = "~/.config/rofi/drun_theme.rasi"}
+hyprlock = {template = 'hyprlock', dst = "~/.config/hypr/hyprlock.conf"}
+fabric = { template = 'fabric', dst = "~/fabric-bar/styles/colors.css" }
+kitty = { template='kitty', dst='~/.config/kitty/kitty-colors.conf'}

@@ -1,20 +1,18 @@
-import os
-import signal
 import sys
-from loguru import logger
-from typing import Literal, Any
+from typing import Any, Literal
 
 # --- PyGObject and NetworkManager Imports ---
 import gi
+from loguru import logger
 
 gi.require_version("NM", "1.0")
-from gi.repository import NM, Gio, GObject, GLib
+from gi.repository import NM, Gio, GLib, GObject
 
 # --- Fabric Imports ---
 # (Assuming you have this 'fabric' framework installed)
 try:
-    from fabric.core.service import Service, Signal, Property
-    from fabric.utils.helpers import bulk_connect
+    from fabric.core.service import Property, Service, Signal  # type: ignore
+    from fabric.utils.helpers import bulk_connect  # type: ignore
 except ImportError:
     logger.error("Fabric library not found.")
     logger.error("Please ensure 'fabric.core.service' is in your PYTHONPATH.")
@@ -209,7 +207,7 @@ class NetworkService(Service):
 
     @Signal
     def device_ready(self) -> None:
-        """signal for indicating device is ready"""
+        """Signal for indicating device is ready"""
 
     def __init__(self, **kwargs):
         if hasattr(self, "_client") and self._client:  # Prevent re-initialization

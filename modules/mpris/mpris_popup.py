@@ -1,8 +1,8 @@
 """hold mpris popup"""
 
-from modules.mpris.mpris_player_stack import MprisPlayerStack
-from custom_widgets.popup_window import PopupWindow
 from custom_widgets.HackedStackRevealer import HackedRevealer
+from custom_widgets.popup_window import PopupWindow
+from modules.mpris.mpris_player_stack import MprisPlayerStack
 
 
 class MprisPopup(PopupWindow):

@@ -1,8 +1,8 @@
 """hold rog app trigger button"""
 
+from fabric.utils import cooldown, exec_shell_command_async
 from fabric.widgets.button import Button
 from fabric.widgets.svg import Svg
-from fabric.utils import cooldown, exec_shell_command_async
 
 
 class ROGButton(Button):

@@ -1,8 +1,8 @@
-from fabric.utils import monitor_file, get_relative_path
-from fabric.widgets.label import Label
-from fabric.widgets.box import Box
-from fabric.widgets.wayland import WaylandWindow
 from fabric import Application
+from fabric.utils import get_relative_path, monitor_file
+from fabric.widgets.box import Box
+from fabric.widgets.label import Label
+from fabric.widgets.wayland import WaylandWindow
 
 
 class window(WaylandWindow):

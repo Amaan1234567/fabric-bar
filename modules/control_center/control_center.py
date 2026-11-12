@@ -1,26 +1,25 @@
 """contains the control center widget"""
 
-from fabric.widgets.wayland import WaylandWindow as Window
-from fabric.widgets.box import Box
-from fabric.widgets.revealer import Revealer
 from fabric.utils import cooldown
-from custom_widgets.popup_window import PopupWindow
+from fabric.widgets.box import Box
+
 from custom_widgets.HackedStackRevealer import HackedRevealer
+from custom_widgets.popup_window import PopupWindow
 from modules.control_center.bluetooth_toggle import BluetoothToggle
-from modules.control_center.wifi_toggle_button import WifiToggle
+from modules.control_center.brightness_slider import BrightnessSlider
+from modules.control_center.gamemode_toggle import GamemodeToggleButton
+from modules.control_center.mic_toggle_button import MicToggle
+from modules.control_center.notifications_panel import NotificationsPanel
+from modules.control_center.performance_toggle import PerformanceToggle
 from modules.control_center.rog_control_center_toggle import ROGButton
 from modules.control_center.wallpaper_change_button import WallpaperChangeButton
-from modules.control_center.mic_toggle_button import MicToggle
-from modules.control_center.performance_toggle import PerformanceToggle
-from modules.control_center.brightness_slider import BrightnessSlider
-from modules.control_center.notifications_panel import NotificationsPanel
-from modules.control_center.gamemode_toggle import GamemodeToggleButton
+from modules.control_center.wifi_toggle_button import WifiToggle
 
 
 class ControlCenter(PopupWindow):
     """control center widget"""
 
-    def __init__(self, app_data, parent, **kwargs):
+    def __init__(self, app_data, parent, monitor=0, **kwargs):
         super().__init__(
             layer="top",
             title="control_center",
@@ -30,7 +29,8 @@ class ControlCenter(PopupWindow):
             type="popup",
             margin="30px 0px 40px 0px",
             parent=parent,
-            **kwargs
+            monitor=monitor,
+            **kwargs,
         )
 
         self.small_toggles = Box(
@@ -75,7 +75,7 @@ class ControlCenter(PopupWindow):
 
     @cooldown(0.35)
     def toggle_control_center(self):
-        """toggles control center"""
+        """Toggles control center"""
         # self.set_visible(not self.get_visible())
 
         if self.revealer.get_reveal_child():

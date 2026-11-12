@@ -1,15 +1,16 @@
 """Disk space widget with usage label and hover-activated popup."""
 
 import shutil
-import psutil
-from gi.repository import GLib  # type: ignore
 
-from tabulate import tabulate
+import psutil
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
+from gi.repository import GLib  # type: ignore
+from tabulate import tabulate
 
 from utils.popup_manager import popup_manager
+
 from .disk_popup import DiskPopup
 
 CONVERSION_CONST = 1073741824

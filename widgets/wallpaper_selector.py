@@ -1,5 +1,6 @@
 """A wallpaper selector widget that allows users to preview and
-apply different wallpapers for their desktop background."""
+apply different wallpapers for their desktop background.
+"""
 
 import os
 from threading import Thread
@@ -215,7 +216,7 @@ class WallpaperSelector(Window):
         GLib.idle_add(_focus_after_load)
 
     def toggle_window(self):
-        """function to toggle window"""
+        """Function to toggle window"""
         if self.is_hidden:
             self.show()
             GLib.idle_add(self._activate_focus)

@@ -2,12 +2,11 @@
 
 from typing import Any
 
+from fabric.audio.service import Audio
+from fabric.utils import remove_handler
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
-
-from fabric.audio.service import Audio
 from fabric.widgets.wayland import WaylandWindow as Window
-from fabric.utils import remove_handler
 from gi.repository import GLib  # type: ignore
 
 from custom_widgets.animated_scale import AnimatedScale

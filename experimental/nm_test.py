@@ -13,7 +13,7 @@ import time
 import gi
 
 gi.require_version("NM", "1.0")
-from gi.repository import NM, GLib, Gio
+from gi.repository import NM, Gio, GLib
 
 SCAN_THRESHOLD_MSEC = 10000
 

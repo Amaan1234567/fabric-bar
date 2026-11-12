@@ -1,5 +1,5 @@
-from PIL import Image
 import numpy as np
+from PIL import Image
 
 width = 500
 height = 300

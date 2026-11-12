@@ -1,28 +1,30 @@
 """holds the main bar widget"""
 
+import tomllib
+from loguru import logger
 from fabric.widgets.box import Box
 from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.wayland import WaylandWindow as Window
 
-
-from modules.clock.clock import Clock
-from modules.cpu.cpu import Cpu
-from modules.memory.memory import Memory
-from modules.workspaces.workspaces import CustomWorkspaces
 from modules.active_window_name.active_window import WindowName
-from modules.cava.cava import CavaWidget
-from modules.mpris.mpris import Mpris
-from modules.control_center_button.control_center_button import ControlCenterButton
-from modules.battery.battery import BatteryWidget
 from modules.audio.audio import AudioWidget
-from modules.network.network import NetworkWidget
+from modules.battery.battery import BatteryWidget
 from modules.bluetooth.bluetooth import BluetoothWidget
+from modules.cava.cava import CavaWidget
+from modules.clock.clock import Clock
+from modules.control_center_button.control_center_button import ControlCenterButton
+from modules.cpu.cpu import Cpu
+from modules.disk.disk import DiskWidget
 from modules.gpu.gpu import GpuWidget
+from modules.logout_button.logout_button import LogoutButton
+from modules.memory.memory import Memory
+from modules.mpris.mpris import Mpris
+from modules.network.network import NetworkWidget
 from modules.network_speed.network_speed import NetworkSpeed
 from modules.system_tray.system_tray import barSystemTray as SystemTray
-from modules.logout_button.logout_button import LogoutButton
-from modules.disk.disk import DiskWidget
+from modules.workspaces.workspaces import CustomWorkspaces
 
+from widgets.system_controls import SystemControls
 
 class TopBar(Window):
     """top bar of UI"""
@@ -39,70 +41,103 @@ class TopBar(Window):
             **kwargs,
         )
         self.app_data = app_data
-        self.cpu = Cpu(window=self)
-        self.memory = Memory(window=self)
-        self.network_speed = NetworkSpeed(window=self)
-        self.gpu = GpuWidget(window=self)
-        self.disk = DiskWidget(window=self)
+
+        self.config = tomllib.loads(open(f"config.toml", "rb").read().decode("utf-8"))
+        print(self.config)
+        if self.config["layout"]["type"] == "dynamic":
+            self.setup_dynamic_layout()
+        elif self.config["layout"]["type"] == "single":
+            self.setup_single_layout()
+        elif self.config["layout"]["type"] == "left-center-right":
+            self.setup_left_center_right_layout()
+
+        # self.add(self.content)
+
+    def get_widget_registry(self,name):
+        """Returns a dictionary mapping string keys from the layout toml to widget factories."""
+        widget_registry = {
+            "cpu": Cpu,
+            "mem": Memory,
+            "gpu": GpuWidget,
+            "network-speed": NetworkSpeed,
+            "disk-usage": DiskWidget,
+            "mpris": Mpris,
+            "window-title": WindowName,  # type: ignore
+            "hyprland-workspaces": CustomWorkspaces,  # type: ignore
+            "clock": Clock,
+            "system-tray": SystemTray,
+            "system-controls": SystemControls,
+            "battery": BatteryWidget,
+            "control-center": ControlCenterButton,
+            "powermenu": LogoutButton,
+            "audio": AudioWidget,
+            "bluetooth": BluetoothWidget,
+            "cava": CavaWidget,  # type: ignore
+            "network": NetworkWidget,
+            "spacer": Box,
+            "h-padding": Box,
+            "v-padding": Box,
+        }
+
+        return widget_registry[name](app_data=self.app_data,window=self,monitor=self.monitor,h_expand=True) if name in widget_registry else Exception(f"Widget '{name}' not found in widget registry.")
+
+    def setup_dynamic_layout(self):
+        """Sets up the bar layout with dynamic widgets based on the configuration."""
+        self.content = Box(
+            name="bar",
+            orientation="h",
+            h_expand=True,
+            v_align="center",
+        )
+        cur_box = Box(
+            orientation="h",
+            spacing=10)
+        for widget_name in self.config["layout"]["dynamic_widgets"]:
+            if widget_name == "spacer":
+                self.content.add(cur_box)
+                self.content.add(self.get_widget_registry(widget_name))
+                logger.info(f"Adding widget: {widget_name} to dynamic layout")
+                cur_box = Box(
+                    orientation="h",
+                    spacing=10)
+            else:
+                logger.info(f"Adding widget: {widget_name} to dynamic layout")
+                cur_box.add(self.get_widget_registry(widget_name))
+        self.content.add(cur_box)
+        self.add(self.content)
+
+    def setup_left_center_right_layout(self):
+        """Sets up the bar layout with left, center, and right sections."""
 
         left_box = Box(
             orientation="h",
             spacing=10,
-            children=[self.cpu, 
-                      self.memory, 
-                      self.gpu, 
-                      self.network_speed, 
-                      self.disk
-                    ],
         )
-
-
-        self.mpris = Mpris(window=self)
-        self.cava = CavaWidget()
-        self.active_window = WindowName()
-        self.workspaces = CustomWorkspaces()
-        center_box = Box(
-            orientation="h",
-            spacing=20,
-            h_align="center",
-            children=[
-                self.mpris,
-                self.cava,
-                self.active_window,
-                self.workspaces,
-            ],
-        )
-
-        self.system_tray = SystemTray()
-        self.clock = Clock(window=self)
-        self.volume = AudioWidget(window=self)
-        self.bluetooth = BluetoothWidget(interval=1)
-        self.network = NetworkWidget(self, interval=1)
-        self.battery = BatteryWidget()
-        self.right_module = ControlCenterButton(app_data=app_data)
-        self.logout_btn = LogoutButton(window=self)
 
         right_box = Box(
             orientation="h",
-            spacing=20,
-            children=[
-                self.system_tray,
-                self.clock,
-                Box(
-                    name="system-controls",
-                    orientation="h",
-                    spacing=10,
-                    children=[
-                        self.volume,
-                        self.network,
-                        self.bluetooth,
-                    ],
-                ),
-                self.battery,
-                self.right_module,
-                self.logout_btn,
-            ],
+            spacing=10,
         )
+
+        center_box = Box(
+            orientation="h",
+            spacing=10,
+        )
+
+        box = Box()
+        for side in ["left_widgets", "center_widgets", "right_widgets"]:
+            if side == "left_widgets":
+                box = left_box
+            elif side == "center_widgets":
+                box = center_box
+            elif side == "right_widgets":
+                box = right_box
+
+            for widget_name in self.config["layout"][side]:
+                logger.info(f"Adding widget: {widget_name} to {side}")
+                box.add(self.widget_registry[widget_name])
+            logger.info(f"Finished adding widgets to {side}")
+            logger.info(f"Current state of {side}: {box.children}")
 
         self.content = CenterBox(
             name="bar",
@@ -112,5 +147,4 @@ class TopBar(Window):
             end_children=right_box,
             v_align="center",
         )
-
         self.add(self.content)
