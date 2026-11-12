@@ -111,11 +111,6 @@ class BrightnessService(Service):
             logger.info("No bus_id provided for external polling loop. Exiting thread.")
             return
         while True:
-            # We only skip if Control Center is animating (inhibit)
-            # if self._inhibit_polling:
-            #     time.sleep(0.1)
-            #     continue
-
             try:
                 res = subprocess.run(
                     ["ddcutil", "getvcp", "10", "--bus", bus_id, "--terse"],  # type: ignore
