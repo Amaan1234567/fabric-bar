@@ -11,6 +11,8 @@ from fabric import Fabricator
 from fabric.core.service import Service, Signal
 from gi.repository import GLib  # type: ignore
 
+LOWEST_VALUE = 5
+
 
 class BrightnessService(Service):
     """Service to manage brightness for both internal and external displays."""
@@ -57,6 +59,7 @@ class BrightnessService(Service):
             return os.listdir("/sys/class/backlight")[0]
         except:  # noqa: E722
             return "intel_backlight"
+
     def external_device_polling_threads(self):
         threads = []
         for bus_id in self._external_monitors_bus_ids:
@@ -68,14 +71,16 @@ class BrightnessService(Service):
         return threads
 
     def _find_external_devices(self):
-        try: 
+        try:
             res = subprocess.run(
-                ["ddcutil", "detect","--ddc-checks-async-min","4"],
+                ["ddcutil", "detect", "--ddc-checks-async-min", "4"],
                 capture_output=True,
                 text=True,
                 check=True,
             )
-            bus_ids = re.findall(r"(?<=Display \d{1}\n   I2C bus:  )/dev/i2c-(\d+)", res.stdout)
+            bus_ids = re.findall(
+                r"(?<=Display \d{1}\n   I2C bus:  )/dev/i2c-(\d+)", res.stdout
+            )
             print(bus_ids)
 
             return bus_ids
@@ -84,21 +89,25 @@ class BrightnessService(Service):
 
     def _get_sysfs_value(self, *args) -> int:
         try:
-            with open(f"{self._internal_path}/max_brightness", "r", encoding="utf-8") as f:
+            with open(
+                f"{self._internal_path}/max_brightness", "r", encoding="utf-8"
+            ) as f:
                 max_v = int(f.read())
-            with open(f"{self._internal_path}/actual_brightness", "r", encoding="utf-8") as f:
+            with open(
+                f"{self._internal_path}/actual_brightness", "r", encoding="utf-8"
+            ) as f:
                 act_v = int(f.read())
             return round((act_v / max_v) * 100)
         except:  # noqa: E722
             return 0
 
     def _on_internal_poll(self, _, value):
-        
+
         if value != self._internal_val:
             self._internal_val = value
             self.emit("changed", "internal", "internal", value)
 
-    def _external_poll_loop(self, bus_id=None|str):
+    def _external_poll_loop(self, bus_id=None | str):
         if bus_id is None:
             logger.info("No bus_id provided for external polling loop. Exiting thread.")
             return
@@ -110,11 +119,11 @@ class BrightnessService(Service):
 
             try:
                 res = subprocess.run(
-                    ["ddcutil", "getvcp", "10", "--bus", bus_id, "--terse"], # type: ignore
+                    ["ddcutil", "getvcp", "10", "--bus", bus_id, "--terse"],  # type: ignore
                     capture_output=True,
                     text=True,
                     check=True,
-                ) # type: ignore
+                )  # type: ignore
                 if res.returncode == 0:
                     parts = res.stdout.split()
                     if len(parts) >= 4:
@@ -128,14 +137,23 @@ class BrightnessService(Service):
 
             time.sleep(1)
 
+    def set_brightness_all(self, value):
+        """Set brightness for all devices to the internal value."""
+        value = max(value, LOWEST_VALUE)
+
+        self.set_brightness("internal", "internal", value)
+        for bus_id in self._external_monitors_bus_ids:
+            self.set_brightness("external", bus_id, value)
+
     def set_brightness(self, device_type: str, hardware_id: str, value: int):
         """Set brightness for a given device and emit the change immediately."""
+        value = max(value, LOWEST_VALUE)
         # 1. Update internal state and emit immediately so the UI is snappy
         if device_type == "internal":
             self._internal_val = value
             subprocess.Popen(["brightnessctl", "set", f"{value}%", "-q"])
         else:
-            self._external_values[self.external_bus] = value
+            self._external_values[hardware_id] = value
             # Run the ddcutil set command in a background thread
             threading.Thread(
                 target=lambda: subprocess.run(
@@ -143,9 +161,9 @@ class BrightnessService(Service):
                         "ddcutil",
                         "setvcp",
                         "10",
-                        str(value),
+                        str(round(value)),
                         "--bus",
-                        self.external_bus,
+                        hardware_id,
                         "--sleep-multiplier",
                         ".1",
                     ]

@@ -64,8 +64,7 @@ class BrightnessSlider(Box):
         self._is_tracking = True
 
         # Use the new explicit method
-        self.service.set_brightness(self.target_type, self.target_id, int(value))
-        self.service.set_brightness("external", "external", int(value))
+        self.service.set_brightness_all(value)
         self.scale.animate_value(value)  # Immediate feedback
         self._update_style(value)
 
