@@ -5,8 +5,6 @@ import re
 import subprocess
 import threading
 import time
-import re
-from loguru import logger
 
 from fabric import Fabricator
 from fabric.core.service import Service, Signal
@@ -128,7 +126,7 @@ class BrightnessService(Service):
                         if val != self._external_values.get(bus_id):
                             self._external_values[bus_id] = val
                             GLib.idle_add(self.emit, "changed", "external", "1", val)
-            except Exception:
+            except Exception:  # noqa: BLE001, S110
                 pass
 
             time.sleep(1)
