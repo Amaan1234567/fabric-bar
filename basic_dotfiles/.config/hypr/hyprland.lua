@@ -300,3 +300,5 @@ load_override("keybinds", function()
     hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"))
     hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"))
 end)
+
+require("colors")
