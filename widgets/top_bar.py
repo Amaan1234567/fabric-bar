@@ -43,8 +43,8 @@ class TopBar(Window):
             **kwargs,
         )
         self.app_data = app_data
-
-        self.config = tomllib.loads(open("config.toml", "rb").read().decode("utf-8"))
+        with open("config.toml", "rb") as config_data:
+            self.config = tomllib.loads(config_data.read().decode("utf-8"))
         print(self.config)
         if self.config["layout"]["type"] == "dynamic":
             self.setup_dynamic_layout()

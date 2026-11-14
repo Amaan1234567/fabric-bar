@@ -1,3 +1,5 @@
+""" Hold the CPU widget"""
+import typing
 from collections import deque
 
 import psutil
@@ -15,8 +17,14 @@ from utils.popup_manager import popup_manager
 class Cpu(Box):
     """CPU widget — icon + circular bar in the bar, graph popup on hover."""
 
-    HISTORY_LENGTH = 10  # 60 seconds at 1 s polling
-    CPU_DRIVERS = ["k10temp", "coretemp", "cpu_thermal", "soc_thermal", "zenpower"]
+    HISTORY_LENGTH: typing.ClassVar = 10  # 60 seconds at 1 s polling
+    CPU_DRIVERS: typing.ClassVar = [
+        "k10temp",
+        "coretemp",
+        "cpu_thermal",
+        "soc_thermal",
+        "zenpower",
+    ]
 
     def __init__(self, window, **kwargs):
         super().__init__(orientation="h", name="cpu")

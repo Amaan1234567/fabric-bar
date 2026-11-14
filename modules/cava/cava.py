@@ -98,7 +98,7 @@ class Cava:
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 env=self.env,
-                preexec_fn=set_death_signal,  # Ensure cava gets killed when the parent dies.
+                preexec_fn=set_death_signal,  # Ensure cava gets killed when the parent dies.  # noqa: PLW1509
             )
             self.state = self.RUNNING
         except Exception:

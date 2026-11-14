@@ -338,7 +338,7 @@ class NetworkWidget(Box):
         )
 
         # Create network button
-        lock_icon = "" if is_secure else ""
+        lock_icon = ""
         label = f"{lock_icon} {ssid} ({signal}%)"
 
         network_button = Button(
@@ -398,6 +398,7 @@ class NetworkWidget(Box):
 
     def _connection_attempt_callback(self, output) -> bool:
         if "successfully" in output:
+            assert self._wifi_device is not None
             exec_shell_command_async(
                 f'notify-send "Network Updated" "Successfully connected to {self._wifi_device.ssid}"'
             )

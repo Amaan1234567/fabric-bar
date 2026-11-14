@@ -1,5 +1,6 @@
 """Audio widget with per-application volume mixer popup."""
 
+import typing
 from typing import Any
 
 from fabric.audio.service import Audio
@@ -17,7 +18,7 @@ from utils.popup_manager import popup_manager
 class AudioWidget(Box):
     """Master volume in the bar; per-app mixer popup on hover."""
 
-    _ICONS = {
+    _ICONS: typing.ClassVar = {
         "muted": "󰖁",
         "low": "󰖀",
         "medium": "󰕾",

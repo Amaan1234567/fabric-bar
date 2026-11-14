@@ -287,7 +287,7 @@ class AltTab(Window):
                     return m.get("scale", 1.0)
             if monitors:
                 return monitors[0].get("scale", 1.0)
-        except Exception:  # noqa: BLE001, S110
+        except Exception:
             pass
         return 1.0
 
@@ -393,7 +393,7 @@ class AltTab(Window):
             for addr in stale:
                 self.remove_client_view(addr)
 
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.debug(f"AltTab sync: {e}")
 
     # ────────────────────────────────────────────────────────

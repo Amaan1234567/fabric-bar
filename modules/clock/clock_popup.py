@@ -1,6 +1,7 @@
 """Clock popup with live date/time and interactive calendar."""
 
 import calendar
+import typing
 from datetime import datetime
 
 from fabric.widgets.box import Box
@@ -17,7 +18,7 @@ CELL_SIZE = 34
 class CalendarGrid(Box):
     """Calendar built from Fabric widgets on Gtk.Grid."""
 
-    DAY_NAMES = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
+    DAY_NAMES: typing.ClassVar = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
 
     def __init__(self, **kwargs):
         super().__init__(orientation="v", spacing=4, **kwargs)
@@ -117,6 +118,7 @@ class CalendarGrid(Box):
             self._rebuild()
 
     def go_to_today(self):
+        """ moves to current date"""
         now = datetime.now()
         self._today = (now.year, now.month, now.day)
         self._selected = self._today
@@ -124,6 +126,7 @@ class CalendarGrid(Box):
         self._rebuild()
 
     def refresh_today(self):
+        """ refreshes the calendar and moves to current date"""
         now = datetime.now()
         today = (now.year, now.month, now.day)
         if today != self._today:
@@ -241,6 +244,7 @@ class ClockPopup(PopupWindow):
         self._calendar.go_to_today()
 
     def update(self):
+        """ function that updates the popup data."""
         now = datetime.now()
         self._date_label.set_text(now.strftime("%A, %B %d, %Y"))
         self._time_label.set_text(now.strftime("%H:%M:%S"))

@@ -1,6 +1,5 @@
 """holds the network service."""
 
-from ast import Dict
 from collections.abc import Callable
 from typing import Any
 
@@ -204,15 +203,17 @@ class WifiService(Service):
         """List all networks available."""
         access_points: list[NM.AccessPoint] = self._device.get_access_points()
 
-        unique_access_points: Dict = {}  # type: ignore
+        unique_access_points: dict = {}  # type: ignore
         logger.debug(f"Access points: {access_points}")
         for ap in access_points:
             ssid = NM.utils_ssid_to_utf8(
                 ap.get_ssid().get_data() if ap.get_ssid() is not None else [0]
             )  # type: ignore
-            if ssid in unique_access_points:
-                if ap.get_strength() < unique_access_points[ssid]["strength"]:  # type: ignore
-                    continue
+            if (
+                ssid in unique_access_points
+                and ap.get_strength() < unique_access_points[ssid]["strength"]
+            ):
+                continue
 
             unique_access_points[ssid] = {  # type: ignore
                 "strength": ap.get_strength(),
@@ -322,7 +323,9 @@ class EthernetService(Service):
             "speed",
             "state",
         ):
-            self._device.connect(f"notify::{names}", lambda *_: self.notifier(names))
+            self._device.connect(
+                f"notify::{names}", lambda *_, n=names: self.notifier(n)
+            )
 
         self._device.connect("notify::speed", lambda *_: print(_))
 
