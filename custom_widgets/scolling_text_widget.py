@@ -6,7 +6,7 @@ import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Pango", "1.0")
 gi.require_version("PangoCairo", "1.0")
-from gi.repository import GLib, Gtk, Pango, PangoCairo
+from gi.repository import GLib, Gtk, PangoCairo
 
 from utils.animator import Animator, _cubic_bezier
 

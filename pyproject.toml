@@ -10,4 +10,6 @@ extend-exclude = [
 ignore = [
     "D401", # First line of docstring should be in imperative mood
     "D404", # First word of the docstring should not be "This"
+    "BLE001", # Do not catch blind exception: Exception
+    "S110",   # `try`-`except`-`pass` detected
 ]

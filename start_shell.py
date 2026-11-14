@@ -5,11 +5,8 @@ import sys
 import setproctitle
 from fabric import Application
 from fabric.utils.helpers import get_relative_path, monitor_file
-from fabric.widgets.box import Box
-from fabric.widgets.wayland import WaylandWindow
 from loguru import logger
 
-from modules.control_center import control_center
 from modules.notification.notification_window import NotificationPopupWindow
 from modules.tab_alt_overview.windows_overview import AltTab
 from services.networkservice import NetworkService

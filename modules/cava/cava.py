@@ -270,7 +270,7 @@ class Spectrum:
         center_y = self.sizes.area.height  # center vertical of the drawing area
         for i, value in enumerate(self.audio_sample):
             width = self.sizes.area.width / self.sizes.number - self.sizes.padding
-            radius = width / 2
+            width / 2
             height = self.sizes.area.height * value
             # if height == self.sizes.zero / 2 + 1:
             #     height *= 0.5
@@ -346,7 +346,6 @@ class Spectrum:
 
         except Exception as e:
             print(e)
-            pass
         red = int(hex_string[1:3], 16) / 255
         green = int(hex_string[3:5], 16) / 255
         blue = int(hex_string[5:7], 16) / 255

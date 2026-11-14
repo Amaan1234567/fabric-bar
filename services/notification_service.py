@@ -1,6 +1,6 @@
 """Notification Service Module."""
 
-from typing import Dict, cast
+from typing import cast
 
 from fabric import Property
 from fabric.core.service import Service, Signal
@@ -37,8 +37,8 @@ class NotificationService(Service):
     def dnd_toggled(self, dnd_is_on: bool) -> None:
         """Dnd toggle signal."""
 
-    @Property(Dict[int, Notification], "readable")
-    def notifications(self) -> Dict[int, Notification]:
+    @Property(dict[int, Notification], "readable")
+    def notifications(self) -> dict[int, Notification]:
         """Get the current list of notifications."""
         return self._notifications
 

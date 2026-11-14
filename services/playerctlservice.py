@@ -286,7 +286,7 @@ class SimplePlayerctlService(Service):
                 except Exception as exception:
                     logger.debug(f"Exception encountered in Playerctl: {exception} ")
         if len(self._players) != 0:
-            first_player_name = list(self._players.keys())[0]
+            first_player_name = next(iter(self._players.keys()))
             logger.debug(first_player_name)
             self.current_player = self._players[first_player_name]
 
@@ -329,7 +329,7 @@ class SimplePlayerctlService(Service):
             self.current_player = None
             self.emit("changed")
             return
-        first_player_name = list(self._players.keys())[0]
+        first_player_name = next(iter(self._players.keys()))
         self.current_player = self._players[first_player_name]
         self.emit("changed")
 

@@ -6,14 +6,13 @@ with a file-based toggle_window() like WallpaperSelector.
 
 import json
 import random
-from typing import Callable
+from collections.abc import Callable
 
 import gi
 
 gi.require_version("Glace", "0.1")
 from fabric.hyprland.widgets import get_hyprland_connection
 from fabric.widgets.box import Box
-from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
 from fabric.widgets.wayland import WaylandWindow as Window

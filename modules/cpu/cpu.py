@@ -155,7 +155,7 @@ class Cpu(Box):
             temps = psutil.sensors_temperatures()
             if temps:
                 for driver in self.CPU_DRIVERS:
-                    if driver in temps and temps[driver]:
+                    if temps.get(driver):
                         cpu_temp = temps[driver][0]
                         break
                 # Fallback to the first available sensor if none of the known drivers matched

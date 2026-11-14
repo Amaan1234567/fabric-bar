@@ -1,7 +1,9 @@
 """Notifications panel module for the control center."""
 
+import gc
 import os
 
+from fabric.utils.helpers import get_relative_path
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.centerbox import CenterBox
@@ -12,7 +14,7 @@ from gi.repository import GdkPixbuf, GLib, Gtk  # type: ignore
 from loguru import logger
 
 from custom_widgets.image_rounded import CustomImage
-from services.notification_service import NotificationService
+from services.notification_service import Notification, NotificationService
 from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 from utils.variables import APP_ICON_MAP
 

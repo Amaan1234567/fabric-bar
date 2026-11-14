@@ -2,8 +2,6 @@
 and battery of bluetooth device if supported.
 """
 
-from typing import List
-
 from fabric.bluetooth.service import BluetoothClient, BluetoothDevice
 from fabric.utils import cooldown, exec_shell_command_async
 from fabric.widgets.box import Box
@@ -87,9 +85,7 @@ class BluetoothWidget(Box):
     def _update_icon(self):
         """Update the Bluetooth icon based on state."""
         try:
-            if not self.bluetooth_client.enabled:
-                self.icon.set_label("󰂲")
-            elif not self.bluetooth_client.powered:
+            if not self.bluetooth_client.enabled or not self.bluetooth_client.powered:
                 self.icon.set_label("󰂲")
             elif len(self.bluetooth_client.connected_devices):
                 self.icon.set_label("󰂱")
@@ -107,7 +103,7 @@ class BluetoothWidget(Box):
                 return
 
             # Get connected devices
-            connected_devices: List[BluetoothDevice] = (
+            connected_devices: list[BluetoothDevice] = (
                 self.bluetooth_client.connected_devices
             )
             logger.debug(f"bluetooth connected devices:{connected_devices}")
@@ -126,7 +122,7 @@ class BluetoothWidget(Box):
             logger.exception(f"Bluetooth status error: {e}")
             self._tooltip_text = f"Bluetooth error: {e}"
 
-    def _process_devices(self, connected_devices: List[BluetoothDevice]):
+    def _process_devices(self, connected_devices: list[BluetoothDevice]):
         device_info = []
         first_device_battery = None
         connected_devices = sorted(connected_devices, key=lambda data: data.icon_name)

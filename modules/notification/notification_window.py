@@ -6,7 +6,6 @@ from fabric.notifications.service import Notification
 from fabric.utils.helpers import exec_shell_command_async, get_relative_path
 from fabric.widgets.box import Box
 from fabric.widgets.wayland import WaylandWindow
-from gi.repository import GLib
 
 from modules.notification.notification_popup import NotificationPopup
 from services.notification_service import NotificationService

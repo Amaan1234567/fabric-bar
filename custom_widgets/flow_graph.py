@@ -5,7 +5,7 @@ for silky curves and the fabric Animator for graceful data transitions.
 """
 
 from functools import partial
-from typing import Any, List, Optional, Tuple
+from typing import Any
 
 import cairo
 import gi
@@ -22,7 +22,7 @@ gi.require_version("PangoCairo", "1.0")
 # ── Colour helpers ────────────────────────────────────────────────────────────
 
 
-def _hex_to_rgba(hex_str: str) -> Tuple[float, float, float, float]:
+def _hex_to_rgba(hex_str: str) -> tuple[float, float, float, float]:
     """Convert '#RRGGBB' or '#RRGGBBAA' to floats in 0-1."""
     h = hex_str.lstrip("#")
     if len(h) == 6:
@@ -36,13 +36,13 @@ def _hex_to_rgba(hex_str: str) -> Tuple[float, float, float, float]:
 
 
 def _catmull_rom_segment(
-    p0: Tuple[float, float],
-    p1: Tuple[float, float],
-    p2: Tuple[float, float],
-    p3: Tuple[float, float],
+    p0: tuple[float, float],
+    p1: tuple[float, float],
+    p2: tuple[float, float],
+    p3: tuple[float, float],
     tension: float = 0.5,
     steps: int = 24,
-) -> List[Tuple[float, float]]:
+) -> list[tuple[float, float]]:
     """Return *steps* interpolated points on a Catmull-Rom segment p1→p2."""
     tau = 0.5 * (1.0 - tension)
     pts = []
@@ -67,14 +67,14 @@ def _catmull_rom_segment(
 
 
 def _smooth_path(
-    points: List[Tuple[float, float]], tension: float = 0.4, steps: int = 32
-) -> List[Tuple[float, float]]:
+    points: list[tuple[float, float]], tension: float = 0.4, steps: int = 32
+) -> list[tuple[float, float]]:
     """Build a smooth polyline through *points* using Catmull-Rom interpolation."""
     if len(points) < 2:
         return list(points)
 
     padded = [points[0]] + list(points) + [points[-1]]
-    result: List[Tuple[float, float]] = []
+    result: list[tuple[float, float]] = []
     for i in range(1, len(padded) - 2):
         seg = _catmull_rom_segment(
             padded[i - 1],
@@ -98,10 +98,10 @@ class FlowGraph(Gtk.DrawingArea):
 
     def __init__(
         self,
-        values: Optional[List[float]] = None,
+        values: list[float] | None = None,
         min_value: float = 0.0,
         max_value: float = 100.0,
-        bezier: Tuple[float, float, float, float] = (0.4, 0.0, 0.2, 1.0),
+        bezier: tuple[float, float, float, float] = (0.4, 0.0, 0.2, 1.0),
         animation_duration: float = 0.6,
         line_width: float = 2.0,
         grid_lines: int = 4,
@@ -109,7 +109,7 @@ class FlowGraph(Gtk.DrawingArea):
         spline_steps: int = 32,
         padding: float = 8.0,
         animate_on_resize: bool = True,
-        background_color: Optional[str] = None,
+        background_color: str | None = None,
         dot_radius: float = 0.0,
         y_axis: bool = False,
         y_axis_format: str = "{:.0f}",
@@ -138,9 +138,9 @@ class FlowGraph(Gtk.DrawingArea):
         self.y_axis_width = y_axis_width  # px reserved for labels
 
         # ── state ───────────────────────────────────────────────
-        self._current: List[float] = list(values) if values else []
-        self._target: List[float] = list(self._current)
-        self._display: List[float] = list(self._current)
+        self._current: list[float] = list(values) if values else []
+        self._target: list[float] = list(self._current)
+        self._display: list[float] = list(self._current)
 
         # ── animator ────────────────────────────────────────────
         self._animator = Animator(
@@ -158,7 +158,7 @@ class FlowGraph(Gtk.DrawingArea):
 
     # ── public API ─────────────────────────────────────────────────────────
 
-    def set_values(self, new_values: List[float]) -> None:
+    def set_values(self, new_values: list[float]) -> None:
         """Animate from current data to *new_values*."""
         new = list(new_values)
         if not new:
@@ -206,7 +206,7 @@ class FlowGraph(Gtk.DrawingArea):
 
     # ── geometry helpers ───────────────────────────────────────────────────
 
-    def _normalize(self, raw: List[float]) -> List[Tuple[float, float]]:
+    def _normalize(self, raw: list[float]) -> list[tuple[float, float]]:
         """Map data values → (x, y) pixel coords (y grows *down* in Cairo)."""
         w = self.get_allocated_width()
         h = self.get_allocated_height()
@@ -222,7 +222,7 @@ class FlowGraph(Gtk.DrawingArea):
         lo, hi = self.min_value, self.max_value
         span = hi - lo if hi != lo else 1.0
 
-        pts: List[Tuple[float, float]] = []
+        pts: list[tuple[float, float]] = []
         for i, v in enumerate(raw):
             x = pad + y_off + (i / (n - 1)) * draw_w
             norm = (v - lo) / span
@@ -304,7 +304,7 @@ class FlowGraph(Gtk.DrawingArea):
                     font_desc.set_size(int(8.5 * Pango.SCALE))
                     layout.set_font_description(font_desc)
                     layout.set_alignment(Pango.Alignment.RIGHT)
-                    lw, lh = layout.get_pixel_size()
+                    _lw, lh = layout.get_pixel_size()
 
                     cr.set_source_rgba(rgba.red, rgba.green, rgba.blue, 0.35)
                     cr.move_to(pad, y - lh / 2)

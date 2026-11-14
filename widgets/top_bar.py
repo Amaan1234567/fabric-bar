@@ -44,7 +44,7 @@ class TopBar(Window):
         )
         self.app_data = app_data
 
-        self.config = tomllib.loads(open(f"config.toml", "rb").read().decode("utf-8"))
+        self.config = tomllib.loads(open("config.toml", "rb").read().decode("utf-8"))
         print(self.config)
         if self.config["layout"]["type"] == "dynamic":
             self.setup_dynamic_layout()

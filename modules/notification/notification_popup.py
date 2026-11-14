@@ -7,7 +7,6 @@ from fabric.utils import get_relative_path, invoke_repeater
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.label import Label
-from fabric.widgets.revealer import Revealer
 from gi.repository import GdkPixbuf, GLib, Gtk
 from loguru import logger
 
@@ -229,7 +228,7 @@ class NotificationPopup(Box):
             )
         return pixbuf_cropping_if_image_is_not_1_1(
             GdkPixbuf.Pixbuf.new_from_file_at_scale(
-                get_relative_path(f"../../assets/default_notification_pic.png"),
+                get_relative_path("../../assets/default_notification_pic.png"),
                 NOTIFICATION_IMAGE_SIZE,
                 NOTIFICATION_IMAGE_SIZE,
                 True,

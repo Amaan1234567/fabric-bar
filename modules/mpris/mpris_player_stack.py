@@ -3,7 +3,6 @@ from fabric.widgets.stack import Stack
 from gi.repository import Gdk, Playerctl  # type: ignore
 from loguru import logger
 
-from custom_widgets.HackedStackRevealer import HackedStack
 from modules.mpris.mpris_player import MprisPlayer
 from services.playerctlservice import Player, SimplePlayerctlService
 
@@ -31,7 +30,7 @@ class MprisPlayerStack(Stack):
 
     def _create_players(self):
         players: dict[str, Player] = self._service.players
-        for _, player in players.items():
+        for player in players.values():
             mpris_player = MprisPlayer(player)
             self.add(mpris_player)
             self.players[player.name] = mpris_player

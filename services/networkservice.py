@@ -1,9 +1,8 @@
 """holds the network service."""
 
-import os
-import signal
 from ast import Dict
-from typing import Any, AnyStr, Callable, List, Literal
+from collections.abc import Callable
+from typing import Any
 
 from fabric.core.service import Property, Service, Signal
 from fabric.utils.helpers import bulk_connect, exec_shell_command_async
@@ -201,9 +200,9 @@ class WifiService(Service):
             sec_str = "unsecured"
         return sec_str.lstrip()
 
-    def list_all_network(self) -> List[Any]:
+    def list_all_network(self) -> list[Any]:
         """List all networks available."""
-        access_points: List[NM.AccessPoint] = self._device.get_access_points()
+        access_points: list[NM.AccessPoint] = self._device.get_access_points()
 
         unique_access_points: Dict = {}  # type: ignore
         logger.debug(f"Access points: {access_points}")
@@ -226,7 +225,7 @@ class WifiService(Service):
         sorted_networks = sorted(
             unique_access_points.values(), key=lambda e: e["strength"], reverse=True
         )  # type: ignore
-        return list(map(lambda data: data, sorted_networks))
+        return [data for data in sorted_networks]
 
     def connect_to_ssid(
         self, ssid, password: str = "", callback: Callable[[str], bool] | None = None
