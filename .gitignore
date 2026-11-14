@@ -213,3 +213,6 @@ styles/colors.css
 
 basic_dotfiles/.config/hypr/custom_config
 config.toml
+basic_dotfiles/.config/hypr/colors.lua
+basic_dotfiles/.config/kitty/kitty-colors.conf
+basic_dotfiles/.config/rofi/drun_theme.rasi
