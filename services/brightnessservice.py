@@ -5,8 +5,6 @@ import re
 import subprocess
 import threading
 import time
-import re
-from loguru import logger
 
 from fabric import Fabricator
 from fabric.core.service import Service, Signal

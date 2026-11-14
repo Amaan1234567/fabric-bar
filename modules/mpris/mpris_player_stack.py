@@ -57,7 +57,6 @@ class MprisPlayerStack(Stack):
     @cooldown(0.2)
     def _on_scroll_handler(self, _, event):
         if len(self.children) == 0:
-        if len(self.children) == 0:
             return
 
         # Parse smooth scroll deltas for trackpad two-finger swipes
