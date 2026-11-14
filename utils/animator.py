@@ -13,17 +13,14 @@ from fabric.utils import clamp
 from gi.repository import GLib, Gtk  # type: ignore
 
 
-
 def _lerp(start: float, end: float, progress: float) -> float:
     return start + (end - start) * progress
-
 
 
 def _steps(n: int, progress: float, start_jump: bool = False) -> float:
     if start_jump:
         return min(int(progress * n), n - 1) / (n - 1) if n > 1 else 0.0
     return min(int(progress * n + 1e-10), n) / n
-
 
 
 def _cubic_bezier(

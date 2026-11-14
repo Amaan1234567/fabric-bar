@@ -21,6 +21,7 @@
 @import url("./widgets/theme_selector.css");
 @import url("./widgets/disk.css");
 @import url("./widgets/alt_tab.css");
+@import url("./widgets/background_op.css");
 
 * {
   all: unset;

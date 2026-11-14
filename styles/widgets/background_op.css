@@ -1,0 +1,100 @@
+#background-op-widget {
+  padding:0px;
+}
+
+#background-op-progress-bar-label{
+  color: var(--color6);
+  font-size: 16px;
+  font-weight: 600;
+  padding: 0px;
+}
+
+#background-ops-complete-label {
+  color: var(--color6);
+  font-size: 20px;
+  font-weight: 600;
+  padding: 0px;
+  min-width: 20px;   /* Ensures it reserves space */
+  min-height: 20px;
+}
+
+
+#background-op-circular-progress-bar trough {
+  background-color: alpha(var(--color4), 0.3);
+}
+
+#background-op-circular-progress-bar highlight {
+  background-color: alpha(var(--color4), 0.9);
+}
+
+#background-op-circular-progress-bar slider {
+  background-color: var(--color4);
+  
+  min-height: 4px;
+  min-width: 4px;
+  border-radius: 5px;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+/* ── popup window ─────────────────────────────────────── */
+
+#background-op-popup-window { 
+  background-color: transparent;
+}
+
+#background-op-popup-content {
+  background-color: var(--background);
+  border: 1px solid shade(var(--color4), 0.85);
+  border-radius: 30px;
+  padding: 15px;
+}
+
+#single-op-tooltip {
+  color: mix(var(--color5), white, 0.4);
+  font-size: 13px;
+  padding: 2px 4px 0 4px;
+}
+
+#background-op-name-label{
+  color: var(--colors4);
+  font-size: 14px;  
+}
+
+#background-op-details-label{
+  color: var(--colors4);
+  font-size: 12px;  
+}
+
+#background-op-scale trough {
+  padding: 0;
+  margin: 0;
+  border: solid;
+  border-width: 1px;
+  border-radius: 5px;
+  border-color: var(--color4);
+  min-width: 55px;
+  min-height: 10px;
+}
+
+#background-op-scale highlight {
+  border-radius: 5px;
+  background: var(--color4);
+}
+
+#background-op-details-button {
+    color: alpha(var(--foreground), 0.4);
+    border-radius: 5px;
+    padding: 0;
+}
+
+#background-op-details-button > label {
+    font-size: 34px;
+    padding: 0;
+}
+
+#background-op-details-button:hover {
+    font-size: 24px;
+    color: var(--background);
+    background: var(--color4);
+}

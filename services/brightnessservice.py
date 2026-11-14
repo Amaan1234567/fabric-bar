@@ -167,4 +167,3 @@ class BrightnessService(Service):
                 daemon=True,
             ).start()
             self.emit("changed", device_type, "1", value)
-      

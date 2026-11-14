@@ -1,12 +1,11 @@
 """Brightness OSD that appears when brightness changes."""
 
-from loguru import logger
-
 from fabric.utils import remove_handler
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
 from fabric.widgets.wayland import WaylandWindow as Window  # <--- Add this!
 from gi.repository import GLib  # type: ignore
+from loguru import logger
 
 from custom_widgets.animated_scale import AnimatedScale
 from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
@@ -16,7 +15,7 @@ from utils.monitor import get_monitor_info
 
 class BrightnessOSD(Window):
     """Brightness OSD that appears when brightness changes.
-    It listens to the BrightnessService for changes and shows an OSD with the current 
+    It listens to the BrightnessService for changes and shows an OSD with the current
     brightness level. It automatically hides after a few seconds.
     """
 

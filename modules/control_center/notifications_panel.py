@@ -1,6 +1,7 @@
 """Notifications panel module for the control center."""
+
 import os
-from loguru import logger
+
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.centerbox import CenterBox
@@ -146,7 +147,7 @@ class NotificationItem(Box):
 
     def __del__(self):
         logger.debug(
-            f"""Widget for notification {getattr(self, '_notification', 'Unknown')}
+            f"""Widget for notification {getattr(self, "_notification", "Unknown")}
             successfully garbage collected!"""
         )
 

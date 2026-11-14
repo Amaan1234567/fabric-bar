@@ -9,8 +9,8 @@ from loguru import logger
 
 from custom_widgets.animated_scale import AnimatedScale
 from custom_widgets.image_rounded import CustomImage
-from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 from services.playerctlservice import Player, SimplePlayerctlService
+from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 
 
 class MprisPlayer(Box):

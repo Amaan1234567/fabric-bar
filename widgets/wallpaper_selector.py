@@ -10,11 +10,15 @@ from fabric.utils.helpers import exec_shell_command_async
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.eventbox import EventBox
+from fabric.widgets.label import Label
 from fabric.widgets.scrolledwindow import ScrolledWindow
 from fabric.widgets.wayland import WaylandWindow as Window
 from gi.repository import Gdk, GLib  # type: ignore
+from loguru import logger
 from PIL import Image
 from screeninfo import get_monitors
+
+from services.background_op_service import BackgroundOpService
 
 scale_map = {
     1920: 1280,
@@ -53,7 +57,6 @@ class WallpaperSelector(Window):
         self.screen_height = monitor.height
         self.preview_target_width = int(scale_map[self.screen_width] * 0.2)
         self.preview_target_height = int(scale_map[self.screen_width] * (9 / 16))
-
         super().__init__(
             name="wallpaper-selector-window",
             title="wallpaper-selector",
@@ -77,7 +80,7 @@ class WallpaperSelector(Window):
         self.cache_available = len(os.listdir(self.cache_folder)) != 0
         self.wallpapers = os.listdir(self.wallpaper_folder)
         self.cache = os.listdir(self.cache_folder)
-        Thread(target=self._process_new_wallpapers,daemon=True).start()
+        Thread(target=self._process_new_wallpapers, daemon=True).start()
 
         self.scrolling_container = ScrolledWindow(
             name="wallpaper-scroll-container", h_expand=True
@@ -94,7 +97,7 @@ class WallpaperSelector(Window):
             name="wallpapers-container", orientation="h", spacing=20, h_expand=True
         )
 
-        Thread(target=self._create_buttons,daemon=True).start()
+        Thread(target=self._create_buttons, daemon=True).start()
         self.scrolling_container.children = [self.buttons_box]
 
         self.content.add(self.event_box)
@@ -134,9 +137,21 @@ class WallpaperSelector(Window):
         buttons[target_idx].grab_focus()
 
     def _process_new_wallpapers(self):
-        for wallpaper in self.wallpapers:
-            if wallpaper not in self.cache:
-                self._process_wallpaper(wallpaper)
+        unprocessed_wallpapers = [
+            wallpaper for wallpaper in self.wallpapers if wallpaper not in self.cache
+        ]
+        if len(unprocessed_wallpapers) == 0:
+            return
+        service = BackgroundOpService()
+        background_op = service.set_background_op(
+            "wallpaper_cache_build", "bulding wallpaper cache", 0
+        )
+        total_work = len(unprocessed_wallpapers)
+        for i, wallpaper in enumerate(unprocessed_wallpapers):
+            self._process_wallpaper(wallpaper)
+            background_op.set_progress(((i + 1) / total_work) * 100)
+            background_op.set_display_text(f"processing {wallpaper}")
+            logger.debug(f"wallpaper_cache_progress: {((i + 1) / total_work) * 100}")
         self.cache_available = True
 
     def _process_wallpaper(self, wallpaper: str):
