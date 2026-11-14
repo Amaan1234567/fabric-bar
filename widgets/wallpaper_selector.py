@@ -6,7 +6,7 @@ import os
 from threading import Thread
 from time import sleep
 
-from fabric.utils.helpers import exec_shell_command_async
+from fabric.utils.helpers import exec_shell_command_async, monitor_file
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.eventbox import EventBox
@@ -80,7 +80,15 @@ class WallpaperSelector(Window):
         self.cache_available = len(os.listdir(self.cache_folder)) != 0
         self.wallpapers = os.listdir(self.wallpaper_folder)
         self.cache = os.listdir(self.cache_folder)
-        Thread(target=self._process_new_wallpapers, daemon=True).start()
+        # Thread(target=self._process_new_wallpapers, daemon=True).start()
+        self.wallpaper_folder_monitor = monitor_file(
+            self.wallpaper_folder,
+            lambda *args: Thread(
+                target=self._process_new_wallpapers, daemon=True
+            ).start(),
+            flags="watch-moves",
+            initial_call=True,
+        )
 
         self.scrolling_container = ScrolledWindow(
             name="wallpaper-scroll-container", h_expand=True
@@ -137,6 +145,9 @@ class WallpaperSelector(Window):
         buttons[target_idx].grab_focus()
 
     def _process_new_wallpapers(self):
+        self.wallpapers = os.listdir(self.wallpaper_folder)
+        self.cache = os.listdir(self.cache_folder)
+        logger.info("detected change in wallpaper folder, checking for new wallpapers")
         unprocessed_wallpapers = [
             wallpaper for wallpaper in self.wallpapers if wallpaper not in self.cache
         ]
@@ -153,6 +164,7 @@ class WallpaperSelector(Window):
             background_op.set_display_text(f"processing {wallpaper}")
             logger.debug(f"wallpaper_cache_progress: {((i + 1) / total_work) * 100}")
         self.cache_available = True
+        return True
 
     def _process_wallpaper(self, wallpaper: str):
         scaled_wallpaper = Image.open(self.wallpaper_folder + wallpaper).resize(
