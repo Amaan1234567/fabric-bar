@@ -1,7 +1,5 @@
 """Brightness OSD that appears when brightness changes."""
 
-from loguru import logger
-
 from fabric.utils import remove_handler
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
