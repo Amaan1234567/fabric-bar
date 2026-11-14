@@ -9,7 +9,6 @@ from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from gi.repository import GLib  # type: ignore
-from loguru import logger
 
 from custom_widgets.animated_scale import AnimatedScale
 from modules.audio.audio_popup import AudioPopup

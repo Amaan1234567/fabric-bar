@@ -2,14 +2,9 @@
 
 import shutil
 
-import shutil
-
 from gi.repository import GdkPixbuf  # type: ignore
-from loguru import logger  
+from loguru import logger
 
-def executable_exists(executable_name):
-    executable_path = shutil.which(executable_name)
-    return bool(executable_path)
 
 def executable_exists(executable_name):
     executable_path = shutil.which(executable_name)
