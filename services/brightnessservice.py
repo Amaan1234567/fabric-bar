@@ -128,7 +128,7 @@ class BrightnessService(Service):
                         if val != self._external_values.get(bus_id):
                             self._external_values[bus_id] = val
                             GLib.idle_add(self.emit, "changed", "external", "1", val)
-            except Exception:  # noqa: BLE001, S110
+            except Exception:
                 pass
 
             time.sleep(1)
