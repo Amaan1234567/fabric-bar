@@ -1,4 +1,5 @@
-""" Hold the CPU widget"""
+"""Hold the CPU widget"""
+
 import typing
 from collections import deque
 

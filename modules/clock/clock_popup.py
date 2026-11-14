@@ -118,7 +118,7 @@ class CalendarGrid(Box):
             self._rebuild()
 
     def go_to_today(self):
-        """ moves to current date"""
+        """moves to current date"""
         now = datetime.now()
         self._today = (now.year, now.month, now.day)
         self._selected = self._today
@@ -126,7 +126,7 @@ class CalendarGrid(Box):
         self._rebuild()
 
     def refresh_today(self):
-        """ refreshes the calendar and moves to current date"""
+        """refreshes the calendar and moves to current date"""
         now = datetime.now()
         today = (now.year, now.month, now.day)
         if today != self._today:
@@ -244,7 +244,7 @@ class ClockPopup(PopupWindow):
         self._calendar.go_to_today()
 
     def update(self):
-        """ function that updates the popup data."""
+        """function that updates the popup data."""
         now = datetime.now()
         self._date_label.set_text(now.strftime("%A, %B %d, %Y"))
         self._time_label.set_text(now.strftime("%H:%M:%S"))

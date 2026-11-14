@@ -1,4 +1,5 @@
-""" Holds the Scrolling Label widget"""
+"""Holds the Scrolling Label widget"""
+
 from functools import partial
 
 import cairo
@@ -13,7 +14,8 @@ from utils.animator import Animator, _cubic_bezier
 
 
 class ScrollingLabel(Gtk.DrawingArea):
-    """ Defines a Label that scrolls on its own"""
+    """Defines a Label that scrolls on its own"""
+
     def __init__(
         self,
         text="---",
