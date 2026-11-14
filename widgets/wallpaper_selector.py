@@ -28,7 +28,7 @@ scale_map = {
 
 
 class WallpaperButton(Button):
-    """button widget for wallpapers"""
+    """button widget for wallpapers."""
 
     def __init__(self, wallpaper_folder, child, wallpaper_name, **kwargs):
         super().__init__(
@@ -49,7 +49,7 @@ class WallpaperButton(Button):
 
 
 class WallpaperSelector(Window):
-    """wallpaper selector widget"""
+    """wallpaper selector widget."""
 
     def __init__(self, **kwargs):
         monitor = get_monitors()[0]
@@ -117,7 +117,7 @@ class WallpaperSelector(Window):
         return False
 
     def _navigate_buttons(self, direction: int):
-        """Custom keyboard navigation for buttons box"""
+        """Custom keyboard navigation for buttons box."""
         buttons = self.buttons_box.children
         if not buttons:
             return
@@ -230,7 +230,7 @@ class WallpaperSelector(Window):
         GLib.idle_add(_focus_after_load)
 
     def toggle_window(self):
-        """Function to toggle window"""
+        """Function to toggle window."""
         if self.is_hidden:
             self.show()
             GLib.idle_add(self._activate_focus)

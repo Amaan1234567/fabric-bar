@@ -1,4 +1,4 @@
-"""hold mpris player"""
+"""hold mpris player."""
 
 from fabric.utils import cooldown, get_relative_path, invoke_repeater
 from fabric.widgets.box import Box
@@ -14,7 +14,7 @@ from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 
 
 class MprisPlayer(Box):
-    """Mpris player widget"""
+    """Mpris player widget."""
 
     def __init__(self, player: Player, **kwargs):
         super().__init__(orientation="h")

@@ -1,4 +1,4 @@
-"""service that reports status on background ops like wallpaper cache building"""
+"""service that reports status on background ops like wallpaper cache building."""
 
 from fabric.core.service import Service, Signal
 from gi.repository import GLib  # type:ignore
@@ -6,7 +6,7 @@ from loguru import logger
 
 
 class BackgroundOp(Service):
-    """background Op"""
+    """background Op."""
 
     @Signal
     def progress_update(self, value: float):
@@ -18,7 +18,7 @@ class BackgroundOp(Service):
 
     @Signal
     def op_complete(self, op_name: str):
-        """Emitted when op is complete"""
+        """Emitted when op is complete."""
 
     def __init__(self, op_name, display_text="", progress=0.0, **kwargs):
         super().__init__(**kwargs)
@@ -48,17 +48,17 @@ class BackgroundOp(Service):
 
 
 class BackgroundOpService(Service):
-    """Service for reporting background op status"""
+    """Service for reporting background op status."""
 
     _instance = None
 
     @Signal
     def background_op_started(self, op_obj: BackgroundOp):
-        """Background op start signal"""
+        """Background op start signal."""
 
     @Signal
     def background_op_finished(self, op_obj: BackgroundOp):
-        """Background op finish signal"""
+        """Background op finish signal."""
 
     def __new__(cls):
         if cls._instance is None:

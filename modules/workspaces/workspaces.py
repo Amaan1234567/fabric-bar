@@ -1,4 +1,4 @@
-"""contains the workspaces widget"""
+"""contains the workspaces widget."""
 
 from fabric.core.widgets import WorkspaceButton
 from fabric.hyprland.widgets import (
@@ -7,7 +7,7 @@ from fabric.hyprland.widgets import (
 
 
 class HyprlandWorkspaces(FabricHyprlandWorkspaces):
-    """Hyprland workspaces widget"""
+    """Hyprland workspaces widget."""
 
     def do_action_next(self):
         return self.connection.send_command(
@@ -26,7 +26,7 @@ class HyprlandWorkspaces(FabricHyprlandWorkspaces):
 
 
 class CustomWorkspaces(HyprlandWorkspaces):
-    """Hyprland workspaces widget"""
+    """Hyprland workspaces widget."""
 
     def __init__(self, **kwargs):
 

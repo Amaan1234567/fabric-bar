@@ -1,4 +1,4 @@
-"""holds the main bar widget"""
+"""holds the main bar widget."""
 
 import tomllib
 
@@ -29,7 +29,7 @@ from widgets.system_controls import SystemControls
 
 
 class TopBar(Window):
-    """top bar of UI"""
+    """top bar of UI."""
 
     def __init__(self, app_data, monitor=0, **kwargs):
         super().__init__(

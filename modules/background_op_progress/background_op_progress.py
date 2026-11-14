@@ -1,4 +1,4 @@
-"""background op widget"""
+"""background op widget."""
 
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
@@ -15,7 +15,7 @@ from utils.popup_manager import popup_manager
 
 
 class BackgroundOpProgress(Box):
-    """Background Op widget"""
+    """Background Op widget."""
 
     def __init__(self, window, **kwargs):
 

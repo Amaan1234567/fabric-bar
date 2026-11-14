@@ -1,4 +1,4 @@
-"""hold mpris popup"""
+"""hold mpris popup."""
 
 from custom_widgets.HackedStackRevealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
@@ -6,7 +6,7 @@ from modules.mpris.mpris_player_stack import MprisPlayerStack
 
 
 class MprisPopup(PopupWindow):
-    """mpris popup window"""
+    """mpris popup window."""
 
     def __init__(self, parent, pointing_to, **kwargs):
         super().__init__(

@@ -1,4 +1,4 @@
-"""holds performance toggle widget"""
+"""holds performance toggle widget."""
 
 from fabric.power_profiles.service import PowerProfiles
 from fabric.widgets.box import Box
@@ -8,7 +8,7 @@ from loguru import logger
 
 
 class PerformanceToggle(Button):
-    """widget to toggle performance mode, uses the powerprofiles service"""
+    """widget to toggle performance mode, uses the powerprofiles service."""
 
     def __init__(self, **kwargs):
         super().__init__(

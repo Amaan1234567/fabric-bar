@@ -1,4 +1,4 @@
-"""holds the widget to toggle wifi"""
+"""holds the widget to toggle wifi."""
 
 from fabric.utils.helpers import exec_shell_command_async
 from fabric.widgets.button import Button
@@ -65,7 +65,7 @@ class WifiToggle(Button):
             self.wifi_on = self._wifi_service.wireless_enabled
 
     def _toggle_wifi(self, _):
-        """Toggle WiFi on/off"""
+        """Toggle WiFi on/off."""
         if not self.wifi_available:
             return  # Can't toggle if WiFi hardware isn't available
         if self._wifi_service is not None:
@@ -80,13 +80,13 @@ class WifiToggle(Button):
             self.wifi_available = False
 
     def _is_wifi_available(self):
-        """Check if WiFi hardware is available"""
+        """Check if WiFi hardware is available."""
         exec_shell_command_async(
             ["nmcli", "device", " | ", "grep", "-c", "wifi"], self._wifi_check_callback
         )
 
     def _refresh(self) -> bool:
-        """Update WiFi status and icon"""
+        """Update WiFi status and icon."""
         logger.debug("refreshing wifi toggle")
         logger.debug(f"wifi_on: {self.wifi_on}")
         ctx = self.get_style_context()

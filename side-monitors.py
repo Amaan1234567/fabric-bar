@@ -1,4 +1,4 @@
-"""initialises the side montiors' shell"""
+"""initialises the side montiors' shell."""
 
 import sys
 

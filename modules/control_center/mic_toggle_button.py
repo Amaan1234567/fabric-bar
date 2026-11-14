@@ -1,4 +1,4 @@
-"""contains the mic toggle widget"""
+"""contains the mic toggle widget."""
 
 from fabric.audio.service import Audio
 from fabric.widgets.button import Button
@@ -39,11 +39,11 @@ class MicToggle(Button):
         self.set_tooltip_text("toggle mic")
 
     def _mic_is_muted(self) -> bool:
-        """Returns True if microphone is muted"""
+        """Returns True if microphone is muted."""
         return self.audio.microphone.muted
 
     def _refresh(self) -> bool:
-        """Update CSS class and icon based on mic state"""
+        """Update CSS class and icon based on mic state."""
         logger.debug("refreshing mic toggle")
 
         muted = self._mic_is_muted()
@@ -63,5 +63,5 @@ class MicToggle(Button):
         return True  # keep timeout alive
 
     def _toggle(self, _button):
-        """Toggle microphone mute"""
+        """Toggle microphone mute."""
         self.audio.microphone.set_property("muted", not self._mic_is_muted())

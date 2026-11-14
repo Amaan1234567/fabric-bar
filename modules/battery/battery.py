@@ -1,5 +1,5 @@
 """holds the battery module that shows the current battery percentage
-and also extra details in tooltip
+and also extra details in tooltip.
 """
 
 import subprocess
@@ -13,7 +13,7 @@ from loguru import logger
 
 class BatteryWidget(Box):
     """Battery widget that changes color based on battery percentage from green to red,
-    and tells extra info in tooltips like time to charge, battery health etc
+    and tells extra info in tooltips like time to charge, battery health etc.
     """
 
     def __init__(self, interval=10, **kwargs):
@@ -131,7 +131,7 @@ class BatteryWidget(Box):
         return f"#{r:02x}{g:02x}{b:02x}"
 
     def _format_time(self, secs: int) -> str:
-        """Returns the time if available in proper format"""
+        """Returns the time if available in proper format."""
         if secs == psutil.POWER_TIME_UNKNOWN:
             logger.warning("psutil not able to get Power time :(")
             return "Unknown"
@@ -142,7 +142,7 @@ class BatteryWidget(Box):
         return f"{hours}h {minutes}m"
 
     def _make_tooltip(self, state: str, percent: float, time: str, health: str) -> str:
-        """Creates the pango markup tooltip based on battery state and returns as str"""
+        """Creates the pango markup tooltip based on battery state and returns as str."""
         percent_str = f"{percent:.0f}%"
 
         if state == "charging":

@@ -1,4 +1,4 @@
-"""contains notification Popups widget and the window that it belongs to"""
+"""contains notification Popups widget and the window that it belongs to."""
 
 import os
 
@@ -24,7 +24,7 @@ NOTIFICATION_TRANSITION_DURATION = 700
 
 
 class NotificationPopup(Box):
-    """the notification popup"""
+    """the notification popup."""
 
     def __init__(self, notification: Notification, **kwargs):
         super().__init__(

@@ -1,4 +1,4 @@
-"""holds the mpris widget shown in bar"""
+"""holds the mpris widget shown in bar."""
 
 from fabric.utils import get_relative_path, invoke_repeater
 from fabric.widgets.box import Box
@@ -17,7 +17,7 @@ from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1
 
 
 class Mpris(Box):
-    """mpris widget that is shown in the bar, which shows truncated song name and album art"""
+    """mpris widget that is shown in the bar, which shows truncated song name and album art."""
 
     def __init__(self, window, **kwargs):
         super().__init__(orientation="horizontal", name="mpris", spacing=6, **kwargs)

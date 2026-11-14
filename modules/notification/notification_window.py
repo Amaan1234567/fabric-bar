@@ -1,4 +1,4 @@
-"""holds the notification window widget"""
+"""holds the notification window widget."""
 
 from typing import cast
 
@@ -13,7 +13,7 @@ from services.notification_service import NotificationService
 
 
 class NotificationPopupWindow(WaylandWindow):
-    """The window that holds all the Notification Popups"""
+    """The window that holds all the Notification Popups."""
 
     def __init__(self, app_data, **kwargs):
         super().__init__(

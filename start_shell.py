@@ -1,4 +1,4 @@
-"""main python file that initialised the whole UI"""
+"""main python file that initialised the whole UI."""
 
 import sys
 

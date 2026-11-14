@@ -7,7 +7,7 @@ from sklearn.cluster import KMeans
 
 
 def extract_colors_kmeans(image_path: str, n_colors: int = 16):
-    """Extract dominant colors using K-means clustering"""
+    """Extract dominant colors using K-means clustering."""
     try:
         # Load and prepare the image
         with Image.open(image_path) as img:
@@ -50,7 +50,7 @@ def extract_colors_kmeans(image_path: str, n_colors: int = 16):
 
 
 def display_color_palette(colors, percentages):
-    """Display the color palette with percentages"""
+    """Display the color palette with percentages."""
     if colors is None:
         print("No colors to display")
         return

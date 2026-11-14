@@ -1,4 +1,4 @@
-"""Notification Service Module"""
+"""Notification Service Module."""
 
 from typing import Dict, cast
 
@@ -35,7 +35,7 @@ class NotificationService(Service):
 
     @Signal
     def dnd_toggled(self, dnd_is_on: bool) -> None:
-        """Dnd toggle signal"""
+        """Dnd toggle signal."""
 
     @Property(Dict[int, Notification], "readable")
     def notifications(self) -> Dict[int, Notification]:
@@ -60,7 +60,7 @@ class NotificationService(Service):
 
     @property
     def dnd(self):
-        """Dnd property"""
+        """Dnd property."""
         return self._is_dnd_on
 
     @dnd.setter
@@ -125,7 +125,7 @@ class NotificationService(Service):
         return self._notifications[notification_id]
 
     def toggle_dnd(self):
-        """Function to toggle dnd"""
+        """Function to toggle dnd."""
         print("toggling")
         self._is_dnd_on = not self._is_dnd_on
         print("dnd: ", self._is_dnd_on)

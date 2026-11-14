@@ -10,7 +10,7 @@ from utils.helper_functions import truncate
 
 
 class BackgroundOpItem(Box):
-    """Background Operation Item for popup"""
+    """Background Operation Item for popup."""
 
     def __init__(self, op_obj, **kwargs):
         super().__init__(
@@ -86,7 +86,7 @@ class BackgroundOpItem(Box):
 
 
 class BackgroundOpProgressPopup(PopupWindow):
-    """Background operations popup"""
+    """Background operations popup."""
 
     def __init__(self, parent, pointing_to, **kwargs):
         super().__init__(
@@ -155,7 +155,7 @@ class BackgroundOpProgressPopup(PopupWindow):
                 self.background_ops_box.add(new_obj)
 
     def set_tooltip_for_all_ops_completion(self, text):
-        """To set tooltip when everything is complete"""
+        """To set tooltip when everything is complete."""
         self.tooltip_label.set_label(text)
         self.tooltip_label.set_visible(True)
         self.background_ops_box.set_visible(False)

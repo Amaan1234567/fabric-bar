@@ -49,7 +49,7 @@ except ImportError:
 
 
 class WifiService(Service):
-    """Holds the network service for a Wi-Fi device"""
+    """Holds the network service for a Wi-Fi device."""
 
     __gsignals__ = {
         "scanning": (GObject.SignalFlags.RUN_FIRST, None, ()),
@@ -155,7 +155,7 @@ class WifiService(Service):
 
 
 class EthernetService(Service):
-    """Holds the network service for an Ethernet device"""
+    """Holds the network service for an Ethernet device."""
 
     __gsignals__ = {
         "network-change": (GObject.SignalFlags.RUN_FIRST, None, ()),
@@ -196,7 +196,7 @@ class EthernetService(Service):
 
 
 class NetworkService(Service):
-    """Service to handle network devices"""
+    """Service to handle network devices."""
 
     _instance = None
 
@@ -207,7 +207,7 @@ class NetworkService(Service):
 
     @Signal
     def device_ready(self) -> None:
-        """Signal for indicating device is ready"""
+        """Signal for indicating device is ready."""
 
     def __init__(self, **kwargs):
         if hasattr(self, "_client") and self._client:  # Prevent re-initialization

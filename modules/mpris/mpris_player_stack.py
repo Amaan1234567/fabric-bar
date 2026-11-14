@@ -9,7 +9,7 @@ from services.playerctlservice import Player, SimplePlayerctlService
 
 
 class MprisPlayerStack(Stack):
-    """mpris popup widget which shows more song details, progressbar and controls"""
+    """mpris popup widget which shows more song details, progressbar and controls."""
 
     def __init__(self, **kwargs):
         super().__init__(

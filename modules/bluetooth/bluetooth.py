@@ -1,5 +1,5 @@
 """Hold the Bluetooth widget that displays the bluetooth status
-and battery of bluetooth device if supported
+and battery of bluetooth device if supported.
 """
 
 from typing import List
@@ -17,7 +17,7 @@ from loguru import logger
 class BluetoothWidget(Box):
     """Bluetooth widget that displays the status of bluetooth,
     battery of the bluetooth device if supported, and extra info
-    on the device in tooltip
+    on the device in tooltip.
     """
 
     def __init__(self, interval=1, **kwargs):
@@ -85,7 +85,7 @@ class BluetoothWidget(Box):
         return True
 
     def _update_icon(self):
-        """Update the Bluetooth icon based on state"""
+        """Update the Bluetooth icon based on state."""
         try:
             if not self.bluetooth_client.enabled:
                 self.icon.set_label("󰂲")
@@ -101,7 +101,7 @@ class BluetoothWidget(Box):
             self.icon.set_label("󰂲")
 
     def _update_widget_state(self):
-        """Get Bluetooth status using Fabric's Bluetooth service"""
+        """Get Bluetooth status using Fabric's Bluetooth service."""
         try:
             if not self._bluetooth_status_checks():
                 return

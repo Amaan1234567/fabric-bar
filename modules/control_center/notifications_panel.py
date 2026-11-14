@@ -21,7 +21,7 @@ NOTIFICATION_BUTTONS_WRAP_THRESHOLD = 2
 
 
 class NotificationItem(Box):
-    """the notification item in the notifications panel"""
+    """the notification item in the notifications panel."""
 
     def __init__(self, notification: Notification, **kwargs):
         super().__init__(
@@ -238,7 +238,7 @@ class NotificationItem(Box):
 
 
 class NotificationsPanel(Box):
-    """the notifications panel that holds all notification items"""
+    """the notifications panel that holds all notification items."""
 
     def __init__(self, app_data, **kwargs):
         super().__init__(

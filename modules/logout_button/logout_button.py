@@ -1,4 +1,4 @@
-"""holds the logout button and its associated popup"""
+"""holds the logout button and its associated popup."""
 
 import subprocess
 
@@ -12,7 +12,7 @@ from custom_widgets.popup_window import PopupWindow
 
 
 class LogoutPopup(PopupWindow):
-    """popup for logout options"""
+    """popup for logout options."""
 
     def __init__(self, parent, pointing_to, **kwargs):
         super().__init__(
@@ -105,7 +105,7 @@ class LogoutPopup(PopupWindow):
         return False
 
     def toggle_popup(self):
-        """Toggle the visibility of the popup with animation"""
+        """Toggle the visibility of the popup with animation."""
         if self.is_visible():
             self.revealer.set_reveal_child(False)
             GLib.timeout_add(350, self.hide)
@@ -116,7 +116,7 @@ class LogoutPopup(PopupWindow):
 
 
 class LogoutButton(Box):
-    """logout trigger button"""
+    """logout trigger button."""
 
     def __init__(self, window, **kwargs):
         super().__init__(**kwargs, name="logout-button-container")

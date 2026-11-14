@@ -1,4 +1,4 @@
-"""holds the playerctl service"""
+"""holds the playerctl service."""
 
 import os
 
@@ -9,11 +9,11 @@ from loguru import logger
 
 
 class Player(Service):
-    """mpris player service"""
+    """mpris player service."""
 
     @Signal
     def changed(self) -> None:
-        """Signal to request focus"""
+        """Signal to request focus."""
 
     def __init__(self, player: Playerctl.Player, **kwargs):
         super().__init__(**kwargs)
@@ -23,7 +23,7 @@ class Player(Service):
 
     @Property(str, "readable")
     def name(self):
-        """Property to get name of player"""
+        """Property to get name of player."""
         return self._player.props.player_name
 
     def _emit_update(self, _, __):
@@ -43,7 +43,7 @@ class Player(Service):
             player.connect(signal_name, self._emit_update)
 
     def get_metadata(self):
-        """Get metadata for player (or first available player if None)"""
+        """Get metadata for player (or first available player if None)."""
         try:
             metadata = self._player.props.metadata
             if not metadata:
@@ -76,7 +76,7 @@ class Player(Service):
             return None
 
     def get_position(self):
-        """Get current position in seconds"""
+        """Get current position in seconds."""
         try:
             position = self._player.props.position
             # print("position: ",position)
@@ -86,7 +86,7 @@ class Player(Service):
             return 0
 
     def set_position(self, position):
-        """Set given position(time in seconds) in player"""
+        """Set given position(time in seconds) in player."""
         try:
             player: Playerctl.Player = self._player
             player.set_position(int(position * 1e6))
@@ -94,7 +94,7 @@ class Player(Service):
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
 
     def get_status(self):
-        """Get playback status"""
+        """Get playback status."""
         try:
             status = self._player.props.playback_status
             if hasattr(status, "value_nick"):
@@ -106,14 +106,14 @@ class Player(Service):
             return "stopped"
 
     def get_shuffle(self):
-        """Get shuffle status"""
+        """Get shuffle status."""
         try:
             return bool(self._player.props.shuffle)
         except Exception as exception:
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
 
     def get_loop(self):
-        """Get loop status"""
+        """Get loop status."""
         try:
             loop_status = self._player.props.loop_status
             if hasattr(loop_status, "value_nick"):
@@ -126,7 +126,7 @@ class Player(Service):
 
     # Control methods
     def play_pause(self):
-        """Toggle play/pause"""
+        """Toggle play/pause."""
         try:
             self._player.play_pause()
             return True
@@ -135,7 +135,7 @@ class Player(Service):
             return False
 
     def next_track(self):
-        """Next track"""
+        """Next track."""
         try:
             self._player.next()
             return True
@@ -144,7 +144,7 @@ class Player(Service):
             return False
 
     def previous_track(self):
-        """Previous track"""
+        """Previous track."""
         try:
             self._player.previous()
             return True
@@ -153,7 +153,7 @@ class Player(Service):
             return False
 
     def toggle_shuffle(self):
-        """Toggle shuffle"""
+        """Toggle shuffle."""
         try:
             current = self._player.props.shuffle
             self._player.set_shuffle(not current)
@@ -163,7 +163,7 @@ class Player(Service):
             return False
 
     def cycle_loop(self):
-        """Cycle loop mode"""
+        """Cycle loop mode."""
         try:
             current = self._player.props.loop_status
             if current == Playerctl.LoopStatus.NONE:
@@ -180,7 +180,7 @@ class Player(Service):
             return False
 
     def _cleanup_temp(self):
-        """Clean up temp files"""
+        """Clean up temp files."""
         if self.temp_art_path and os.path.isfile(self.temp_art_path):
             try:
                 os.remove(self.temp_art_path)
@@ -191,7 +191,7 @@ class Player(Service):
 
     # Helper methods for variant conversion
     def _get_variant_string(self, variant):
-        """Convert variant to string"""
+        """Convert variant to string."""
         if variant is None:
             return ""
         try:
@@ -206,7 +206,7 @@ class Player(Service):
                 return ""
 
     def _get_variant_artist(self, variant):
-        """Convert variant to artist string (handle arrays)"""
+        """Convert variant to artist string (handle arrays)."""
         if variant is None:
             return ""
         try:
@@ -220,7 +220,7 @@ class Player(Service):
             return self._get_variant_string(variant)
 
     def _get_variant_int(self, variant):
-        """Convert variant to int - FIXED for uint64"""
+        """Convert variant to int - FIXED for uint64."""
         if variant is None:
             return 0
         try:
@@ -243,11 +243,11 @@ class Player(Service):
 
 
 class SimplePlayerctlService(Service):
-    """Simple, lightweight service for MPRIS players"""
+    """Simple, lightweight service for MPRIS players."""
 
     @Signal
     def changed(self) -> None:
-        """Signal to show state-change"""
+        """Signal to show state-change."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -264,11 +264,11 @@ class SimplePlayerctlService(Service):
 
     @Property(dict, "read-write")
     def players(self) -> dict:
-        """Property to access players"""
+        """Property to access players."""
         return self._players
 
     def _discover_players(self):
-        """Find all available players"""
+        """Find all available players."""
         for name in self.manager.props.player_names:  # type: ignore
             logger.info(f"player found: {name.name}")
             if name.name not in self._players:
@@ -291,7 +291,7 @@ class SimplePlayerctlService(Service):
             self.current_player = self._players[first_player_name]
 
     def _on_player_appeared(self, _, name):
-        """Handle new player"""
+        """Handle new player."""
         logger.info(f"adding_player {name.name}")
 
         if name.name not in self._players:
@@ -319,7 +319,7 @@ class SimplePlayerctlService(Service):
         return False
 
     def _on_player_vanished(self, _, player):
-        """Handle player disappearing"""
+        """Handle player disappearing."""
         logger.info(f"player {player.name} vanished")
 
         player_name = player.name
@@ -334,5 +334,5 @@ class SimplePlayerctlService(Service):
         self.emit("changed")
 
     def get_players_names(self):
-        """Get list of all player names"""
+        """Get list of all player names."""
         return list(self._players.keys())

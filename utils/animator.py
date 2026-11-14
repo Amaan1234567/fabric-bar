@@ -82,7 +82,7 @@ class TimingFunctionCallback(Protocol):
 
 class Animator(Service):
     """An animator is a simple way for animating a value on
-    a set timeline based on a given timing function
+    a set timeline based on a given timing function.
     """
 
     @Signal
