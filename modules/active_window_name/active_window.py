@@ -6,7 +6,6 @@ window classes.
 """
 
 import re
-from typing import List, Tuple
 
 from fabric.hyprland.widgets import ActiveWindow
 from fabric.utils import FormattedString, truncate

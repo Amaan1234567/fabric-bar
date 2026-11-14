@@ -1,7 +1,5 @@
 """holds the notification window widget."""
 
-from gi.repository import GLib
-
 from typing import cast
 
 from fabric.notifications.service import Notification
