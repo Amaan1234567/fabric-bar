@@ -2,6 +2,8 @@
 
 import tomllib
 
+import tomllib
+from loguru import logger
 from fabric.widgets.box import Box
 from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.wayland import WaylandWindow as Window
@@ -27,6 +29,7 @@ from modules.system_tray.system_tray import barSystemTray as SystemTray
 from modules.workspaces.workspaces import CustomWorkspaces
 from widgets.system_controls import SystemControls
 
+from widgets.system_controls import SystemControls
 
 class TopBar(Window):
     """top bar of UI."""

@@ -1,5 +1,7 @@
 """holds the logout button and its associated popup."""
 
+import subprocess
+
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.eventbox import EventBox
