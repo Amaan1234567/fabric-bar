@@ -1,0 +1,15 @@
+[tool.ruff]
+# Keeps Ruff's default exclusions (.git, .venv, __pycache__, etc.)
+# and adds your custom folders on top of them
+extend-exclude = [
+    "experimental",
+    "venv"
+]
+
+[tool.ruff.lint]
+ignore = [
+    "D401", # First line of docstring should be in imperative mood
+    "D404", # First word of the docstring should not be "This"
+    "BLE001", # Do not catch blind exception: Exception
+    "S110",   # `try`-`except`-`pass` detected
+]

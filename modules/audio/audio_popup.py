@@ -383,6 +383,7 @@ class AudioPopup(PopupWindow):
         try:
             result = subprocess.run(
                 ["pactl", "list", "sinks"],
+                check=False,
                 capture_output=True,
                 text=True,
                 timeout=2,

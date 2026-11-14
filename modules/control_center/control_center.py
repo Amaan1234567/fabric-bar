@@ -1,4 +1,4 @@
-"""contains the control center widget"""
+"""contains the control center widget."""
 
 from fabric.utils import cooldown
 from fabric.widgets.box import Box
@@ -17,7 +17,7 @@ from modules.control_center.wifi_toggle_button import WifiToggle
 
 
 class ControlCenter(PopupWindow):
-    """control center widget"""
+    """control center widget."""
 
     def __init__(self, app_data, parent, monitor=0, **kwargs):
         super().__init__(
@@ -75,7 +75,7 @@ class ControlCenter(PopupWindow):
 
     @cooldown(0.35)
     def toggle_control_center(self):
-        """Toggles control center"""
+        """Toggles control center."""
         # self.set_visible(not self.get_visible())
 
         if self.revealer.get_reveal_child():

@@ -9,7 +9,7 @@ from loguru import logger
 def get_monitor_info(monitor_id: int):
     """Returns (device_type, hardware_id)
     Internal: ("internal", "internal")
-    External: ("external", "1") -> "1" is the ddcutil display index
+    External: ("external", "1") -> "1" is the ddcutil display index.
     """
     try:
         output = subprocess.check_output(["hyprctl", "monitors", "-j"], text=True)

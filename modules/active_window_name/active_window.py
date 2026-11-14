@@ -6,7 +6,6 @@ window classes.
 """
 
 import re
-from typing import List, Tuple
 
 from fabric.hyprland.widgets import ActiveWindow
 from fabric.utils import FormattedString, truncate
@@ -54,11 +53,11 @@ class WindowName(Box):
         """
         trunc = True
         trunc_size = 10
-        custom_map: List[Tuple[str, str, str]] = []
+        custom_map: list[tuple[str, str, str]] = []
         icon_enabled = True
 
         win_title = truncate(win_title, trunc_size) if trunc else win_title
-        merged_titles: List[Tuple[str, str, str] | List[str]] = WINDOW_TITLE_MAP + (
+        merged_titles: list[tuple[str, str, str] | list[str]] = WINDOW_TITLE_MAP + (
             custom_map if isinstance(custom_map, list) else []
         )
         for pattern, icon, name in merged_titles:

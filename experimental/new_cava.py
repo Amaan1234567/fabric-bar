@@ -141,12 +141,12 @@ class Cava:
             self.state = self.NONE
 
     def start(self):
-        """Launch cava"""
+        """Launch cava."""
         self._start_io_reader()
         self._run_process()
 
     def restart(self):
-        """Restart cava process"""
+        """Restart cava process."""
         if self.state == self.RUNNING:
             self.state = self.RESTARTING
             if self.process and self.process.poll() is None:
@@ -155,7 +155,7 @@ class Cava:
             self.start()
 
     def close(self):
-        """Stop cava process"""
+        """Stop cava process."""
         self.state = self.CLOSING
 
         # Stop IO watch first
@@ -199,7 +199,7 @@ class Cava:
 
 
 class AttributeDict(dict):
-    """Dictionary with keys as attributes. Does nothing but easy reading"""
+    """Dictionary with keys as attributes. Does nothing but easy reading."""
 
     def __getattr__(self, attr):
         return self.get(attr, 3)
@@ -209,7 +209,7 @@ class AttributeDict(dict):
 
 
 class Spectrum:
-    """Spectrum drawing"""
+    """Spectrum drawing."""
 
     def __init__(self):
         self.silence_value = 0
@@ -233,12 +233,12 @@ class Spectrum:
         self.color_update()
 
     def is_silence(self, value):
-        """Check if volume level critically low during last iterations"""
+        """Check if volume level critically low during last iterations."""
         self.silence_value = 0 if value > 0 else self.silence_value + 1
         return self.silence_value > self.silence
 
     def update(self, data):
-        """Audio data processing"""
+        """Audio data processing."""
         self.color_update_cached()
         self.audio_sample = data
         if not self.is_silence(self.audio_sample[0]):
@@ -248,7 +248,7 @@ class Spectrum:
             self.area.queue_draw()
 
     def redraw(self, widget, cr):
-        """Draw spectrum graph"""
+        """Draw spectrum graph."""
         cr.set_source_rgba(*self.color)
         dx = 3
 
@@ -272,7 +272,7 @@ class Spectrum:
         cr.fill()
 
     def size_update(self, *args):
-        """Update drawing geometry"""
+        """Update drawing geometry."""
         self.sizes.number = bars
         self.sizes.padding = 100 / bars
         self.sizes.zero = 0
@@ -285,7 +285,7 @@ class Spectrum:
         self.sizes.bar.height = self.sizes.area.height
 
     def color_update_cached(self):
-        """Set drawing color with caching to avoid file reads on every frame"""
+        """Set drawing color with caching to avoid file reads on every frame."""
         color_file = get_relative_path("../styles/colors.css")
         try:
             # Check if file has been modified
@@ -317,7 +317,7 @@ class Spectrum:
                 self.color = self._cached_color
 
     def color_update(self):
-        """Set drawing color according to current settings by reading primary color from CSS"""
+        """Set drawing color according to current settings by reading primary color from CSS."""
         color = "#a5c8ff"  # default value
         try:
             with open(get_relative_path("../styles/colors.css"), "r") as f:

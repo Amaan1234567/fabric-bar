@@ -1,6 +1,6 @@
 {
     "python.analysis.autoImportCompletions": true,
-    "python.defaultInterpreterPath": "venv/bin/python",
+    "python.defaultInterpreterPath": "$HOME/fabric-bar/venv/bin/python3.14",
     "python.envFile": ".env",
     "pylint.importStrategy": "useBundled",
     "python.languageServer": "Pylance",

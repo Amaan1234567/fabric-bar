@@ -5,7 +5,6 @@ over time based on a given timing function.
 # Author: Yousef EL-Darsh
 # License (SPDX): AGPL-3.0-or-later
 
-from functools import cache
 from typing import Protocol, cast
 
 from fabric.core.service import Property, Service, Signal
@@ -13,17 +12,14 @@ from fabric.utils import clamp
 from gi.repository import GLib, Gtk  # type: ignore
 
 
-
 def _lerp(start: float, end: float, progress: float) -> float:
     return start + (end - start) * progress
-
 
 
 def _steps(n: int, progress: float, start_jump: bool = False) -> float:
     if start_jump:
         return min(int(progress * n), n - 1) / (n - 1) if n > 1 else 0.0
     return min(int(progress * n + 1e-10), n) / n
-
 
 
 def _cubic_bezier(
@@ -85,7 +81,7 @@ class TimingFunctionCallback(Protocol):
 
 class Animator(Service):
     """An animator is a simple way for animating a value on
-    a set timeline based on a given timing function
+    a set timeline based on a given timing function.
     """
 
     @Signal
@@ -99,7 +95,6 @@ class Animator(Service):
     @timing_function.setter
     def timing_function(self, value: TimingFunctionCallback):
         self._timing_function = value
-        return
 
     @Property(float, "read-write")
     def duration(self):  # pyright: ignore
@@ -112,7 +107,6 @@ class Animator(Service):
             raise ValueError("duration can't be smaller than or equal to 0.0")
 
         self._duration = value
-        return
 
     @Property(float, "read-write")
     def value(self):  # pyright: ignore
@@ -124,7 +118,6 @@ class Animator(Service):
     @value.setter  # pyright: ignore
     def value(self, value: float):
         self._value = value
-        return
 
     @Property(float, "read-write")
     def max_value(self):  # pyright: ignore
@@ -136,7 +129,6 @@ class Animator(Service):
     @max_value.setter  # pyright: ignore
     def max_value(self, value: float):
         self._max_value = value
-        return
 
     @Property(float, "read-write")
     def min_value(self):  # pyright: ignore
@@ -148,7 +140,6 @@ class Animator(Service):
     @min_value.setter  # pyright: ignore
     def min_value(self, value: float):
         self._min_value = value
-        return
 
     @Property(bool, "read-write", default_value=False)
     def playing(self):  # pyright: ignore
@@ -158,7 +149,6 @@ class Animator(Service):
     @playing.setter  # pyright: ignore
     def playing(self, value: bool):  # this setter is intended for internal usage only
         self._playing = value
-        return
 
     @Property(bool, "read-write", default_value=False)
     def repeat(self):  # pyright: ignore
@@ -168,7 +158,6 @@ class Animator(Service):
     @repeat.setter  # pyright: ignore
     def repeat(self, value: bool):
         self._repeat = value
-        return
 
     def __init__(
         self,

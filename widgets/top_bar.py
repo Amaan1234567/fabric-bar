@@ -1,13 +1,15 @@
-"""holds the main bar widget"""
+"""holds the main bar widget."""
 
 import tomllib
-from loguru import logger
+
 from fabric.widgets.box import Box
 from fabric.widgets.centerbox import CenterBox
 from fabric.widgets.wayland import WaylandWindow as Window
+from loguru import logger
 
 from modules.active_window_name.active_window import WindowName
 from modules.audio.audio import AudioWidget
+from modules.background_op_progress.background_op_progress import BackgroundOpProgress
 from modules.battery.battery import BatteryWidget
 from modules.bluetooth.bluetooth import BluetoothWidget
 from modules.cava.cava import CavaWidget
@@ -23,11 +25,11 @@ from modules.network.network import NetworkWidget
 from modules.network_speed.network_speed import NetworkSpeed
 from modules.system_tray.system_tray import barSystemTray as SystemTray
 from modules.workspaces.workspaces import CustomWorkspaces
-
 from widgets.system_controls import SystemControls
 
+
 class TopBar(Window):
-    """top bar of UI"""
+    """top bar of UI."""
 
     def __init__(self, app_data, monitor=0, **kwargs):
         super().__init__(
@@ -41,8 +43,8 @@ class TopBar(Window):
             **kwargs,
         )
         self.app_data = app_data
-
-        self.config = tomllib.loads(open(f"config.toml", "rb").read().decode("utf-8"))
+        with open("config.toml", "rb") as config_data:
+            self.config = tomllib.loads(config_data.read().decode("utf-8"))
         print(self.config)
         if self.config["layout"]["type"] == "dynamic":
             self.setup_dynamic_layout()
@@ -53,7 +55,7 @@ class TopBar(Window):
 
         # self.add(self.content)
 
-    def get_widget_registry(self,name):
+    def get_widget_registry(self, name):
         """Returns a dictionary mapping string keys from the layout toml to widget factories."""
         widget_registry = {
             "cpu": Cpu,
@@ -74,12 +76,19 @@ class TopBar(Window):
             "bluetooth": BluetoothWidget,
             "cava": CavaWidget,  # type: ignore
             "network": NetworkWidget,
+            "background_op": BackgroundOpProgress,
             "spacer": Box,
             "h-padding": Box,
             "v-padding": Box,
         }
 
-        return widget_registry[name](app_data=self.app_data,window=self,monitor=self.monitor,h_expand=True) if name in widget_registry else Exception(f"Widget '{name}' not found in widget registry.")
+        return (
+            widget_registry[name](
+                app_data=self.app_data, window=self, monitor=self.monitor, h_expand=True
+            )
+            if name in widget_registry
+            else Exception(f"Widget '{name}' not found in widget registry.")
+        )
 
     def setup_dynamic_layout(self):
         """Sets up the bar layout with dynamic widgets based on the configuration."""
@@ -89,17 +98,13 @@ class TopBar(Window):
             h_expand=True,
             v_align="center",
         )
-        cur_box = Box(
-            orientation="h",
-            spacing=10)
+        cur_box = Box(orientation="h", spacing=10)
         for widget_name in self.config["layout"]["dynamic_widgets"]:
             if widget_name == "spacer":
                 self.content.add(cur_box)
                 self.content.add(self.get_widget_registry(widget_name))
                 logger.info(f"Adding widget: {widget_name} to dynamic layout")
-                cur_box = Box(
-                    orientation="h",
-                    spacing=10)
+                cur_box = Box(orientation="h", spacing=10)
             else:
                 logger.info(f"Adding widget: {widget_name} to dynamic layout")
                 cur_box.add(self.get_widget_registry(widget_name))
@@ -108,7 +113,6 @@ class TopBar(Window):
 
     def setup_left_center_right_layout(self):
         """Sets up the bar layout with left, center, and right sections."""
-
         left_box = Box(
             orientation="h",
             spacing=10,

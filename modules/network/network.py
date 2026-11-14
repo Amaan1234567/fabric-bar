@@ -1,4 +1,4 @@
-"""holds the network widget shown in bar"""
+"""holds the network widget shown in bar."""
 
 from fabric.utils.helpers import exec_shell_command_async
 from fabric.widgets.box import Box
@@ -130,28 +130,28 @@ class NetworkWidget(Box):
         self._scanning = False
 
     def _on_popup_enter(self, _, __):
-        """Called when mouse enters the popup"""
+        """Called when mouse enters the popup."""
         self._is_hovering = True
         self._cancel_auto_hide_timer()
 
     def _on_popup_leave(self, _, __):
-        """Called when mouse leaves the popup"""
+        """Called when mouse leaves the popup."""
         self._is_hovering = False
         self._start_auto_hide_timer()
 
     def _start_auto_hide_timer(self):
-        """Start the auto-hide timer (1.5 seconds)"""
+        """Start the auto-hide timer (1.5 seconds)."""
         self._cancel_auto_hide_timer()
         self._auto_hide_timer = GLib.timeout_add(1500, self._auto_hide_popup)
 
     def _cancel_auto_hide_timer(self):
-        """Cancel the auto-hide timer if it exists"""
+        """Cancel the auto-hide timer if it exists."""
         if self._auto_hide_timer:
             GLib.source_remove(self._auto_hide_timer)
             self._auto_hide_timer = None
 
     def _auto_hide_popup(self):
-        """Hide the popup automatically (called by timer)"""
+        """Hide the popup automatically (called by timer)."""
         if not self._is_hovering and self.networks_popup.get_visible():
             self.networks_revealer.set_reveal_child(False)
             GLib.timeout_add(400, self.networks_popup.set_visible, False)
@@ -160,12 +160,12 @@ class NetworkWidget(Box):
         return False  # Don't repeat timer
 
     def on_left_click(self, _, event):
-        """Handle click events"""
+        """Handle click events."""
         if event.button == Gdk.BUTTON_PRIMARY:  # type: ignore
             self._toggle_networks_popup()
 
     def _toggle_networks_popup(self):
-        """Toggle the networks popup"""
+        """Toggle the networks popup."""
         if not self.wifi_on:
             return
 
@@ -184,7 +184,7 @@ class NetworkWidget(Box):
                 GLib.timeout_add(250, self.networks_revealer.set_reveal_child, True)
 
     def _populate_networks_ui(self):
-        """Populate networks UI (called on main thread)"""
+        """Populate networks UI (called on main thread)."""
         if self._wifi_device is None:
             logger.exception("Wifi not available")
             return
@@ -234,7 +234,7 @@ class NetworkWidget(Box):
         self._populate_networks_ui()
 
     def _get_saved_connections_async(self):
-        """Get saved connections asynchronously"""
+        """Get saved connections asynchronously."""
         try:
             self.saved_connections = []
             exec_shell_command_async(
@@ -338,7 +338,7 @@ class NetworkWidget(Box):
         )
 
         # Create network button
-        lock_icon = "" if is_secure else ""
+        lock_icon = ""
         label = f"{lock_icon} {ssid} ({signal}%)"
 
         network_button = Button(
@@ -364,7 +364,7 @@ class NetworkWidget(Box):
         return network_container, network_button
 
     def _handle_network_click(self, ssid, is_secure, is_saved, button):
-        """Handle network button click"""
+        """Handle network button click."""
         # print(f"Network clicked: {ssid}, secure: {is_secure}, saved: {is_saved}")
 
         if not is_secure:
@@ -381,7 +381,7 @@ class NetworkWidget(Box):
                 button.password_revealer.set_reveal_child(True)
 
     def _hide_all_password_entries(self):
-        """Hide all password entry revealers"""
+        """Hide all password entry revealers."""
         for container in self.networks_box.children:
             if hasattr(container, "children"):
                 for child in container.children:
@@ -391,13 +391,14 @@ class NetworkWidget(Box):
                         child.password_revealer.set_reveal_child(False)
 
     def _hide_password_entry(self, container):
-        """Hide password entry for a specific container"""
+        """Hide password entry for a specific container."""
         for child in container.children:
             if isinstance(child, Button) and hasattr(child, "password_revealer"):
                 child.password_revealer.set_reveal_child(False)
 
     def _connection_attempt_callback(self, output) -> bool:
         if "successfully" in output:
+            assert self._wifi_device is not None
             exec_shell_command_async(
                 f'notify-send "Network Updated" "Successfully connected to {self._wifi_device.ssid}"'
             )
@@ -406,7 +407,7 @@ class NetworkWidget(Box):
         return False
 
     def _connect_to_network(self, ssid, password):
-        """Connect to a network with optional password"""
+        """Connect to a network with optional password."""
         # print(f"Connecting to {ssid} with {'password' if password else 'no password'}")
         if self._wifi_device is not None:
             self._wifi_device.connect_to_ssid(
@@ -425,7 +426,7 @@ class NetworkWidget(Box):
         self.icon.set_label(glyph)
 
     def _get_active_connection_info(self):
-        """Get active connection info with minimal D-Bus calls"""
+        """Get active connection info with minimal D-Bus calls."""
         tooltip = ""
         status = ""
         strength = None

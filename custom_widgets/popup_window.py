@@ -4,8 +4,6 @@ It positions itself relative to a parent window and optionally points
 to a specific widget.
 """
 
-from typing import Optional, Tuple, Union
-
 from fabric.widgets.wayland import WaylandWindow
 from gi.repository import Gtk, GtkLayerShell
 
@@ -18,8 +16,8 @@ class PopupWindow(WaylandWindow):
     def __init__(
         self,
         parent: WaylandWindow,
-        pointing_to: Optional[Gtk.Widget] = None,
-        margin: Union[Tuple[int, ...], str] = "0px 0px 0px 0px",
+        pointing_to: Gtk.Widget | None = None,
+        margin: tuple[int, ...] | str = "0px 0px 0px 0px",
         **kwargs,
     ):
         """Initializes a new PopupWindow instance.
@@ -41,14 +39,14 @@ class PopupWindow(WaylandWindow):
         self.exclusivity = "none"
 
         self._parent: WaylandWindow = parent
-        self._pointing_widget: Optional[Gtk.Widget] = pointing_to
+        self._pointing_widget: Gtk.Widget | None = pointing_to
         self._base_margin = self.extract_margin(margin)
-        self.margin: Tuple[int, ...] = tuple(self._base_margin.values())
+        self.margin: tuple[int, ...] = tuple(self._base_margin.values())
         self.title: str = "fabric-popup"
 
         self.connect("notify::visible", self.do_update_handlers)
 
-    def get_coords_for_widget(self, widget: Gtk.Widget) -> Tuple[int, int]:
+    def get_coords_for_widget(self, widget: Gtk.Widget) -> tuple[int, int]:
         """Calculates the coordinates of a widget relative to the toplevel
         window.
 
@@ -69,7 +67,7 @@ class PopupWindow(WaylandWindow):
         )
         return round(x / 2), round(y / 2)
 
-    def set_pointing_to(self, widget: Optional[Gtk.Widget]) -> bool:
+    def set_pointing_to(self, widget: Gtk.Widget | None) -> bool:
         """Sets the widget that the popup should point to.
 
         If a previous pointing widget was set, it disconnects the

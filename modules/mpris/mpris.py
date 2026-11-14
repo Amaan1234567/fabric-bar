@@ -1,4 +1,4 @@
-"""holds the mpris widget shown in bar"""
+"""holds the mpris widget shown in bar."""
 
 from fabric.utils import get_relative_path, invoke_repeater
 from fabric.widgets.box import Box
@@ -11,16 +11,16 @@ from loguru import logger
 from custom_widgets.animated_cirular_scale import AnimatedCircularScale
 from custom_widgets.image_rounded import CustomImage
 from custom_widgets.scolling_text_widget import ScrollingLabel
-from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1
 from modules.mpris.mpris_popup import MprisPopup
 from services.playerctlservice import SimplePlayerctlService
+from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1
 
 
 class Mpris(Box):
-    """mpris widget that is shown in the bar, which shows truncated song name and album art"""
+    """mpris widget that is shown in the bar, which shows truncated song name and album art."""
 
     def __init__(self, window, **kwargs):
-        super().__init__(orientation="horizontal", name="mpris",spacing=6, **kwargs)
+        super().__init__(orientation="horizontal", name="mpris", spacing=6, **kwargs)
 
         self.delay = None
         self.temp_art_pixbuf_cache = None

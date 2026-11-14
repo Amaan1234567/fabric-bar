@@ -1,4 +1,4 @@
-"""holds screen corners widget"""
+"""holds screen corners widget."""
 
 from fabric.widgets.box import Box
 from fabric.widgets.overlay import Overlay

@@ -6,14 +6,13 @@ with a file-based toggle_window() like WallpaperSelector.
 
 import json
 import random
-from typing import Callable
+from collections.abc import Callable
 
 import gi
 
 gi.require_version("Glace", "0.1")
 from fabric.hyprland.widgets import get_hyprland_connection
 from fabric.widgets.box import Box
-from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
 from fabric.widgets.wayland import WaylandWindow as Window
@@ -288,7 +287,7 @@ class AltTab(Window):
                     return m.get("scale", 1.0)
             if monitors:
                 return monitors[0].get("scale", 1.0)
-        except Exception:  # noqa: BLE001, S110
+        except Exception:
             pass
         return 1.0
 
@@ -394,7 +393,7 @@ class AltTab(Window):
             for addr in stale:
                 self.remove_client_view(addr)
 
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.debug(f"AltTab sync: {e}")
 
     # ────────────────────────────────────────────────────────

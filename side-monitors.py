@@ -1,4 +1,4 @@
-"""initialises the side montiors' shell"""
+"""initialises the side montiors' shell."""
 
 import sys
 
@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) <= 1 or sys.argv[1] != "--monitor-id":
         print(f"Usage: {script_name} [--monitor-id <monitor_id>]")
-        exit(1)
+        sys.exit(1)
 
     monitor_id = int(sys.argv[2]) if len(sys.argv) >= 2 else 0
     logger.info(f"Starting in side monitors mode on monitor {monitor_id}")

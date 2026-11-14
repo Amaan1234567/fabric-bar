@@ -1,18 +1,20 @@
-"""Module of Helper functions for the project"""
+"""Module of Helper functions for the project."""
 
 import shutil
 
 from gi.repository import GdkPixbuf  # type: ignore
-from loguru import logger  
+from loguru import logger
+
 
 def executable_exists(executable_name):
     executable_path = shutil.which(executable_name)
     return bool(executable_path)
 
+
 def pixbuf_cropping_if_image_is_not_1_1(
     original_pixbuf: GdkPixbuf.Pixbuf, size: int = 200
 ) -> GdkPixbuf.Pixbuf | None:
-    """Helper functions to create a 1:1 pixbuf
+    """Helper functions to create a 1:1 pixbuf.
 
     Args:
         original_pixbuf (GdkPixbuf.Pixbuf): original image pixbuf
@@ -65,5 +67,5 @@ def pixbuf_cropping_if_image_is_not_1_1(
 
 
 def truncate(text, max_len=15):
-    """Truncates text to given char len"""
+    """Truncates text to given char len."""
     return text if len(text) <= max_len else text[: max_len - 1] + "…"

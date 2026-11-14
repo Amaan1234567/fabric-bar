@@ -1,8 +1,9 @@
 """Notifications panel module for the control center."""
+
+import gc
 import os
 
-from fabric.notifications.service import Notification
-from fabric.utils import get_relative_path
+from fabric.utils.helpers import get_relative_path
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.centerbox import CenterBox
@@ -13,7 +14,7 @@ from gi.repository import GdkPixbuf, GLib, Gtk  # type: ignore
 from loguru import logger
 
 from custom_widgets.image_rounded import CustomImage
-from services.notification_service import NotificationService
+from services.notification_service import Notification, NotificationService
 from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 from utils.variables import APP_ICON_MAP
 
@@ -22,7 +23,7 @@ NOTIFICATION_BUTTONS_WRAP_THRESHOLD = 2
 
 
 class NotificationItem(Box):
-    """the notification item in the notifications panel"""
+    """the notification item in the notifications panel."""
 
     def __init__(self, notification: Notification, **kwargs):
         super().__init__(
@@ -148,7 +149,7 @@ class NotificationItem(Box):
 
     def __del__(self):
         logger.debug(
-            f"""Widget for notification {getattr(self, '_notification', 'Unknown')}
+            f"""Widget for notification {getattr(self, "_notification", "Unknown")}
             successfully garbage collected!"""
         )
 
@@ -239,7 +240,7 @@ class NotificationItem(Box):
 
 
 class NotificationsPanel(Box):
-    """the notifications panel that holds all notification items"""
+    """the notifications panel that holds all notification items."""
 
     def __init__(self, app_data, **kwargs):
         super().__init__(

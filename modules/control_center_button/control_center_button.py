@@ -1,4 +1,4 @@
-"""holds the control-center trigger button"""
+"""holds the control-center trigger button."""
 
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
@@ -8,7 +8,7 @@ from modules.control_center.control_center import ControlCenter
 
 
 class ControlCenterButton(Box):
-    """control center trigger button"""
+    """control center trigger button."""
 
     def __init__(self, app_data, monitor=0, **kwargs):
         super().__init__(**kwargs, name="notification-button")

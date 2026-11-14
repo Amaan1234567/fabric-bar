@@ -161,8 +161,10 @@ class GpuWidget(Box):
     def _fetch_gpu_data(self):
         cmd = [
             "nvidia-smi",
-            "--query-gpu=name,utilization.gpu,memory.used,memory.total,"
-            "temperature.gpu,clocks.gr,clocks.mem,power.draw",
+            (
+                "--query-gpu=name,utilization.gpu,memory.used,memory.total,"
+                "temperature.gpu,clocks.gr,clocks.mem,power.draw"
+            ),
             "--format=csv,noheader,nounits",
         ]
         try:

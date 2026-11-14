@@ -1,6 +1,6 @@
-"""Notification Service Module"""
+"""Notification Service Module."""
 
-from typing import Dict, cast
+from typing import cast
 
 from fabric import Property
 from fabric.core.service import Service, Signal
@@ -35,16 +35,16 @@ class NotificationService(Service):
 
     @Signal
     def dnd_toggled(self, dnd_is_on: bool) -> None:
-        """Dnd toggle signal"""
+        """Dnd toggle signal."""
 
-    @Property(Dict[int, Notification], "readable")
-    def notifications(self) -> Dict[int, Notification]:
+    @Property(dict[int, Notification], "readable")
+    def notifications(self) -> dict[int, Notification]:
         """Get the current list of notifications."""
         return self._notifications
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._notifications : dict[int, Notification] = {}
+        self._notifications: dict[int, Notification] = {}
         self._notifications_service = Notifications()
         self._notifications_service.connect(
             "notification-added", self._on_notification_added
@@ -60,7 +60,7 @@ class NotificationService(Service):
 
     @property
     def dnd(self):
-        """Dnd property"""
+        """Dnd property."""
         return self._is_dnd_on
 
     @dnd.setter
@@ -109,13 +109,13 @@ class NotificationService(Service):
         for notif_id in list(self._notifications.keys()):
             GLib.idle_add(
                 self._notifications[notif_id].close,
-                NotificationCloseReason.DISMISSED_BY_USER
+                NotificationCloseReason.DISMISSED_BY_USER,
             )
-        
-        # We do not need to clear the dictionary manually here. 
-        # close_notification will trigger your _on_notification_closed method, 
+
+        # We do not need to clear the dictionary manually here.
+        # close_notification will trigger your _on_notification_closed method,
         # which safely pops them out of memory one by one.
-        
+
         # self.all_notifications_dismissed.emit()
         return False
 
@@ -125,7 +125,7 @@ class NotificationService(Service):
         return self._notifications[notification_id]
 
     def toggle_dnd(self):
-        """Function to toggle dnd"""
+        """Function to toggle dnd."""
         print("toggling")
         self._is_dnd_on = not self._is_dnd_on
         print("dnd: ", self._is_dnd_on)

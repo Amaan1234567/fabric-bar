@@ -1,4 +1,4 @@
-"""hold the bluetooth toggle module"""
+"""hold the bluetooth toggle module."""
 
 import subprocess
 
@@ -39,12 +39,12 @@ class BluetoothToggle(Button):
         self.set_tooltip_text("Toggle Bluetooth")
 
     def _bluetooth_is_on(self) -> bool:
-        """Returns True if bluetoothctl reports Powered: yes"""
+        """Returns True if bluetoothctl reports Powered: yes."""
         logger.debug(f"{self.bluetooth_client.state}")
         return self.bluetooth_client.get_property("state") == "on"
 
     def _refresh(self) -> bool:
-        """Update CSS class based on Bluetooth state"""
+        """Update CSS class based on Bluetooth state."""
         powered = self._bluetooth_is_on()
 
         ctx = self.get_style_context()
@@ -58,7 +58,7 @@ class BluetoothToggle(Button):
         return True  # keep timeout alive
 
     def _toggle(self, _button):
-        """Toggle Bluetooth power"""
+        """Toggle Bluetooth power."""
         cmd = ["off", "on"][not self._bluetooth_is_on()]
         try:
             subprocess.run(

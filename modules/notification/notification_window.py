@@ -1,20 +1,18 @@
-"""holds the notification window widget"""
-
-from gi.repository import GLib
+"""holds the notification window widget."""
 
 from typing import cast
 
 from fabric.notifications.service import Notification
+from fabric.utils.helpers import exec_shell_command_async, get_relative_path
 from fabric.widgets.box import Box
 from fabric.widgets.wayland import WaylandWindow
-from fabric.utils.helpers import exec_shell_command_async, get_relative_path
 
 from modules.notification.notification_popup import NotificationPopup
 from services.notification_service import NotificationService
 
 
 class NotificationPopupWindow(WaylandWindow):
-    """The window that holds all the Notification Popups"""
+    """The window that holds all the Notification Popups."""
 
     def __init__(self, app_data, **kwargs):
         super().__init__(

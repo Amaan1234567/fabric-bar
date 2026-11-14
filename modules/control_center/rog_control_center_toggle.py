@@ -1,4 +1,4 @@
-"""hold rog app trigger button"""
+"""hold rog app trigger button."""
 
 from fabric.utils import cooldown, exec_shell_command_async
 from fabric.widgets.button import Button
@@ -6,7 +6,7 @@ from fabric.widgets.svg import Svg
 
 
 class ROGButton(Button):
-    """widget that hold the button to trigger ROG app"""
+    """widget that hold the button to trigger ROG app."""
 
     def __init__(self):
         # Let Fabric handle SVG scaling automatically
@@ -42,5 +42,5 @@ class ROGButton(Button):
 
     @cooldown(1)
     def _launch_rog_center(self, _):
-        """Launch ROG Control Center"""
+        """Launch ROG Control Center."""
         exec_shell_command_async("rog-control-center & disown")

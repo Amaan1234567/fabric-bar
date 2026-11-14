@@ -1,3 +1,5 @@
+"""Holds the Scrolling Label widget"""
+
 from functools import partial
 
 import cairo
@@ -6,12 +8,14 @@ import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("Pango", "1.0")
 gi.require_version("PangoCairo", "1.0")
-from gi.repository import GLib, Gtk, Pango, PangoCairo
+from gi.repository import GLib, Gtk, PangoCairo
 
 from utils.animator import Animator, _cubic_bezier
 
 
 class ScrollingLabel(Gtk.DrawingArea):
+    """Defines a Label that scrolls on its own"""
+
     def __init__(
         self,
         text="---",
@@ -146,9 +150,13 @@ class ScrollingLabel(Gtk.DrawingArea):
 
     def _start_scrolling_if_needed(self):
         width = self.get_allocated_width()
-        if width > 0 and self._text_w > width:
-            if not self.animator.playing and self._pause_source_id is None:
-                self.animator.play()
+        if (
+            width > 0
+            and self._text_w > width
+            and not self.animator.playing
+            and self._pause_source_id is None
+        ):
+            self.animator.play()
 
     # ── Public API ──────────────────────────────────────────────
 

@@ -1,8 +1,6 @@
 """Hold the Bluetooth widget that displays the bluetooth status
-and battery of bluetooth device if supported
+and battery of bluetooth device if supported.
 """
-
-from typing import List
 
 from fabric.bluetooth.service import BluetoothClient, BluetoothDevice
 from fabric.utils import cooldown, exec_shell_command_async
@@ -17,7 +15,7 @@ from loguru import logger
 class BluetoothWidget(Box):
     """Bluetooth widget that displays the status of bluetooth,
     battery of the bluetooth device if supported, and extra info
-    on the device in tooltip
+    on the device in tooltip.
     """
 
     def __init__(self, interval=1, **kwargs):
@@ -85,11 +83,9 @@ class BluetoothWidget(Box):
         return True
 
     def _update_icon(self):
-        """Update the Bluetooth icon based on state"""
+        """Update the Bluetooth icon based on state."""
         try:
-            if not self.bluetooth_client.enabled:
-                self.icon.set_label("󰂲")
-            elif not self.bluetooth_client.powered:
+            if not self.bluetooth_client.enabled or not self.bluetooth_client.powered:
                 self.icon.set_label("󰂲")
             elif len(self.bluetooth_client.connected_devices):
                 self.icon.set_label("󰂱")
@@ -101,13 +97,13 @@ class BluetoothWidget(Box):
             self.icon.set_label("󰂲")
 
     def _update_widget_state(self):
-        """Get Bluetooth status using Fabric's Bluetooth service"""
+        """Get Bluetooth status using Fabric's Bluetooth service."""
         try:
             if not self._bluetooth_status_checks():
                 return
 
             # Get connected devices
-            connected_devices: List[BluetoothDevice] = (
+            connected_devices: list[BluetoothDevice] = (
                 self.bluetooth_client.connected_devices
             )
             logger.debug(f"bluetooth connected devices:{connected_devices}")
@@ -126,7 +122,7 @@ class BluetoothWidget(Box):
             logger.exception(f"Bluetooth status error: {e}")
             self._tooltip_text = f"Bluetooth error: {e}"
 
-    def _process_devices(self, connected_devices: List[BluetoothDevice]):
+    def _process_devices(self, connected_devices: list[BluetoothDevice]):
         device_info = []
         first_device_battery = None
         connected_devices = sorted(connected_devices, key=lambda data: data.icon_name)
