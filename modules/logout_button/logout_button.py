@@ -34,7 +34,9 @@ class LogoutPopup(PopupWindow):
             children=[
                 Button(
                     label="󰗽 Logout",
-                    on_clicked=lambda *a: self._trigger_cmd("hyprctl dispatch exit"),
+                    on_clicked=lambda *a: self._trigger_cmd(
+                        "hyprctl dispatch 'hl.dsp.exit()'"
+                    ),
                 ),
                 Button(
                     label="󰤄 Suspend",

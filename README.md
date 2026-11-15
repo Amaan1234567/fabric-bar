@@ -70,6 +70,10 @@ sudo dnf remove tuned-ppd && sudo dnf install power-profiles-daemon
 ```bash
 stow -R basic_dotfiles
 ```
+### Good to have optional for devs using ssh on git repos
+```bash
+systemctl --user enable ssh-agent.socket
+```
 
 ### 3. Python environment
 
@@ -79,7 +83,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Build the smooth revealer extension
+### 4. Build the smooth revealer extension
 
 ```bash
 cd custom_widgets/
@@ -90,7 +94,7 @@ gcc -shared -o libhacktk.so libhacktk.o $(pkg-config --libs gtk+-3.0)
 > [!NOTE]
 > Make sure the GTK3 dev packages installed correctly in step 1, otherwise this will fail.
 
-### 4. Color theme
+### 5. Color theme
 
 Generate a `colors.css` from your wallpaper using [wallust](https://github.com/dexpota/wallust) or [matugen](https://github.com/InioX/matugen):
 
