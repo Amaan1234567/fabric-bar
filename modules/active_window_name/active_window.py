@@ -7,7 +7,7 @@ window classes.
 
 import re
 
-from fabric.hyprland.widgets import ActiveWindow
+from fabric.hyprland.widgets import HyprlandActiveWindow
 from fabric.utils import FormattedString, truncate
 from fabric.widgets.box import Box
 from loguru import logger
@@ -27,7 +27,7 @@ class WindowName(Box):
         """
         super().__init__(**kwargs)
 
-        self.window_name = ActiveWindow(
+        self.window_name = HyprlandActiveWindow(
             name="active-window",
             formatter=FormattedString(
                 "{ get_title(win_title, win_class) }",
