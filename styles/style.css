@@ -22,6 +22,7 @@
 @import url("./widgets/disk.css");
 @import url("./widgets/alt_tab.css");
 @import url("./widgets/background_op.css");
+@import url("./widgets/caffeine.css");
 
 * {
   all: unset;

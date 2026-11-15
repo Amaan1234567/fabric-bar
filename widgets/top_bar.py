@@ -12,6 +12,7 @@ from modules.audio.audio import AudioWidget
 from modules.background_op_progress.background_op_progress import BackgroundOpProgress
 from modules.battery.battery import BatteryWidget
 from modules.bluetooth.bluetooth import BluetoothWidget
+from modules.caffeine.caffeine import Caffeine
 from modules.cava.cava import CavaWidget
 from modules.clock.clock import Clock
 from modules.control_center_button.control_center_button import ControlCenterButton
@@ -78,6 +79,7 @@ class TopBar(Window):
             "cava": CavaWidget,  # type: ignore
             "network": NetworkWidget,
             "background_op": BackgroundOpProgress,
+            "caffeine": Caffeine,
             "spacer": Box,
             "h-padding": Box,
             "v-padding": Box,

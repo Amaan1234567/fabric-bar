@@ -29,14 +29,6 @@
   color: var(--background);
 }
 
-#rog-button {
-  padding-left: 8px;
-  padding-right: 8px;
-  border-radius: 10px;
-  background-color: var(--color4);
-  color: var(--color2);
-}
-
 #mic-toggle {
   border-radius: 10px;
 }
