@@ -11,7 +11,6 @@ from modules.control_center.gamemode_toggle import GamemodeToggleButton
 from modules.control_center.mic_toggle_button import MicToggle
 from modules.control_center.notifications_panel import NotificationsPanel
 from modules.control_center.performance_toggle import PerformanceToggle
-from modules.control_center.rog_control_center_toggle import ROGButton
 from modules.control_center.wallpaper_change_button import WallpaperChangeButton
 from modules.control_center.wifi_toggle_button import WifiToggle
 
@@ -40,7 +39,6 @@ class ControlCenter(PopupWindow):
             children=[
                 WifiToggle(),
                 BluetoothToggle(),
-                ROGButton(),
                 WallpaperChangeButton(),
                 MicToggle(),
                 GamemodeToggleButton(),

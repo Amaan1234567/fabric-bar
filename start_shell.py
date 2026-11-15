@@ -27,9 +27,12 @@ def main(monitor_id=0):
     logger.remove()
 
     logger.add(
-        sys.stderr,
+        "logs/app.log",
         filter=lambda record: record["name"] != "fabric.widgets.svg",
         level="INFO",
+        rotation="5 MB",      # Rotate every time the file hits 5 MB
+        retention="10 days",  # Keep logs for 10 days, then delete
+        compression="zip",
     )
 
     app_data = Data(

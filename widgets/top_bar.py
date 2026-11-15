@@ -39,6 +39,7 @@ class TopBar(Window):
             pass_through=False,
             exclusivity="auto",
             all_visible=False,
+            visible=False,
             monitor=monitor,
             **kwargs,
         )
@@ -52,7 +53,7 @@ class TopBar(Window):
             self.setup_single_layout()
         elif self.config["layout"]["type"] == "left-center-right":
             self.setup_left_center_right_layout()
-
+        self.show()
         # self.add(self.content)
 
     def get_widget_registry(self, name):
