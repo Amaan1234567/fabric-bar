@@ -43,7 +43,7 @@ class _PopupManager:
     @staticmethod
     def _hide(popup, owner):
         popup.overlay_revealer.set_reveal_child(False)
-        GLib.timeout_add(250, popup.set_visible, False)
+        GLib.timeout_add(450, popup.set_visible, False)
         # also cancel any pending hide timeout on the owner
         if hasattr(owner, "_cancel_hide_timeout"):
             owner._cancel_hide_timeout()

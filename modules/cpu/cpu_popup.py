@@ -19,7 +19,7 @@ class CpuPopup(PopupWindow):
             name="cpu-popup-window",
             type="popup",
             margin="15px 0 0 135px",
-            anchor="top left",
+            # anchor="left",
             title="fabric-cpu-popup",
             visible=False,
             v_expand=False,

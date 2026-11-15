@@ -168,7 +168,7 @@ end)
 local layer_names = {
     "fabric-mpris-popup", "fabric-networks-popup", "fabric-notifications",
     "volume_osd", "wallpaper-selector", "control_center", "brightness_osd",
-    "logout_popup", "theme_selector", "fabric-audio-popup", "fabric-clock-popup", "fabric-alttab"
+    "logout_popup", "theme_selector", "fabric-audio-popup", "fabric-clock-popup", "fabric-alttab","fabric-background-op-popup"
 }
 
 for _, value in ipairs(layer_names) do

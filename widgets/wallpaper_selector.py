@@ -4,9 +4,8 @@ apply different wallpapers for their desktop background.
 
 import os
 from threading import Thread
-from time import sleep
 
-from fabric.utils.helpers import exec_shell_command_async, monitor_file
+from fabric.utils.helpers import cooldown, exec_shell_command_async, monitor_file
 from fabric.widgets.box import Box
 from fabric.widgets.button import Button
 from fabric.widgets.eventbox import EventBox
@@ -69,23 +68,27 @@ class WallpaperSelector(Window):
             **kwargs,
         )
 
+        # To this (let CSS control min-width/height, or use set_size_request safely):
         self.content = Box(
             name="main-wallpaper-container",
             h_expand=True,
             v_expand=True,
-            size=[self.preview_target_width * 5 + 130, self.preview_target_height + 55],
+        )
+        self.content.set_size_request(
+            self.preview_target_width * 5 + 130, 
+            self.preview_target_height + 55
         )
         self.wallpaper_folder = f"{os.environ.get('HOME')}/Pictures/backgrounds/"
         self.cache_folder = f"{os.environ.get('HOME')}/.cache/wallpapers_cache/"
+        os.makedirs(self.cache_folder, exist_ok=True)
+        
         self.cache_available = len(os.listdir(self.cache_folder)) != 0
         self.wallpapers = os.listdir(self.wallpaper_folder)
         self.cache = os.listdir(self.cache_folder)
-        # Thread(target=self._process_new_wallpapers, daemon=True).start()
+
         self.wallpaper_folder_monitor = monitor_file(
             self.wallpaper_folder,
-            lambda *args: Thread(
-                target=self._process_new_wallpapers, daemon=True
-            ).start(),
+            self._process_wallpaper_handler,
             flags="watch-moves",
             initial_call=True,
         )
@@ -93,24 +96,29 @@ class WallpaperSelector(Window):
         self.scrolling_container = ScrolledWindow(
             name="wallpaper-scroll-container", h_expand=True
         )
-        # Prevent scroll container and eventbox from stealing widget focus
         self.scrolling_container.set_can_focus(False)
 
         self.event_box = EventBox(child=self.scrolling_container, h_expand=True)
         self.event_box.set_can_focus(False)
-        # Using key-press-event for immediate response
         self.connect("key-press-event", self._handle_key_press)
 
         self.buttons_box = Box(
             name="wallpapers-container", orientation="h", spacing=20, h_expand=True
         )
 
-        Thread(target=self._create_buttons, daemon=True).start()
+        # REMOVED the bad background thread spawning _create_buttons() here!
+        # _process_new_wallpaper_handler (via monitor_file initial_call=True) 
+        # will handle checking/processing and call _create_buttons safely on main thread.
+
         self.scrolling_container.children = [self.buttons_box]
 
         self.content.add(self.event_box)
         self.children = [self.content]
         self.is_hidden = True
+
+    @cooldown(1)
+    def _process_wallpaper_handler(self):
+        Thread(target=self._process_new_wallpapers, daemon=True).start()
 
     def _handle_key_press(self, _, key: Gdk.EventKey):
         if key.keyval == Gdk.KEY_Escape:  # type: ignore
@@ -139,7 +147,6 @@ class WallpaperSelector(Window):
         if current_idx == -1:
             target_idx = 0
         else:
-            # Clamp navigation between first and last button
             target_idx = max(0, min(len(buttons) - 1, current_idx + direction))
 
         buttons[target_idx].grab_focus()
@@ -148,22 +155,26 @@ class WallpaperSelector(Window):
         self.wallpapers = os.listdir(self.wallpaper_folder)
         self.cache = os.listdir(self.cache_folder)
         logger.info("detected change in wallpaper folder, checking for new wallpapers")
+        
         unprocessed_wallpapers = [
             wallpaper for wallpaper in self.wallpapers if wallpaper not in self.cache
         ]
-        if len(unprocessed_wallpapers) == 0:
-            return
-        service = BackgroundOpService()
-        background_op = service.set_background_op(
-            "wallpaper_cache_build", "bulding wallpaper cache", 0
-        )
-        total_work = len(unprocessed_wallpapers)
-        for i, wallpaper in enumerate(unprocessed_wallpapers):
-            self._process_wallpaper(wallpaper)
-            background_op.set_progress(((i + 1) / total_work) * 100)
-            background_op.set_display_text(f"processing {wallpaper}")
-            logger.debug(f"wallpaper_cache_progress: {((i + 1) / total_work) * 100}")
+        
+        if len(unprocessed_wallpapers) > 0:
+            service = BackgroundOpService()
+            background_op = service.set_background_op(
+                "wallpaper_cache_build", "building wallpaper cache", 0
+            )
+            total_work = len(unprocessed_wallpapers)
+            for i, wallpaper in enumerate(unprocessed_wallpapers):
+                self._process_wallpaper(wallpaper)
+                GLib.idle_add(background_op.set_progress, ((i + 1) / total_work) * 100)
+                GLib.idle_add(background_op.set_display_text, f"processing {wallpaper}")
+                logger.debug(f"wallpaper_cache_progress: {((i + 1) / total_work) * 100}")
+
         self.cache_available = True
+        # Always trigger button creation on the main thread via GLib.idle_add
+        GLib.idle_add(self._create_buttons)
         return True
 
     def _process_wallpaper(self, wallpaper: str):
@@ -182,28 +193,27 @@ class WallpaperSelector(Window):
         cropped_image.save(self.cache_folder + wallpaper)
 
     def _create_buttons(self):
-        if not self.cache_available:
+        """Runs strictly on the main thread when scheduled by GLib.idle_add."""
+        # Clear existing children safely
+        for child in list(self.buttons_box.children):
+            self.buttons_box.remove(child)
+            child.destroy()
+
+        images = sorted(
+            filter(lambda name: ".gif" not in name, os.listdir(self.cache_folder))
+        )
+
+        if not images:
             temp_label = Label(
                 name="loading-label",
-                label="Building wallpaper cache...",
+                label="No wallpapers found...",
                 h_align="center",
                 v_align="center",
                 h_expand=True,
                 v_expand=True,
             )
-            GLib.idle_add(self.buttons_box.add, temp_label)
-            while not self.cache_available:
-                sleep(0.5)
-
-            def _remove_loading_label():
-                self.buttons_box.remove(temp_label)
-                temp_label.destroy()
-
-            GLib.idle_add(_remove_loading_label)
-
-        images = sorted(
-            filter(lambda name: ".gif" not in name, os.listdir(self.cache_folder))
-        )
+            self.buttons_box.add(temp_label)
+            return
 
         for image_file_name in images:
             image = Box(
@@ -233,13 +243,10 @@ class WallpaperSelector(Window):
                 child=box,
             )
             button.connect("clicked", lambda _: self.toggle_window())
-            GLib.idle_add(self.buttons_box.add, button)
+            self.buttons_box.add(button)
 
-        def _focus_after_load():
-            if not self.is_hidden and self.buttons_box.children:
-                self.buttons_box.children[0].grab_focus()
-
-        GLib.idle_add(_focus_after_load)
+        if not self.is_hidden and self.buttons_box.children:
+            self.buttons_box.children[0].grab_focus()
 
     def toggle_window(self):
         """Function to toggle window."""
