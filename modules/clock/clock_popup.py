@@ -195,7 +195,7 @@ class ClockPopup(PopupWindow):
             layer="top",
             name="clock-popup-window",
             type="popup",
-            margin="15 0 0 0",
+            margin="15px 0 0 0",
             anchor="top left",
             title="fabric-clock-popup",
             visible=False,

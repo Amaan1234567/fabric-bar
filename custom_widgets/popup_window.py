@@ -156,17 +156,27 @@ class PopupWindow(WaylandWindow):
     def do_reposition(self, move_axe: str):
         """Repositions the popup based on the parent window's margins,
         the pointing widget's coordinates (if any), and the calculated
-        movement axis.
-
-        Args:
-            move_axe (str): The axis ("x" or "y") to move the popup on.
-
+        movement axis, with screen-edge boundary clamping.
         """
         parent_margin = self._parent.margin
         parent_x_margin, parent_y_margin = parent_margin[0], parent_margin[3]
 
         height = self.get_allocated_height()
         width = self.get_allocated_width()
+
+        # Get current monitor dimensions for boundary clamping
+        screen = self.get_screen()
+        display = screen.get_display() if screen else None
+        window = self.get_window()
+        monitor = display.get_monitor_at_window(window) if (display and window) else (display.get_primary_monitor() if display else None)
+        
+        # Fallback screen bounds if monitor lookup fails
+        monitor_width = 1920
+        monitor_height = 1080
+        if monitor:
+            geo = monitor.get_geometry()
+            monitor_width = geo.width
+            monitor_height = geo.height
 
         if self._pointing_widget:
             coords = self.get_coords_for_widget(self._pointing_widget)
@@ -180,24 +190,17 @@ class PopupWindow(WaylandWindow):
                 round(self._parent.get_allocated_height() / 2),
             )
 
+        if move_axe == "x":
+            desired_x = round((parent_x_margin + coords_centered[0]) - (width / 2))
+            # Clamp so the popup never overflows past the left (0) or right (monitor_width) edges
+            clamped_x = max(16, min(desired_x, monitor_width - width - 16))
+            offset_tuple = (0, 0, 0, clamped_x)
+        else:
+            desired_y = round((parent_y_margin + coords_centered[1]) - (height / 2))
+            # Clamp so the popup never overflows past the top (0) or bottom (monitor_height) edges
+            clamped_y = max(16, min(desired_y, monitor_height - height - 16))
+            offset_tuple = (clamped_y, 0, 0, 0)
+
         self.margin = tuple(
-            a + b
-            for a, b in zip(
-                (
-                    (
-                        0,
-                        0,
-                        0,
-                        round((parent_x_margin + coords_centered[0]) - (width / 2)),
-                    )
-                    if move_axe == "x"
-                    else (
-                        round((parent_y_margin + coords_centered[1]) - (height / 2)),
-                        0,
-                        0,
-                        0,
-                    )
-                ),
-                self._base_margin.values(),
-            )
+            a + b for a, b in zip(offset_tuple, self._base_margin.values())
         )

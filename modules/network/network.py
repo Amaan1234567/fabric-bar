@@ -81,7 +81,7 @@ class NetworkWidget(Box):
             name="networks-overlay-window",
             layer="top",
             type="popup",
-            anchor="top right",
+            anchor="top",
             visible=False,
             child=self.networks_revealer,
             v_expand=False,

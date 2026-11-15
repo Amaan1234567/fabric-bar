@@ -18,7 +18,7 @@ class MemoryPopup(PopupWindow):
             layer="top",
             name="memory-popup-window",
             type="popup",
-            margin="15px 0 0 75px",
+            margin="15px 0 0 0px",
             anchor="top left",
             title="fabric-memory-popup",
             visible=False,
