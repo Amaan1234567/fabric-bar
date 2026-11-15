@@ -1,0 +1,12 @@
+#caffeine-button {
+  border-radius: 10px;
+  padding:0px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  color: var(--color4);
+}
+
+#caffeine-button label {
+  font-size: 22px;
+  font-weight: bold;
+}
