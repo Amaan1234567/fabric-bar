@@ -2,7 +2,6 @@
     "python.analysis.autoImportCompletions": true,
     "python.defaultInterpreterPath": "$HOME/fabric-bar/venv/bin/python3.14",
     "python.envFile": ".env",
-    "pylint.importStrategy": "useBundled",
     "python.languageServer": "Pylance",
     "python.analysis.typeCheckingMode": "standard",
     "pylint.ignorePatterns": [
@@ -15,5 +14,13 @@
     "Lua.diagnostics.disable": [
         "undefined-global"
     ],
-    "editor.cursorStyle": "line"
+    "editor.cursorStyle": "line",
+    "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  }
 }
