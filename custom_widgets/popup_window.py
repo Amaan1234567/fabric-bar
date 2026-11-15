@@ -168,8 +168,12 @@ class PopupWindow(WaylandWindow):
         screen = self.get_screen()
         display = screen.get_display() if screen else None
         window = self.get_window()
-        monitor = display.get_monitor_at_window(window) if (display and window) else (display.get_primary_monitor() if display else None)
-        
+        monitor = (
+            display.get_monitor_at_window(window)
+            if (display and window)
+            else (display.get_primary_monitor() if display else None)
+        )
+
         # Fallback screen bounds if monitor lookup fails
         monitor_width = 1920
         monitor_height = 1080

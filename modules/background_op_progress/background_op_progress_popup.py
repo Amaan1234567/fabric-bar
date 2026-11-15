@@ -122,7 +122,7 @@ class BackgroundOpProgressPopup(PopupWindow):
         self.overlay_revealer = HackedRevealer(
             child=self.main_content,
             bezier_curve=(0.3, -0.06, 0, 1.02),
-            transition_type = "slide-down",
+            transition_type="slide-down",
             duration=0.450,
         )
         self.add(self.overlay_revealer)

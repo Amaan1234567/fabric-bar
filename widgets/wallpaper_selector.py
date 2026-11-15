@@ -75,13 +75,12 @@ class WallpaperSelector(Window):
             v_expand=True,
         )
         self.content.set_size_request(
-            self.preview_target_width * 5 + 130, 
-            self.preview_target_height + 55
+            self.preview_target_width * 5 + 130, self.preview_target_height + 55
         )
         self.wallpaper_folder = f"{os.environ.get('HOME')}/Pictures/backgrounds/"
         self.cache_folder = f"{os.environ.get('HOME')}/.cache/wallpapers_cache/"
         os.makedirs(self.cache_folder, exist_ok=True)
-        
+
         self.cache_available = len(os.listdir(self.cache_folder)) != 0
         self.wallpapers = os.listdir(self.wallpaper_folder)
         self.cache = os.listdir(self.cache_folder)
@@ -107,7 +106,7 @@ class WallpaperSelector(Window):
         )
 
         # REMOVED the bad background thread spawning _create_buttons() here!
-        # _process_new_wallpaper_handler (via monitor_file initial_call=True) 
+        # _process_new_wallpaper_handler (via monitor_file initial_call=True)
         # will handle checking/processing and call _create_buttons safely on main thread.
 
         self.scrolling_container.children = [self.buttons_box]
@@ -155,11 +154,11 @@ class WallpaperSelector(Window):
         self.wallpapers = os.listdir(self.wallpaper_folder)
         self.cache = os.listdir(self.cache_folder)
         logger.info("detected change in wallpaper folder, checking for new wallpapers")
-        
+
         unprocessed_wallpapers = [
             wallpaper for wallpaper in self.wallpapers if wallpaper not in self.cache
         ]
-        
+
         if len(unprocessed_wallpapers) > 0:
             service = BackgroundOpService()
             background_op = service.set_background_op(
@@ -170,7 +169,9 @@ class WallpaperSelector(Window):
                 self._process_wallpaper(wallpaper)
                 GLib.idle_add(background_op.set_progress, ((i + 1) / total_work) * 100)
                 GLib.idle_add(background_op.set_display_text, f"processing {wallpaper}")
-                logger.debug(f"wallpaper_cache_progress: {((i + 1) / total_work) * 100}")
+                logger.debug(
+                    f"wallpaper_cache_progress: {((i + 1) / total_work) * 100}"
+                )
 
         self.cache_available = True
         # Always trigger button creation on the main thread via GLib.idle_add

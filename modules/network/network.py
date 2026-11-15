@@ -260,7 +260,7 @@ class NetworkWidget(Box):
                     ssid, signal, is_secure, is_saved
                 )
                 # Add password entry if network is secured and not saved
-                logger.debug(f"ssid:{ssid}"+f"is_saved: {is_saved}")
+                logger.debug(f"ssid:{ssid}" + f"is_saved: {is_saved}")
                 logger.debug(self.saved_connections)
                 if not is_saved:
                     self._add_password_entry_box(
@@ -408,7 +408,9 @@ class NetworkWidget(Box):
 
     def _connect_to_network(self, ssid, password):
         """Connect to a network with optional password."""
-        logger.debug(f"Connecting to {ssid} with {'<actual password>' if password else 'no password'}")
+        logger.debug(
+            f"Connecting to {ssid} with {'<actual password>' if password else 'no password'}"
+        )
         if self._wifi_device is not None:
             self._wifi_device.connect_to_ssid(
                 ssid=ssid, password=password, callback=self._connection_attempt_callback
