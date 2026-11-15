@@ -43,10 +43,8 @@ class NotificationPopupWindow(WaylandWindow):
         self.notifications_service.connect("dnd_toggled", self._set_dnd_status)
 
     def _set_dnd_status(self, _, is_dnd_on):
-        print(is_dnd_on)
         self._dnd_on = is_dnd_on
-        print(self._dnd_on)
-
+        
     def _add_notification(self, _, notification):
         if self._dnd_on:
             return

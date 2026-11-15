@@ -79,9 +79,9 @@ class Mpris(Box):
         if self.service.current_player is None:
             return True
         position = self.service.current_player.get_position()  # type: ignore
-        # print(self.song_length)
+        logger.debug(f"song_length retrieved in _update_progress: {self.song_length}")
         if self.song_length != 0:
-            # print(position)
+            logger.debug(f"position retrieved in _update_progress: {position}")
             self.song_progress.animate_value(position)
             # self.song_progress.set_value(position)  # type: ignore
 
@@ -91,14 +91,14 @@ class Mpris(Box):
         self.delay = GLib.timeout_add(300, self._on_hover_enter)
 
     def _on_hover_enter(self, *_):
-        # print("triggered")
+        logger.debug("_on_hover_enter triggered in mpris widget")
         if len(self.title_label.get_text()) != 0:
             self._cancel_hide_timeout()
             self.overlay.set_visible(True)
             self.overlay.overlay_revealer.set_reveal_child(True)
 
     def _on_hover_leave(self, *_):
-        # print("triggered leave")
+        logger.debug("_on_hover_leave triggered in mpris widget")
         self._schedule_overlay_hide()
         if self.delay:
             GLib.source_remove(self.delay)
@@ -129,7 +129,6 @@ class Mpris(Box):
             pix = GdkPixbuf.Pixbuf.new_from_stream(f.read_finish(res), None)
 
             if pixbuf := pix:
-                print(f"Updating album art with pixbuf: {pixbuf}")
                 self.album_art.set_from_pixbuf(
                     pixbuf_cropping_if_image_is_not_1_1(pixbuf, 30)
                 )

@@ -80,7 +80,7 @@ class BrightnessService(Service):
             bus_ids = re.findall(
                 r"(?<=Display \d{1}\n   I2C bus:  )/dev/i2c-(\d+)", res.stdout
             )
-            print(bus_ids)
+            logger.debug(f"found following bus_ids with ddcutil: {bus_ids}")
 
             return bus_ids
         except Exception:

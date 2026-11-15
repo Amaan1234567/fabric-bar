@@ -77,7 +77,6 @@ class NotificationService(Service):
 
     def _on_notification_removed(self, _, notification_id: int, *args) -> None:
         if notification_id in self._notifications:
-            print("inside removed")
             # self.notification_added.emit(self._notifications.pop(notification_id))
             self.notification_dismissed.emit(notification_id)
 
@@ -121,12 +120,9 @@ class NotificationService(Service):
 
     def get_notification_from_id(self, notification_id: int) -> Notification:
         """Get a notification by its ID."""
-        print(notification_id)
         return self._notifications[notification_id]
 
     def toggle_dnd(self):
         """Function to toggle dnd."""
-        print("toggling")
         self._is_dnd_on = not self._is_dnd_on
-        print("dnd: ", self._is_dnd_on)
         self.dnd_toggled.emit(self._is_dnd_on)

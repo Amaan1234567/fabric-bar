@@ -41,13 +41,12 @@ class GamemodeToggleButton(Button):
 
     @cooldown(1)
     def _toggle_gamemode(self, _):
-        """Launch ROG Control Center."""
+        """toggle gamemode."""
         ctx = self.get_style_context()
         if self.is_on:
             ctx.add_class("gamemode-off")
             ctx.remove_class("gamemode-on")
         else:
-            print("adding class")
             ctx.add_class("gamemode-on")
             ctx.remove_class("gamemode-off")
         self.is_on = not self.is_on

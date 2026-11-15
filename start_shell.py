@@ -115,5 +115,5 @@ def main(monitor_id=0):
 
 
 if __name__ == "__main__":
-    print(sys.argv)
+    logger.debug(f"arguments passed to start_shell: {sys.argv}")
     main(monitor_id=int(sys.argv[2]) if len(sys.argv) > 1 else 0)

@@ -313,9 +313,8 @@ class Spectrum:
                     content = f.read()
                     m = re.findall(r"--background: \s*(#[0-9a-fA-F]{6})", content)
                 if m:
-                    # print("string:", m.string)
                     hex_string = m[0]
-                    print(hex_string)
+                    logger.debug("color in hex obtained from colors.css in cava: "+hex_string)
 
                     red = int(hex_string[1:3], 16) / 255
                     green = int(hex_string[3:5], 16) / 255
@@ -326,7 +325,7 @@ class Spectrum:
 
             self.color = self._cached_color
         except Exception as e:
-            print(e)
+            logger.exception(e)
             if self._cached_color is None:
                 # Fallback to default color
                 self._cached_color = Gdk.RGBA(
@@ -345,7 +344,7 @@ class Spectrum:
                     hex_string = m[0]
 
         except Exception as e:
-            print(e)
+            logger.exception(e)
         red = int(hex_string[1:3], 16) / 255
         green = int(hex_string[3:5], 16) / 255
         blue = int(hex_string[5:7], 16) / 255

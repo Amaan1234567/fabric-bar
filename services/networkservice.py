@@ -327,9 +327,10 @@ class EthernetService(Service):
                 f"notify::{names}", lambda *_, n=names: self.notifier(n)
             )
 
-        self._device.connect("notify::speed", lambda *_: print(_))
+        self._device.connect("notify::speed", lambda *_: logger.debug("params received by lambda in notify::speed signal: "+str(_)))
 
     def notifier(self, names):
+        """notifies"""
         self.notify(names)
         self.emit("changed")
 

@@ -16,7 +16,7 @@ if __name__ == "__main__":
     script_name = sys.argv[0]
 
     if len(sys.argv) <= 1 or sys.argv[1] != "--monitor-id":
-        print(f"Usage: {script_name} [--monitor-id <monitor_id>]")
+        logger.info(f"Usage: {script_name} [--monitor-id <monitor_id>]")
         sys.exit(1)
 
     monitor_id = int(sys.argv[2]) if len(sys.argv) >= 2 else 0

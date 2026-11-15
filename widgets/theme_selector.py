@@ -102,7 +102,6 @@ class ThemeSelector(Window):
     def ansi_to_hex(self, ansi_color):
         """Convert an ANSI color code to HEX format. The input is expected to be in the format."""
         # Remove ANSI escape codes and convert to HEX
-        # print("ansi_color:",ansi_color)
         ansi_color_array = (
             ansi_color.replace("\x1b[48;2", "")
             .replace("\x1b[49m", "")
@@ -110,12 +109,10 @@ class ThemeSelector(Window):
             .strip()
             .split(";")[1:]
         )
-        print("ansi_color_array:", ansi_color_array)
         int_color = 1
         for _, val in enumerate(ansi_color_array):
             int_color *= int(val)
         r, g, b = map(int, ansi_color_array)
-        # print("color_code:", color_code)
         return f"#{r:02x}{g:02x}{b:02x}"
 
     def apply_color_scheme(self, theme):
@@ -158,14 +155,12 @@ class ThemeSelector(Window):
         # If preview is True, it runs with --preview, otherwise standard
         cmd = ["wallust", "theme", theme, "--preview"]
         output = subprocess.run(cmd, capture_output=True, text=True, check=True)
-        print(output.stdout)
-        print("obtained theme: ", repr(output.stdout))
+        logger.debug("obtained theme: ", repr(output.stdout))
         theme = [
             self.ansi_to_hex(color)
             for color in output.stdout.split("    ")[:-1]
             if color
         ]
-        print("theme:", theme)
         self.apply_color_scheme(theme)
 
     def _apply_theme(self, theme):

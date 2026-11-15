@@ -219,7 +219,7 @@ class NotificationItem(Box):
                     icon_pixbuf = info.load_icon()
                     return pixbuf_cropping_if_image_is_not_1_1(icon_pixbuf)
         except Exception as e:
-            print(f"Failed to load notification icon: {e}")
+            logger.exception(f"Failed to load notification icon: {e}")
         if path := APP_ICON_MAP.get(self._notification.app_name.lower()):
             return pixbuf_cropping_if_image_is_not_1_1(
                 GdkPixbuf.Pixbuf.new_from_file_at_scale(

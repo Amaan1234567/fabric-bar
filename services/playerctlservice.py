@@ -50,7 +50,7 @@ class Player(Service):
                 return None
 
             # Extract basic info
-            # print(metadata)
+            logger.debug(f"mpris metadata: {metadata}")
             title = self._get_variant_string(metadata.lookup_value("xesam:title", None))
             artist = self._get_variant_artist(
                 metadata.lookup_value("xesam:artist", None)
@@ -60,7 +60,6 @@ class Player(Service):
                 metadata.lookup_value("mpris:artUrl", None)
             )
             length = self._get_variant_int(metadata.lookup_value("mpris:length", None))
-            # print(length)
             return {
                 "title": title,
                 "artist": artist,
@@ -79,7 +78,6 @@ class Player(Service):
         """Get current position in seconds."""
         try:
             position = self._player.props.position
-            # print("position: ",position)
             return position / 1000000 if position > 0 else 0  # Convert to seconds
         except Exception as exception:
             logger.exception(f"Exception encountered in Playerctl: {exception} ")
@@ -275,7 +273,7 @@ class SimplePlayerctlService(Service):
                 try:
                     player = Playerctl.Player.new_from_name(name)
                     player = Player(player)
-                    print(f"player_metadata: {player.get_metadata()}")
+                    logger.debug(f"player_metadata: {player.get_metadata()}")
                     # if (
                     #     player.get_metadata()["title"] == ""
                     #     or player.get_metadata()["length"] == 0.0
