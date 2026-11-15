@@ -18,6 +18,7 @@ class LogoutPopup(PopupWindow):
             pointing_to=pointing_to,
             layer="top",
             type="popup",
+            margin="15 0 0 0",
             title="logout_popup",
             visible=False,
             **kwargs,

@@ -4,8 +4,6 @@
 
 #logout-box {
   padding: 5px;
-  margin-top: 20px;
-  margin-right: 160px;
   background-color: var(--backgroundWaybar);
   border: 2px solid var(--color4);
   border-radius: 30px;
