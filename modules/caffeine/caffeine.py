@@ -1,7 +1,7 @@
 """holds the caffeine widget"""
 
+from fabric.utils.helpers import cooldown, exec_shell_command, exec_shell_command_async
 from fabric.widgets.button import Button
-from fabric.utils.helpers import exec_shell_command, exec_shell_command_async, cooldown
 
 
 class Caffeine(Button):
