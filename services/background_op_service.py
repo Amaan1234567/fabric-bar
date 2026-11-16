@@ -76,6 +76,10 @@ class BackgroundOpService(Service):
         """List all background operations."""
         return list(self.background_op.values())
 
+    def get_background_op(self,op_name: str) -> BackgroundOp | None:
+        """ returns the backgroundOp object with name `op_name`"""
+        return self.background_op.get(op_name,None)
+
     def _op_complete_handler(self, _, op_name: str):  # Fixed: added op argument
         op_obj = self.background_op.pop(op_name, None)
         if op_obj:
@@ -88,6 +92,9 @@ class BackgroundOpService(Service):
         )
         op = BackgroundOp(op_name, display_text, progress)
         op.connect("op_complete", self._op_complete_handler)
+        if op_name in self.background_op:
+            logger.info("background_op with name {op_name} already running please wait for it to finish first")
+            return None
         self.background_op[op_name] = op
         self.background_op_started.emit(op)
         return op

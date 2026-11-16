@@ -164,14 +164,20 @@ class WallpaperSelector(Window):
             background_op = service.set_background_op(
                 "wallpaper_cache_build", "building wallpaper cache", 0
             )
-            total_work = len(unprocessed_wallpapers)
-            for i, wallpaper in enumerate(unprocessed_wallpapers):
-                self._process_wallpaper(wallpaper)
-                GLib.idle_add(background_op.set_progress, ((i + 1) / total_work) * 100)
-                GLib.idle_add(background_op.set_display_text, f"processing {wallpaper}")
-                logger.debug(
-                    f"wallpaper_cache_progress: {((i + 1) / total_work) * 100}"
-                )
+            if(background_op is None):
+                background_op = service.get_background_op("wallpaper_cache_build")
+                if background_op:
+                    background_op.connect("op_complete",self._process_wallpaper_handler)
+                    return
+            else:    
+                total_work = len(unprocessed_wallpapers)
+                for i, wallpaper in enumerate(unprocessed_wallpapers):
+                    self._process_wallpaper(wallpaper)
+                    GLib.idle_add(background_op.set_progress, ((i + 1) / total_work) * 100)
+                    GLib.idle_add(background_op.set_display_text, f"processing {wallpaper}")
+                    logger.debug(
+                        f"wallpaper_cache_progress: {((i + 1) / total_work) * 100}"
+                    )
 
         self.cache_available = True
         # Always trigger button creation on the main thread via GLib.idle_add
