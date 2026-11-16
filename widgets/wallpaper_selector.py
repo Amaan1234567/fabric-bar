@@ -43,7 +43,7 @@ class WallpaperButton(Button):
     def _change_wallpaper(self):
         logger.info(f"changing wallpaper: {self.wallpaper_name}")
         exec_shell_command_async(
-            f"bash -c 'scripts/switch_wallpaper.sh {self.wallpaper_folder + self.wallpaper_name}'"
+            f"bash -c 'scripts/switch_wallpaper.sh \"{self.wallpaper_folder + self.wallpaper_name}\"'"
         )
 
 
