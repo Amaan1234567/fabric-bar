@@ -12,7 +12,7 @@ from loguru import logger
 
 from custom_widgets.HackedStackRevealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
-from services.networkservice import EthernetService, NetworkService, WifiService
+from services.network_service import EthernetService, NetworkService, WifiService
 
 
 class NetworkWidget(Box):

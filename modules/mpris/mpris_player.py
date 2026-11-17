@@ -9,7 +9,7 @@ from loguru import logger
 
 from custom_widgets.animated_scale import AnimatedScale
 from custom_widgets.image_rounded import CustomImage
-from services.playerctlservice import Player, SimplePlayerctlService
+from services.playerctl_service import Player, SimplePlayerctlService
 from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 
 
@@ -182,7 +182,7 @@ class MprisPlayer(Box):
             self.album_art_overlay.set_from_pixbuf(pix)
 
     def _update_progress(self):
-        if not self.get_visible() or self.stop_update == True:
+        if not self.get_visible() or self.stop_update:
             return True
         position = self._player.get_position()
 

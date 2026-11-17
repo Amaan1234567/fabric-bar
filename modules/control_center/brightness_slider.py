@@ -5,7 +5,7 @@ from fabric.widgets.overlay import Overlay
 from gi.repository import GLib
 
 from custom_widgets.animated_scale import AnimatedScale
-from services.brightnessservice import BrightnessService
+from services.brightness_service import BrightnessService
 
 
 class BrightnessSlider(Box):

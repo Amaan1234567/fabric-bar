@@ -4,7 +4,7 @@ from gi.repository import Gdk, Playerctl  # type: ignore
 from loguru import logger
 
 from modules.mpris.mpris_player import MprisPlayer
-from services.playerctlservice import Player, SimplePlayerctlService
+from services.playerctl_service import Player, SimplePlayerctlService
 
 
 class MprisPlayerStack(Stack):
