@@ -21,7 +21,7 @@ _APP_ICONS = {
     "brave": "󰈹",
     "chrome": "󰊯",
     "chromium": "󰊯",
-    "google chrome":"󰊯",
+    "google chrome": "󰊯",
     "spotify": "󰓇",
     "discord": "",
     "vlc": "󰕼",
@@ -44,7 +44,7 @@ _DEVICE_ICONS = {
 def _icon_for(stream):
     """Best-effort Nerd Font icon from stream name/app id."""
     n = (stream.name or stream.application_id or "").lower()
-    print(n)
+    logger.debug(f"finding icon for stream: {n}")
     for key, icon in _APP_ICONS.items():
         if key in n:
             return icon
@@ -86,7 +86,7 @@ class DeviceRow(EventBox):
 
         name_data = stream.description or stream.name or "Unknown Output"
         name_label = Label(
-            label=truncate(name_data,MAX_AUDIO_DEVICE_NAME_LENGTH),
+            label=truncate(name_data, MAX_AUDIO_DEVICE_NAME_LENGTH),
             name="audio-device-current" if is_current else "audio-device-item-name",
             h_align="start",
             h_expand=True,
@@ -96,10 +96,9 @@ class DeviceRow(EventBox):
         box.add(radio)
         box.add(icon)
         box.add(name_label)
-        if(len(name_data) > MAX_AUDIO_DEVICE_NAME_LENGTH):
+        if len(name_data) > MAX_AUDIO_DEVICE_NAME_LENGTH:
             name_label.set_tooltip_text(name_data)
         self.add(box)
-        print(f"built Device row: {name_data}")
 
 
 # ────────────────────────────────────────────────────────────────────
@@ -129,10 +128,9 @@ class AppRow(Box):
         )
 
         # name
-        display= truncate(
-            stream.name or stream.application_id or stream.description or "App",18
+        display = truncate(
+            stream.name or stream.application_id or stream.description or "App", 18
         )
-        
 
         self.name_label = Label(
             label=display,
@@ -173,9 +171,16 @@ class AppRow(Box):
 
         # layout
         self.add(self.icon)
-        self.add(Box(children=[self.name_label],h_expand=True, h_align="start"))
+        self.add(Box(children=[self.name_label], h_expand=True, h_align="start"))
         # self.add(Box(h_expand=True))
-        self.add(Box(h_align="end",h_expand=True,children=[self.scale,self.vol_label,self.mute_btn],spacing=10))
+        self.add(
+            Box(
+                h_align="end",
+                h_expand=True,
+                children=[self.scale, self.vol_label, self.mute_btn],
+                spacing=10,
+            )
+        )
 
         # stream signals
         self._vh = stream.connect("notify::volume", self._on_stream_vol)
@@ -428,8 +433,8 @@ class AudioPopup(PopupWindow):
                 muted = spk.muted
                 self._master_vol.set_text(f"{vol}%{'  (muted)' if muted else ''}")
                 dev_name = spk.description or spk.name or "Unknown"
-                self._device_name.set_text(truncate(dev_name,30))
-                if(len(dev_name)> 30):
+                self._device_name.set_text(truncate(dev_name, 30))
+                if len(dev_name) > 30:
                     self._device_name.set_tooltip_text(dev_name)
                 self._device_icon.set_text(_device_icon_for(spk))
             else:

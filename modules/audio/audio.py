@@ -75,7 +75,7 @@ class AudioWidget(Box):
         # self.popup.do_reposition("x")
 
         # ── tick ───────────────────────────────────────────────
-        self.audio.connect("changed",self._tick)
+        self.audio.connect("changed", self._tick)
 
     # ── speaker handling (unchanged) ─────────────────────────────
 
