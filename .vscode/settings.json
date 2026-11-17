@@ -1,6 +1,6 @@
 {
     "python.analysis.autoImportCompletions": true,
-    "python.defaultInterpreterPath": "$HOME/fabric-bar/venv/bin/python3.14",
+    "python.defaultInterpreterPath": "${workspaceFolder}/venv/bin/python3.14",
     "python.envFile": ".env",
     "python.languageServer": "Pylance",
     "python.analysis.typeCheckingMode": "standard",
