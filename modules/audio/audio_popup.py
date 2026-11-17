@@ -12,6 +12,9 @@ from loguru import logger
 from custom_widgets.animated_scale import AnimatedScale
 from custom_widgets.HackedStackRevealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
+from utils.helper_functions import truncate
+
+MAX_AUDIO_DEVICE_NAME_LENGTH = 30
 
 _APP_ICONS = {
     "firefox": "󰈹",
@@ -81,8 +84,9 @@ class DeviceRow(EventBox):
             size=14,
         )
 
+        name_data = stream.description or stream.name or "Unknown Output"
         name_label = Label(
-            label=stream.description or stream.name or "Unknown Output",
+            label=truncate(name_data,MAX_AUDIO_DEVICE_NAME_LENGTH),
             name="audio-device-current" if is_current else "audio-device-item-name",
             h_align="start",
             h_expand=True,
@@ -92,7 +96,10 @@ class DeviceRow(EventBox):
         box.add(radio)
         box.add(icon)
         box.add(name_label)
+        if(len(name_data) > MAX_AUDIO_DEVICE_NAME_LENGTH):
+            name_label.set_tooltip_text(name_data)
         self.add(box)
+        print(f"built Device row: {name_data}")
 
 
 # ────────────────────────────────────────────────────────────────────
@@ -108,6 +115,7 @@ class AppRow(Box):
             orientation="h",
             name="audio-app-row",
             spacing=8,
+            h_expand=True,
             **kwargs,
         )
         self._stream = stream
@@ -143,10 +151,9 @@ class AppRow(Box):
             min_value=0,
             max_value=100,
             value=stream.volume,
-            h_expand=True,
             increments=[1, 5],
         )
-        self.scale.set_size_request(120, 14)
+        # self.scale.set_size_request(120, 14)
         self.scale.connect("change-value", self._on_user_change)
 
         # volume percentage
@@ -169,6 +176,7 @@ class AppRow(Box):
         # layout
         self.add(self.icon)
         self.add(self.name_label)
+        self.add(Box(h_expand=True))
         self.add(self.scale)
         self.add(self.vol_label)
         self.add(self.mute_btn)
@@ -423,7 +431,10 @@ class AudioPopup(PopupWindow):
                 vol = round(spk.volume)
                 muted = spk.muted
                 self._master_vol.set_text(f"{vol}%{'  (muted)' if muted else ''}")
-                self._device_name.set_text(spk.description or spk.name or "Unknown")
+                dev_name = spk.description or spk.name or "Unknown"
+                self._device_name.set_text(truncate(dev_name,30))
+                if(len(dev_name)> 30):
+                    self._device_name.set_tooltip_text(dev_name)
                 self._device_icon.set_text(_device_icon_for(spk))
             else:
                 self._master_vol.set_text("—")
