@@ -1,11 +1,11 @@
 general {
     immediate_render = false
-    screencopy_mode=1
+    screencopy_mode=0
 }
 
 background {
     monitor = 
-    path = $HOME/.cache/current_wallpaper.jpg
+    path = 
     # color = rgba(91, 98, 104, 0.8)
     # all these options are taken from hyprland, see https://wiki.hyprland.org/Configuring/Variables/#blur for explanations
     blur_size = 4
@@ -16,8 +16,8 @@ background {
     vibrancy = 0.2100
     cross_fade = 0.3
     vibrancy_darkness = 0.0
-    reload_time = 0
-    reload_cmd = 
+    reload_time = 1
+    reload_cmd = awww query | awk -F'image: ' '{print $2}' | head -n1
 }
 
 
