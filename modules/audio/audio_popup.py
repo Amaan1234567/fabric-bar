@@ -19,16 +19,15 @@ MAX_AUDIO_DEVICE_NAME_LENGTH = 30
 _APP_ICONS = {
     "firefox": "󰈹",
     "brave": "󰈹",
-    "chrome": "󰈹",
-    "chromium": "󰈹",
+    "chrome": "󰊯",
+    "chromium": "󰊯",
+    "google chrome":"󰊯",
     "spotify": "󰓇",
-    "discord": "",
+    "discord": "",
     "vlc": "󰕼",
     "mpv": "󰎈",
     "steam": "󰓓",
-    "obs": "",
-    "telegram": "",
-    "signal": "",
+    "telegram": "",
     "thunderbird": "󰇮",
 }
 
@@ -45,6 +44,7 @@ _DEVICE_ICONS = {
 def _icon_for(stream):
     """Best-effort Nerd Font icon from stream name/app id."""
     n = (stream.name or stream.application_id or "").lower()
+    print(n)
     for key, icon in _APP_ICONS.items():
         if key in n:
             return icon
@@ -114,7 +114,7 @@ class AppRow(Box):
         super().__init__(
             orientation="h",
             name="audio-app-row",
-            spacing=8,
+            spacing=0,
             h_expand=True,
             **kwargs,
         )
@@ -129,12 +129,10 @@ class AppRow(Box):
         )
 
         # name
-        self._display_name = (
-            stream.name or stream.application_id or stream.description or "App"
+        display= truncate(
+            stream.name or stream.application_id or stream.description or "App",18
         )
-        display = self._display_name
-        if len(display) > 18:
-            display = display[:16] + "…"
+        
 
         self.name_label = Label(
             label=display,
@@ -175,11 +173,9 @@ class AppRow(Box):
 
         # layout
         self.add(self.icon)
-        self.add(self.name_label)
-        self.add(Box(h_expand=True))
-        self.add(self.scale)
-        self.add(self.vol_label)
-        self.add(self.mute_btn)
+        self.add(Box(children=[self.name_label],h_expand=True, h_align="start"))
+        # self.add(Box(h_expand=True))
+        self.add(Box(h_align="end",h_expand=True,children=[self.scale,self.vol_label,self.mute_btn],spacing=10))
 
         # stream signals
         self._vh = stream.connect("notify::volume", self._on_stream_vol)

@@ -75,7 +75,7 @@ class AudioWidget(Box):
         # self.popup.do_reposition("x")
 
         # ── tick ───────────────────────────────────────────────
-        GLib.timeout_add(1000, self._tick)
+        self.audio.connect("changed",self._tick)
 
     # ── speaker handling (unchanged) ─────────────────────────────
 
@@ -144,7 +144,7 @@ class AudioWidget(Box):
 
     def _schedule_hide(self):
         self._cancel_hide_timeout()
-        self._hide_timeout_id = GLib.timeout_add(1000, self._hide_popup)
+        self._hide_timeout_id = GLib.timeout_add(1000000000, self._hide_popup)
 
     def _cancel_hide_timeout(self):
         if self._hide_timeout_id:
