@@ -3,7 +3,7 @@
 import typing
 from typing import Any
 
-from fabric.audio.service import Audio
+from fabric.audio.service import Audio, AudioStream
 from fabric.utils import cooldown
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
@@ -74,29 +74,23 @@ class AudioWidget(Box):
         self.popup.connect("leave-notify-event", self._on_popup_leave)
         # self.popup.do_reposition("x")
 
-        # ── tick ───────────────────────────────────────────────
-        self.audio.connect("changed", self._tick)
-
-    # ── speaker handling (unchanged) ─────────────────────────────
-
     def _on_speaker_changed(self, *_: Any):
         speaker = self.audio.speaker
         if not speaker:
             return
-        speaker.connect("notify::volume", self._update_ui)
-        speaker.connect("notify::muted", self._update_ui)
-        speaker.connect("notify::volume", self.popup.refresh)
-        speaker.connect("notify::muted", self.popup.refresh)
+        speaker.connect("changed", self._update_ui)
+        speaker.connect("changed", self.popup.refresh)
         self._update_ui()
 
     def _update_ui(self, *_: Any):
-        spk = self.audio.speaker
+        spk: AudioStream = self.audio.speaker
         if not spk:
             return
 
         vol = round(spk.volume)
         desc = (spk.description or "").lower()
         muted = spk.muted
+        print(spk.name, muted)
 
         self.scale.animate_value(vol)
 
@@ -157,10 +151,3 @@ class AudioWidget(Box):
         popup_manager.request_hide(self.popup, self)
         self._hide_timeout_id = None
         return False
-
-    # ── tick ──────────────────────────────────────────────────────
-
-    def _tick(self) -> bool:
-        if self.popup.get_visible():
-            self.popup.refresh()
-        return True
