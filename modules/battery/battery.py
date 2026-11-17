@@ -10,6 +10,8 @@ from fabric.widgets.label import Label
 from gi.repository import GLib  # type: ignore
 from loguru import logger
 
+from services.system_service import SystemService
+
 
 class BatteryWidget(Box):
     """Battery widget that changes color based on battery percentage from green to red,
@@ -19,6 +21,7 @@ class BatteryWidget(Box):
     def __init__(self, interval=10, **kwargs):
         super().__init__(**kwargs)
 
+        self.service = SystemService()
         self.glyph_label = Label(name="battery-glyph", label="󰠠")
         self.percent_label = Label(name="battery-percent", label="100%")
 
