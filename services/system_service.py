@@ -2,13 +2,19 @@
 
 from __future__ import annotations
 
+import shutil
+import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import IntEnum
 from typing import Any
 
 import dbus
+import psutil
 from dbus.mainloop.glib import DBusGMainLoop
 from fabric.core.service import Service, Signal
+from gi.repository import GLib  # type: ignore
+from loguru import logger
 
 UPOWER_SERVICE = "org.freedesktop.UPower"
 UPOWER_PATH = "/org/freedesktop/UPower"
@@ -20,6 +26,34 @@ UDISKS2_FS_IFACE = "org.freedesktop.UDisks2.Filesystem"
 UDISKS2_BLOCK_IFACE = "org.freedesktop.UDisks2.Block"
 DBUS_PROPS_IFACE = "org.freedesktop.DBus.Properties"
 DBUS_OBJ_MANAGER_IFACE = "org.freedesktop.DBus.ObjectManager"
+
+MIN_MOUNTABLE_BYTES = 2 * 1024**3  # Ignore < 2 GB (EFI / Windows recovery)
+IGNORED_FS_TYPES = {
+    "swap",
+    "vfat",
+    "iso9660",
+    "squashfs",
+}
+IGNORED_LABELS = {
+    "system reserved",
+    "recovery",
+    "winre tools",
+    "efi",
+    "esp",
+}
+
+
+def _run_on_main_thread(fn: Any, *args: Any) -> None:
+    """Schedule a callable on the GLib main loop safely."""
+
+    def _cb() -> bool:
+        try:
+            fn(*args)
+        except Exception as exc:
+            logger.error(f"Main-thread callback error: {exc}")
+        return False
+
+    GLib.idle_add(_cb, priority=GLib.PRIORITY_DEFAULT)
 
 
 # ---------------------------------------------------------------------------
@@ -121,7 +155,7 @@ class UPowerDevice:
         """gets UPowerDevice object from dbus"""
         proxy = bus.get_object(UPOWER_SERVICE, object_path)
         return cls(
-            object_path=object_path,
+            object_path=str(object_path),
             props_iface=dbus.Interface(proxy, DBUS_PROPS_IFACE),
             device_iface=dbus.Interface(proxy, UPOWER_DEVICE_IFACE),
         )
@@ -198,7 +232,7 @@ class PowerManager:
             path_keyword="path",
         )
         if emit_added and self.on_device_added:
-            self.on_device_added(dev)
+            _run_on_main_thread(self.on_device_added, dev)
 
     def _on_device_added(self, path: Any) -> None:
         self._register_device(str(path), emit_added=True)
@@ -211,12 +245,12 @@ class PowerManager:
     ) -> None:
         if interface != UPOWER_DEVICE_IFACE or path not in self.devices:
             return
-        dev = self.devices[path]
+        dev = self.devices[str(path)]
         dev.apply_properties(dict(changed))
         if invalidated:
             dev.refresh()
         if self.on_battery_update:
-            self.on_battery_update(dev)
+            _run_on_main_thread(self.on_battery_update, dev)
 
     @property
     def is_plugged_in(self) -> bool:
@@ -226,7 +260,6 @@ class PowerManager:
             for dev in self.devices.values()
         )
 
-    # In PowerManager:
     @property
     def primary_battery(self) -> UPowerDevice | None:
         """returns the first battery device found else None"""
@@ -245,77 +278,215 @@ class PowerManager:
 
 @dataclass
 class DiskMountInfo:
-    """data class for disk mount info"""
-
     object_path: str
     device_node: str
     mount_points: list[str] = field(default_factory=list)
     filesystem_type: str = ""
     label: str = ""
+    size_bytes: int = 0
 
 
 class StorageManager:
-    """Manages org.freedesktop.UDisks2 block/filesystem objects and mount actions."""
+    """Manages org.freedesktop.UDisks2 block/filesystem objects, usage, and mounts."""
 
-    def __init__(self, bus: dbus.Bus, on_device_inserted: Any = None) -> None:
+    def __init__(
+        self,
+        bus: dbus.Bus,
+        on_disk_inserted: Any = None,
+        min_size_bytes: int = MIN_MOUNTABLE_BYTES,
+        ignored_fs_types: set[str] | None = None,
+        ignored_labels: set[str] | None = None,
+        ignored_devices: set[str] | None = None,
+    ) -> None:
         self.bus = bus
-        self.on_device_inserted = on_device_inserted
+        self.on_disk_inserted = on_disk_inserted
+        self.min_size_bytes = min_size_bytes
+        self.ignored_fs_types = {
+            s.lower()
+            for s in (
+                ignored_fs_types if ignored_fs_types is not None else IGNORED_FS_TYPES
+            )
+        }
+        self.ignored_labels = {
+            s.lower()
+            for s in (
+                ignored_labels if ignored_labels is not None else IGNORED_LABELS
+            )
+        }
+        self.ignored_devices = set(ignored_devices or ())
+        self._recent_notified: dict[str, float] = {}
+
         self.manager_proxy = self.bus.get_object(UDISKS2_SERVICE, UDISKS2_PATH)
         self.obj_manager = dbus.Interface(self.manager_proxy, DBUS_OBJ_MANAGER_IFACE)
-
         self.obj_manager.connect_to_signal("InterfacesAdded", self._on_interfaces_added)
 
     @staticmethod
     def _decode_byte_array(raw: Any) -> str:
         if not raw:
             return ""
-        # UDisks2 often encodes device paths/labels as null-terminated byte arrays ('ay')
         data = bytes(int(b) for b in raw).rstrip(b"\x00")
         return data.decode("utf-8", errors="replace")
 
-    def list_filesystems(self) -> list[DiskMountInfo]:
-        """lists filesystems"""
-        managed = self.obj_manager.GetManagedObjects()
-        results: list[DiskMountInfo] = []
+    def _build_disk_info_from_ifaces(
+        self, object_path: str, ifaces: dict[str, Any]
+    ) -> DiskMountInfo | None:
+        if UDISKS2_FS_IFACE not in ifaces:
+            return None
 
-        for path, ifaces in managed.items():
-            if UDISKS2_FS_IFACE not in ifaces:
-                continue
-            block_props = ifaces.get(UDISKS2_BLOCK_IFACE, {})
-            fs_props = ifaces[UDISKS2_FS_IFACE]
-            raw_mounts = fs_props.get("MountPoints", [])
-            mounts = [self._decode_byte_array(mp) for mp in raw_mounts]
-
-            results.append(
-                DiskMountInfo(
-                    object_path=str(path),
-                    device_node=self._decode_byte_array(
-                        block_props.get("PreferredDevice") or block_props.get("Device")
-                    ),
-                    mount_points=[m for m in mounts if m],
-                    filesystem_type=str(block_props.get("IdType", "")),
-                    label=str(block_props.get("IdLabel", "")),
-                )
+        block_props = ifaces.get(UDISKS2_BLOCK_IFACE, {})
+        fs_props = ifaces[UDISKS2_FS_IFACE]
+        mounts = [
+            m
+            for m in (
+                self._decode_byte_array(mp) for mp in fs_props.get("MountPoints", [])
             )
+            if m
+        ]
+
+        return DiskMountInfo(
+            object_path=str(object_path),
+            device_node=self._decode_byte_array(
+                block_props.get("PreferredDevice") or block_props.get("Device")
+            ),
+            mount_points=mounts,
+            filesystem_type=str(block_props.get("IdType", "")),
+            label=str(block_props.get("IdLabel", "")),
+            size_bytes=int(block_props.get("Size", 0)),
+        )
+
+    def get_disk_info(self, object_path: str) -> DiskMountInfo | None:
+        try:
+            managed = self.obj_manager.GetManagedObjects()
+        except Exception as exc:
+            logger.error(f"Failed to query UDisks2 objects: {exc}")
+            return None
+        ifaces = managed.get(object_path)
+        if not ifaces:
+            return None
+        return self._build_disk_info_from_ifaces(str(object_path), ifaces)
+
+    def list_filesystems(self) -> list[DiskMountInfo]:
+        try:
+            managed = self.obj_manager.GetManagedObjects()
+        except Exception as exc:
+            logger.error(f"Failed to enumerate UDisks2 filesystems: {exc}")
+            return []
+
+        results: list[DiskMountInfo] = []
+        for path, ifaces in managed.items():
+            info = self._build_disk_info_from_ifaces(str(path), ifaces)
+            if info:
+                results.append(info)
         return results
 
-    def mount(self, object_path: str, options: dict[str, Any] | None = None) -> str:
-        """mounts a disk"""
+    def should_ignore(self, disk: DiskMountInfo) -> bool:
+        if (
+            disk.device_node in self.ignored_devices
+            or disk.object_path in self.ignored_devices
+        ):
+            return True
+        if disk.filesystem_type.lower() in self.ignored_fs_types:
+            return True
+        if disk.label.strip().lower() in self.ignored_labels:
+            return True
+        if self.min_size_bytes > 0 and 0 < disk.size_bytes < self.min_size_bytes:
+            return True
+        return False
+
+    def list_unmounted_filesystems(self) -> list[DiskMountInfo]:
+        """Return mountable unmounted UDisks2 filesystems after filtering system/tiny partitions."""
+        return [
+            fs
+            for fs in self.list_filesystems()
+            if not fs.mount_points and not self.should_ignore(fs)
+        ]
+
+    def get_usage(self, path: str) -> shutil.usage: # type: ignore
+        return shutil.disk_usage(path)
+
+    def list_partitions(self, all_partitions: bool = False) -> list[Any]:
+        return psutil.disk_partitions(all=all_partitions)
+
+    def mount(
+        self,
+        object_path: str,
+        options: dict[str, Any] | None = None,
+        on_success: Callable[[str], None] | None = None,
+        on_error: Callable[[Exception], None] | None = None,
+    ) -> None:
         proxy = self.bus.get_object(UDISKS2_SERVICE, object_path)
         fs_iface = dbus.Interface(proxy, UDISKS2_FS_IFACE)
         mount_opts = dbus.Dictionary(options or {}, signature="sv")
-        return str(fs_iface.Mount(mount_opts))
 
-    def unmount(self, object_path: str, options: dict[str, Any] | None = None) -> None:
-        """unmounts a disk"""
+        def _reply(mount_path: Any) -> None:
+            if on_success:
+                _run_on_main_thread(on_success, str(mount_path))
+
+        def _err(err: Exception) -> None:
+            if on_error:
+                _run_on_main_thread(on_error, err)
+            else:
+                logger.error(f"Failed to mount {object_path}: {err}")
+
+        fs_iface.Mount(mount_opts, reply_handler=_reply, error_handler=_err)
+
+    def unmount(
+        self,
+        object_path: str,
+        options: dict[str, Any] | None = None,
+        on_success: Callable[[], None] | None = None,
+        on_error: Callable[[Exception], None] | None = None,
+    ) -> None:
         proxy = self.bus.get_object(UDISKS2_SERVICE, object_path)
         fs_iface = dbus.Interface(proxy, UDISKS2_FS_IFACE)
         unmount_opts = dbus.Dictionary(options or {}, signature="sv")
-        fs_iface.Unmount(unmount_opts)
+
+        def _reply() -> None:
+            if on_success:
+                _run_on_main_thread(on_success)
+
+        def _err(err: Exception) -> None:
+            if on_error:
+                _run_on_main_thread(on_error, err)
+            else:
+                logger.error(f"Failed to unmount {object_path}: {err}")
+
+        fs_iface.Unmount(unmount_opts, reply_handler=_reply, error_handler=_err)
 
     def _on_interfaces_added(self, path: Any, interfaces: dict) -> None:
-        if UDISKS2_FS_IFACE in interfaces and self.on_device_inserted:
-            self.on_device_inserted(str(path))
+        if UDISKS2_FS_IFACE not in interfaces or not self.on_disk_inserted:
+            return
+
+        obj_path = str(path)
+        now = time.monotonic()
+        if now - self._recent_notified.get(obj_path, 0.0) < 3.0:
+            return
+        self._recent_notified[obj_path] = now
+
+        info = self._build_disk_info_from_ifaces(obj_path, dict(interfaces))
+        if info is not None:
+            if not self.should_ignore(info):
+                _run_on_main_thread(self.on_disk_inserted, info)
+            return
+
+        def _on_managed_objects(managed: dict) -> None:
+            ifaces = managed.get(obj_path)
+            if not ifaces:
+                return
+            resolved = self._build_disk_info_from_ifaces(obj_path, dict(ifaces))
+            if resolved and not self.should_ignore(resolved):
+                _run_on_main_thread(self.on_disk_inserted, resolved)
+
+        def _on_error(err: Exception) -> None:
+            logger.error(f"Async GetManagedObjects failed for {obj_path}: {err}")
+
+        try:
+            self.obj_manager.GetManagedObjects(
+                reply_handler=_on_managed_objects,
+                error_handler=_on_error,
+            )
+        except Exception as exc:
+            logger.error(f"Failed to dispatch async GetManagedObjects: {exc}")
 
 
 # ---------------------------------------------------------------------------
@@ -348,6 +519,10 @@ class SystemService(Service):
     def sensors_tick(self):
         """when sensors poll triggers"""
 
+    @Signal
+    def disk_inserted(self):
+        """when a new storage filesystem is detected"""
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
@@ -360,6 +535,7 @@ class SystemService(Service):
 
         DBusGMainLoop(set_as_default=True)
         self.bus = dbus.SystemBus()
+        self._last_inserted_disk: DiskMountInfo | None = None
 
         self.power = PowerManager(
             self.bus,
@@ -368,7 +544,7 @@ class SystemService(Service):
         )
         self.storage = StorageManager(
             self.bus,
-            on_device_inserted=self._handle_storage_inserted,
+            on_disk_inserted=self._handle_disk_inserted,
         )
 
         self._initialized = True
@@ -381,3 +557,7 @@ class SystemService(Service):
 
     def _handle_storage_inserted(self, object_path: str) -> None:
         self.new_device_inserted.emit()
+
+    def _handle_disk_inserted(self, disk_info: DiskMountInfo) -> None:
+        self._last_inserted_disk = disk_info
+        self.disk_inserted.emit()
