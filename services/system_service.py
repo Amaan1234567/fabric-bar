@@ -16,6 +16,8 @@ from fabric.core.service import Service, Signal
 from gi.repository import GLib  # type: ignore
 from loguru import logger
 
+from utils.notifications import NotificationHelper
+
 UPOWER_SERVICE = "org.freedesktop.UPower"
 UPOWER_PATH = "/org/freedesktop/UPower"
 UPOWER_DEVICE_IFACE = "org.freedesktop.UPower.Device"
@@ -27,6 +29,7 @@ UDISKS2_BLOCK_IFACE = "org.freedesktop.UDisks2.Block"
 DBUS_PROPS_IFACE = "org.freedesktop.DBus.Properties"
 DBUS_OBJ_MANAGER_IFACE = "org.freedesktop.DBus.ObjectManager"
 
+BYTES_PER_GB = 1073741824
 MIN_MOUNTABLE_BYTES = 2 * 1024**3  # Ignore < 2 GB (EFI / Windows recovery)
 IGNORED_FS_TYPES = {
     "swap",
@@ -54,6 +57,14 @@ def _run_on_main_thread(fn: Any, *args: Any) -> None:
         return False
 
     GLib.idle_add(_cb, priority=GLib.PRIORITY_DEFAULT)
+
+
+def format_mount_error(err: Exception) -> str:
+    """Turn a D-Bus / UDisks2 error into a concise, readable reason string."""
+    raw = str(err).strip()
+    if ": " in raw:
+        raw = raw.split(": ", 1)[1].strip()
+    return raw.splitlines()[0].strip() if raw else "Unknown error"
 
 
 # ---------------------------------------------------------------------------
@@ -285,6 +296,10 @@ class DiskMountInfo:
     label: str = ""
     size_bytes: int = 0
 
+    @property
+    def display_name(self) -> str:
+        return self.label or self.device_node or self.object_path
+
 
 class StorageManager:
     """Manages org.freedesktop.UDisks2 block/filesystem objects, usage, and mounts."""
@@ -292,14 +307,18 @@ class StorageManager:
     def __init__(
         self,
         bus: dbus.Bus,
+        notifier: NotificationHelper | None = None,
         on_disk_inserted: Any = None,
+        on_disk_mounted: Callable[[DiskMountInfo, str], None] | None = None,
         min_size_bytes: int = MIN_MOUNTABLE_BYTES,
         ignored_fs_types: set[str] | None = None,
         ignored_labels: set[str] | None = None,
         ignored_devices: set[str] | None = None,
     ) -> None:
         self.bus = bus
+        self.notifier = notifier
         self.on_disk_inserted = on_disk_inserted
+        self.on_disk_mounted = on_disk_mounted
         self.min_size_bytes = min_size_bytes
         self.ignored_fs_types = {
             s.lower()
@@ -315,6 +334,7 @@ class StorageManager:
         }
         self.ignored_devices = set(ignored_devices or ())
         self._recent_notified: dict[str, float] = {}
+        self._known_disks: dict[str, DiskMountInfo] = {}
 
         self.manager_proxy = self.bus.get_object(UDISKS2_SERVICE, UDISKS2_PATH)
         self.obj_manager = dbus.Interface(self.manager_proxy, DBUS_OBJ_MANAGER_IFACE)
@@ -363,7 +383,10 @@ class StorageManager:
         ifaces = managed.get(object_path)
         if not ifaces:
             return None
-        return self._build_disk_info_from_ifaces(str(object_path), ifaces)
+        info = self._build_disk_info_from_ifaces(str(object_path), ifaces)
+        if info:
+            self._known_disks[info.object_path] = info
+        return info
 
     def list_filesystems(self) -> list[DiskMountInfo]:
         try:
@@ -376,6 +399,7 @@ class StorageManager:
         for path, ifaces in managed.items():
             info = self._build_disk_info_from_ifaces(str(path), ifaces)
             if info:
+                self._known_disks[info.object_path] = info
                 results.append(info)
         return results
 
@@ -401,11 +425,49 @@ class StorageManager:
             if not fs.mount_points and not self.should_ignore(fs)
         ]
 
-    def get_usage(self, path: str) -> shutil.usage: # type: ignore
+    def get_usage(self, path: str) -> shutil.usage:  # type: ignore
         return shutil.disk_usage(path)
 
     def list_partitions(self, all_partitions: bool = False) -> list[Any]:
         return psutil.disk_partitions(all=all_partitions)
+
+    def notify_mount_error(self, disk_or_path: DiskMountInfo | str, err: Exception) -> None:
+        if isinstance(disk_or_path, DiskMountInfo):
+            name = disk_or_path.display_name
+            obj_path = disk_or_path.object_path
+        else:
+            cached = self._known_disks.get(disk_or_path)
+            name = cached.display_name if cached else disk_or_path
+            obj_path = disk_or_path
+
+        reason = format_mount_error(err)
+        logger.error(f"Failed to mount {obj_path}: {err}")
+        if self.notifier:
+            self.notifier.send(
+                summary=f"Failed to mount {name}",
+                body=reason,
+                icon="dialog-error",
+                urgency=2,
+                expire_timeout=8000,
+            )
+
+    def notify_unmounted_disk(self, disk_info: DiskMountInfo) -> None:
+        if not self.notifier:
+            return
+
+        size_gb = disk_info.size_bytes / BYTES_PER_GB if disk_info.size_bytes else 0.0
+        fs_part = f"{disk_info.filesystem_type} · " if disk_info.filesystem_type else ""
+        size_part = f"{size_gb:.1f} GB" if size_gb > 0 else "Storage device"
+        body = f"Detected {fs_part}{size_part} ({disk_info.device_node})"
+
+        self.notifier.send(
+            summary=disk_info.display_name,
+            body=body,
+            icon="drive-harddisk",
+            actions={"mount": lambda d=disk_info: self.mount(d.object_path)},
+            urgency=1,
+            expire_timeout=10000,
+        )
 
     def mount(
         self,
@@ -413,20 +475,33 @@ class StorageManager:
         options: dict[str, Any] | None = None,
         on_success: Callable[[str], None] | None = None,
         on_error: Callable[[Exception], None] | None = None,
+        notify_on_error: bool = True,
     ) -> None:
+        disk_info = self._known_disks.get(object_path)
         proxy = self.bus.get_object(UDISKS2_SERVICE, object_path)
         fs_iface = dbus.Interface(proxy, UDISKS2_FS_IFACE)
         mount_opts = dbus.Dictionary(options or {}, signature="sv")
 
         def _reply(mount_path: Any) -> None:
+            resolved_path = str(mount_path)
+            logger.info(f"Mounted {object_path} -> {resolved_path}")
+            if self.on_disk_mounted:
+                _run_on_main_thread(
+                    self.on_disk_mounted,
+                    disk_info
+                    or DiskMountInfo(object_path=object_path, device_node=object_path),
+                    resolved_path,
+                )
             if on_success:
-                _run_on_main_thread(on_success, str(mount_path))
+                _run_on_main_thread(on_success, resolved_path)
 
         def _err(err: Exception) -> None:
+            if notify_on_error:
+                _run_on_main_thread(
+                    self.notify_mount_error, disk_info or object_path, err
+                )
             if on_error:
                 _run_on_main_thread(on_error, err)
-            else:
-                logger.error(f"Failed to mount {object_path}: {err}")
 
         fs_iface.Mount(mount_opts, reply_handler=_reply, error_handler=_err)
 
@@ -453,8 +528,17 @@ class StorageManager:
 
         fs_iface.Unmount(unmount_opts, reply_handler=_reply, error_handler=_err)
 
+    def _accept_inserted_disk(self, info: DiskMountInfo) -> None:
+        self._known_disks[info.object_path] = info
+        if self.should_ignore(info):
+            return
+        if not info.mount_points:
+            self.notify_unmounted_disk(info)
+        if self.on_disk_inserted:
+            _run_on_main_thread(self.on_disk_inserted, info)
+
     def _on_interfaces_added(self, path: Any, interfaces: dict) -> None:
-        if UDISKS2_FS_IFACE not in interfaces or not self.on_disk_inserted:
+        if UDISKS2_FS_IFACE not in interfaces:
             return
 
         obj_path = str(path)
@@ -465,8 +549,7 @@ class StorageManager:
 
         info = self._build_disk_info_from_ifaces(obj_path, dict(interfaces))
         if info is not None:
-            if not self.should_ignore(info):
-                _run_on_main_thread(self.on_disk_inserted, info)
+            self._accept_inserted_disk(info)
             return
 
         def _on_managed_objects(managed: dict) -> None:
@@ -474,8 +557,8 @@ class StorageManager:
             if not ifaces:
                 return
             resolved = self._build_disk_info_from_ifaces(obj_path, dict(ifaces))
-            if resolved and not self.should_ignore(resolved):
-                _run_on_main_thread(self.on_disk_inserted, resolved)
+            if resolved:
+                self._accept_inserted_disk(resolved)
 
         def _on_error(err: Exception) -> None:
             logger.error(f"Async GetManagedObjects failed for {obj_path}: {err}")
@@ -523,6 +606,10 @@ class SystemService(Service):
     def disk_inserted(self):
         """when a new storage filesystem is detected"""
 
+    @Signal
+    def disk_mounted(self):
+        """when a storage filesystem is mounted"""
+
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
@@ -535,7 +622,9 @@ class SystemService(Service):
 
         DBusGMainLoop(set_as_default=True)
         self.bus = dbus.SystemBus()
+        self.notifier = NotificationHelper(app_name="SystemService")
         self._last_inserted_disk: DiskMountInfo | None = None
+        self._last_mounted_disk: tuple[DiskMountInfo, str] | None = None
 
         self.power = PowerManager(
             self.bus,
@@ -544,7 +633,9 @@ class SystemService(Service):
         )
         self.storage = StorageManager(
             self.bus,
+            notifier=self.notifier,
             on_disk_inserted=self._handle_disk_inserted,
+            on_disk_mounted=self._handle_disk_mounted,
         )
 
         self._initialized = True
@@ -561,3 +652,7 @@ class SystemService(Service):
     def _handle_disk_inserted(self, disk_info: DiskMountInfo) -> None:
         self._last_inserted_disk = disk_info
         self.disk_inserted.emit()
+
+    def _handle_disk_mounted(self, disk_info: DiskMountInfo, mount_path: str) -> None:
+        self._last_mounted_disk = (disk_info, mount_path)
+        self.disk_mounted.emit()

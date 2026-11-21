@@ -1,4 +1,3 @@
-
 #disk-label {
   color: var(--color6);
   font-size: 18px;
@@ -25,4 +24,19 @@
   color: mix(var(--color5), white, 0.4);
   font-size: 13px;
   padding: 2px 4px;
+}
+
+#disk-unmounted-header {
+  font-size: 16px;
+  color: var(--color10);
+}
+
+#disk-unmounted-label {
+  font-size: 14px;
+  color: mix(var(--color5), white, 0.4);
+}
+
+#disk-mount-button label {
+  font-size: 14;
+  color: var(--color3)
 }

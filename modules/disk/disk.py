@@ -7,12 +7,11 @@ from gi.repository import GLib  # type: ignore
 from loguru import logger
 from tabulate import tabulate
 
+from modules.disk.disk_popup import DiskPopup
 from services.system_service import DiskMountInfo, SystemService
 from utils.helper_functions import truncate
 from utils.notifications import NotificationHelper
 from utils.popup_manager import popup_manager
-
-from .disk_popup import DiskPopup
 
 CONVERSION_CONST = 1073741824
 MONITORED_PATHS = ["/"]
@@ -141,7 +140,7 @@ class DiskWidget(Box):
 
     def _schedule_hide(self):
         self._cancel_hide_timeout()
-        self._hide_timeout_id = GLib.timeout_add(1000, self._hide_popup)
+        self._hide_timeout_id = GLib.timeout_add(10000000000000, self._hide_popup)
 
     def _cancel_hide_timeout(self):
         if self._hide_timeout_id:
