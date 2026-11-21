@@ -13,7 +13,7 @@ class _PopupManager:
         self._current_popup = None
         self._current_widget = None  # the bar widget that owns the current popup
 
-    def request_show(self, popup : PopupWindow, owner: Object):
+    def request_show(self, popup: PopupWindow, owner: Object):
         """Called by a widget when it wants to show its popup.
 
         If a different popup is already visible, hide it first.
