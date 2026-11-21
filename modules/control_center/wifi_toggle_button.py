@@ -4,7 +4,7 @@ from fabric.utils.helpers import exec_shell_command_async
 from fabric.widgets.button import Button
 from loguru import logger
 
-from services.networkservice import NetworkService
+from services.network_service import NetworkService
 
 
 class WifiToggle(Button):

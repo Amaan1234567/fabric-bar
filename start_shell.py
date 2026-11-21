@@ -9,9 +9,9 @@ from loguru import logger
 
 from modules.notification.notification_window import NotificationPopupWindow
 from modules.tab_alt_overview.windows_overview import AltTab
-from services.networkservice import NetworkService
+from services.network_service import NetworkService
 from services.notification_service import NotificationService
-from services.playerctlservice import SimplePlayerctlService
+from services.playerctl_service import SimplePlayerctlService
 from utils.application_data_holder import Data
 from widgets.brightness_osd import BrightnessOSD  # This now uses the new Service
 from widgets.corners import ScreenCorners

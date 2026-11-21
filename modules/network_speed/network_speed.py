@@ -1,16 +1,14 @@
 """Network speed widget with download/upload labels, graph popup, and top processes."""
 
-import time
 from collections import deque
-from threading import Thread
 
-import psutil
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from gi.repository import GLib  # type:ignore
 
 from modules.network_speed.network_speed_popup import NetworkSpeedPopup
+from services.system_service import SystemService
 from utils.popup_manager import popup_manager
 
 
@@ -18,10 +16,11 @@ class NetworkSpeed(Box):
     """Network speed widget — download/upload labels in the bar, graph popup on hover."""
 
     HISTORY_LENGTH = 30
-    POLL_TIME = 1  # seconds
 
     def __init__(self, window, **kwargs):
         super().__init__(orientation="h", name="network-speed", spacing=5)
+
+        self.service = SystemService()
 
         self.download_icon = Label(name="download-icon", label="")
         self.download_speed = Label(name="download-speed", label="")
@@ -54,7 +53,6 @@ class NetworkSpeed(Box):
         self._hide_timeout_id = None
         self._show_delay_id = None
         self._top_processes_markup = ""
-        self._popup_visible = False
 
         # ── popup ───────────────────────────────────────────────
         self.popup = NetworkSpeedPopup(
@@ -67,9 +65,9 @@ class NetworkSpeed(Box):
         self.content_event_box.connect("leave-notify-event", self._on_hover_leave)
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
-        # self.popup.do_reposition("x")
 
-        Thread(target=self._get_network_speed, daemon=True).start()
+        # ── service subscription ────────────────────────────────
+        self.service.network_updated.connect(self._on_network_updated)
 
     # ── Hover / show / hide ─────────────────────────────────────
 
@@ -81,7 +79,7 @@ class NetworkSpeed(Box):
         self._cancel_hide_timeout()
         self._show_delay_id = None
 
-        self._popup_visible = True
+        self.service.network.collect_processes = True
         self._push_to_popup()
         popup_manager.request_show(self.popup, self)
 
@@ -109,7 +107,7 @@ class NetworkSpeed(Box):
             self._hide_timeout_id = None
 
     def _hide_popup(self):
-        self._popup_visible = False
+        self.service.network.collect_processes = False
         self.popup.overlay_revealer.set_reveal_child(False)
         GLib.timeout_add(450, self.popup.set_visible, False)
         popup_manager.request_hide(self.popup, self)
@@ -125,45 +123,18 @@ class NetworkSpeed(Box):
         ul_max = max(self._max_upload / 1024, 0.1)
         self.popup.update(dl_mb, ul_mb, dl_max, ul_max, self._top_processes_markup)
 
-    # ── Per-process markup via psutil.net_connections ────────────
+    # ── Per-process markup formatting ───────────────────────────
 
-    def _build_process_markup(self, total_dl_bytes, total_ul_bytes):
-        """Build per-process breakdown using psutil.net_connections().
-
-        Single batch call instead of scanning every /proc/<pid>/fd/.
-        """
-        conn_map = {}
-        try:
-            for conn in psutil.net_connections(kind="inet"):
-                if conn.pid and conn.status == "ESTABLISHED":
-                    conn_map[conn.pid] = conn_map.get(conn.pid, 0) + 1
-        except (psutil.AccessDenied, PermissionError):
-            pass
-
-        if not conn_map:
+    @staticmethod
+    def _format_process_markup(top_processes: list[dict]) -> str:
+        if not top_processes:
             return ""
-
-        entries = []
-        total_conns = 0
-        for pid, count in conn_map.items():
-            try:
-                name = psutil.Process(pid).name()
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                continue
-            entries.append({"name": name, "weight": count})
-            total_conns += count
-
-        if total_conns == 0:
-            return ""
-
-        entries.sort(key=lambda e: e["weight"], reverse=True)
-        entries = entries[:5]
 
         lines = ["<b>Top Network</b>"]
-        for e in entries:
-            share = e["weight"] / total_conns
-            dl_est = total_dl_bytes * share
-            ul_est = total_ul_bytes * share
+        for entry in top_processes:
+            dl_est = entry["dl_est"]
+            ul_est = entry["ul_est"]
+            count = entry["count"]
 
             dl_str = (
                 f"{dl_est / 1_048_576:.2f} MB/s"
@@ -175,52 +146,28 @@ class NetworkSpeed(Box):
                 if ul_est >= 1_048_576
                 else f"{ul_est / 1024:.2f} KB/s"
             )
-
-            conn_label = f"{e['weight']} conn{'s' if e['weight'] != 1 else ''}"
+            conn_label = f"{count} conn{'s' if count != 1 else ''}"
             lines.append(
-                f"<tt>↓{dl_str} ↑{ul_str}</tt>  {e['name']}  <small>({conn_label})</small>"
+                f"<tt>↓{dl_str} ↑{ul_str}</tt>  {entry['name']}  <small>({conn_label})</small>"
             )
 
         return "\n".join(lines)
 
-    # ── Network speed polling ───────────────────────────────────
+    # ── Service network update handler ──────────────────────────
 
-    def _get_network_speed(self):
-        initial_poll = True
-        while True:
-            initial = psutil.net_io_counters()
-            if initial_poll:
-                time.sleep(0.1)
-                initial_poll = False
-            else:
-                time.sleep(self.POLL_TIME)
-            final = psutil.net_io_counters()
+    def _on_network_updated(self, *_) -> None:
+        payload = self.service.network.latest
+        dl_kbs = float(payload.get("dl_kbs", 0.0))
+        ul_kbs = float(payload.get("ul_kbs", 0.0))
+        top_procs = payload.get("top_processes") or []
 
-            dl_kbs = ((final.bytes_recv - initial.bytes_recv) / 1024) * self.POLL_TIME
-            ul_kbs = ((final.bytes_sent - initial.bytes_sent) / 1024) * self.POLL_TIME
+        dl_label = (
+            f"{dl_kbs:.2f} KB/s" if dl_kbs < 1024 else f"{dl_kbs / 1024:.2f} MB/s"
+        )
+        ul_label = (
+            f"{ul_kbs:.2f} KB/s" if ul_kbs < 1024 else f"{ul_kbs / 1024:.2f} MB/s"
+        )
 
-            if dl_kbs < 1024:
-                dl_label = f"{dl_kbs:.2f} KB/s"
-            else:
-                dl_label = f"{dl_kbs / 1024:.2f} MB/s"
-            if ul_kbs < 1024:
-                ul_label = f"{ul_kbs:.2f} KB/s"
-            else:
-                ul_label = f"{ul_kbs / 1024:.2f} MB/s"
-
-            # Only scan per-process when popup is actually open
-            proc_markup = ""
-            if self._popup_visible:
-                proc_markup = self._build_process_markup(
-                    final.bytes_recv - initial.bytes_recv,
-                    final.bytes_sent - initial.bytes_sent,
-                )
-
-            GLib.idle_add(
-                self._apply_update, dl_kbs, ul_kbs, dl_label, ul_label, proc_markup
-            )
-
-    def _apply_update(self, dl_kbs, ul_kbs, dl_label, ul_label, proc_markup):
         self.download_speed.set_label(dl_label)
         self.upload_speed.set_label(ul_label)
 
@@ -237,8 +184,7 @@ class NetworkSpeed(Box):
         else:
             self._max_upload = max(self._max_upload * 0.995, 1.0)
 
-        self._top_processes_markup = proc_markup
+        self._top_processes_markup = self._format_process_markup(top_procs)
 
         if self.popup.get_visible():
             self._push_to_popup()
-        return False

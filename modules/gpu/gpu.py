@@ -1,19 +1,16 @@
 """GPU widget with hover-activated graph popup."""
 
-import subprocess
-import threading
 from collections import deque
 
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
-from gi.repository import GLib
+from gi.repository import GLib  # type: ignore
 
 from custom_widgets.animated_scale import AnimatedScale
 from modules.gpu.gpu_popup import GpuPopup
+from services.system_service import SystemService
 from utils.popup_manager import popup_manager
-
-MAX_DEVICES_DISPLAYED = 3
 
 
 class GpuWidget(Box):
@@ -23,6 +20,8 @@ class GpuWidget(Box):
 
     def __init__(self, window, **kwargs):
         super().__init__(name="gpu-stats", orientation="h", spacing=5)
+
+        self.service = SystemService()
 
         # ── scales + icon (same as original) ────────────────────
         self.icon = Label(label="GPU", name="gpu-icon", h_align="start")
@@ -96,16 +95,16 @@ class GpuWidget(Box):
 
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
-        # self.popup.do_reposition("x")
 
-        # ── polling (background thread, every 2s) ───────────────
-        GLib.timeout_add(1000, self._trigger_update)
+        # ── service subscription ────────────────────────────────
+        self.service.gpu_updated.connect(self._on_gpu_updated)
+        self.service.thermals_updated.connect(self._on_thermals_updated)
+        if self.service.gpu.latest:
+            self._on_gpu_updated()
 
     # ── Hover / show / hide ─────────────────────────────────────
 
     def _hover_trigger(self, *_):
-        # cancel any pending hide immediately — moving between
-        # children within the widget shouldn't close the popup
         self._cancel_hide_timeout()
         self._show_delay_id = GLib.timeout_add(300, self._on_hover_enter)
 
@@ -117,7 +116,6 @@ class GpuWidget(Box):
             self._vram_history,
             self._build_stats_markup(),
         )
-        # only show if not already visible — avoids flicker
         if not self.popup.get_visible():
             popup_manager.request_show(self.popup, self)
             self.popup.set_visible(True)
@@ -152,51 +150,13 @@ class GpuWidget(Box):
         self._hide_timeout_id = None
         return False
 
-    # ── Data fetching ───────────────────────────────────────────
+    # ── Data & Service Updates ──────────────────────────────────
 
-    def _trigger_update(self):
-        threading.Thread(target=self._fetch_gpu_data, daemon=True).start()
-        return True
+    def _on_gpu_updated(self, *_) -> None:
+        devices_data = self.service.gpu.latest
+        if not devices_data:
+            return
 
-    def _fetch_gpu_data(self):
-        cmd = [
-            "nvidia-smi",
-            (
-                "--query-gpu=name,utilization.gpu,memory.used,memory.total,"
-                "temperature.gpu,clocks.gr,clocks.mem,power.draw"
-            ),
-            "--format=csv,noheader,nounits",
-        ]
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-            lines = result.stdout.strip().split("\n")
-            devices_data = []
-            for index, line in enumerate(lines):
-                if index >= MAX_DEVICES_DISPLAYED:
-                    break
-                parts = [p.strip() for p in line.split(",")]
-                if len(parts) == 8:
-                    used_mib = float(parts[2])
-                    total_mib = float(parts[3])
-                    devices_data.append(
-                        {
-                            "name": parts[0],
-                            "gpu_util": float(parts[1]),
-                            "used_gb": used_mib / 1024,
-                            "vram_percent": (used_mib / total_mib) * 100,
-                            "temp": parts[4],
-                            "gpu_clock": parts[5],
-                            "mem_clock": parts[6],
-                            "power": parts[7],
-                            "index": index,
-                        }
-                    )
-            if devices_data:
-                GLib.idle_add(self._apply_ui_updates, devices_data)
-        except Exception:
-            pass
-
-    def _apply_ui_updates(self, devices_data):
         primary = devices_data[0]
         self._latest_data = devices_data
 
@@ -217,23 +177,37 @@ class GpuWidget(Box):
                 self._vram_history,
                 self._build_stats_markup(),
             )
-        return False
+
+    def _on_thermals_updated(self, *_) -> None:
+        if self.popup.get_visible():
+            self.popup.update(
+                self._core_history,
+                self._vram_history,
+                self._build_stats_markup(),
+            )
 
     def _build_stats_markup(self) -> str:
         if not self._latest_data:
             return "<b>GPU</b>"
 
-        markup = ""
+        fan_reading = self.service.thermals.latest.get("fan_speed")
+        fan_rpm = (
+            getattr(fan_reading, "current", None) if fan_reading is not None else None
+        )
+
+        blocks = []
         for dev in self._latest_data:
-            markup += (
-                f"<u><b>{dev['name']} (GPU {dev['index']})</b></u>\n"
-                f"Usage: {dev['gpu_util']:.0f}%\n"
-                f"Memory: {dev['used_gb']:.2f} GB\n"
-                f"Temperature: {dev['temp']}\u00b0C\n"
-                f"Graphics Clock: {dev['gpu_clock']} MHz\n"
-                f"Memory Clock: {dev['mem_clock']} MHz\n"
-                f"Power Draw: {dev['power']} W\n"
-            )
-            if dev != self._latest_data[-1]:
-                markup += "\n"
-        return markup.strip()
+            lines = [
+                f"<u><b>{dev['name']} (GPU {dev['index']})</b></u>",
+                f"Usage: {dev['gpu_util']:.0f}%",
+                f"Memory: {dev['used_gb']:.2f} GB",
+                f"Temperature: {dev['temp']}\u00b0C",
+                f"Graphics Clock: {dev['gpu_clock']} MHz",
+                f"Memory Clock: {dev['mem_clock']} MHz",
+                f"Power Draw: {dev['power']} W",
+            ]
+            if fan_rpm is not None:
+                lines.append(f"Fan Speed: {fan_rpm:.0f} RPM")
+            blocks.append("\n".join(lines))
+
+        return "\n\n".join(blocks).strip()

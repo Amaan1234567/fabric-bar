@@ -66,6 +66,8 @@ def pixbuf_cropping_if_image_is_not_1_1(
     return pic
 
 
-def truncate(text, max_len=15):
+def truncate(text, max_len=15, show_end=False):
     """Truncates text to given char len."""
+    if show_end:
+        return text if len(text) <= max_len else "…" + text[len(text) - max_len :]
     return text if len(text) <= max_len else text[: max_len - 1] + "…"

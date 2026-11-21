@@ -9,7 +9,7 @@ from loguru import logger
 
 from custom_widgets.animated_scale import AnimatedScale
 from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
-from services.brightnessservice import BrightnessService
+from services.brightness_service import BrightnessService
 from utils.monitor import get_monitor_info
 
 

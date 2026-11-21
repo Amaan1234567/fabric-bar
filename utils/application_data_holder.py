@@ -2,9 +2,9 @@
 
 from dataclasses import dataclass
 
-from services.networkservice import NetworkService
+from services.network_service import NetworkService
 from services.notification_service import NotificationService
-from services.playerctlservice import SimplePlayerctlService
+from services.playerctl_service import SimplePlayerctlService
 
 
 @dataclass

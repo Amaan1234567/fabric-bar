@@ -3,7 +3,6 @@
 import typing
 from collections import deque
 
-import psutil
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
@@ -12,6 +11,7 @@ from gi.repository import GLib  # type: ignore
 
 from custom_widgets.animated_cirular_scale import AnimatedCircularScale
 from modules.cpu.cpu_popup import CpuPopup
+from services.system_service import SystemService
 from utils.popup_manager import popup_manager
 
 
@@ -19,16 +19,11 @@ class Cpu(Box):
     """CPU widget — icon + circular bar in the bar, graph popup on hover."""
 
     HISTORY_LENGTH: typing.ClassVar = 10  # 60 seconds at 1 s polling
-    CPU_DRIVERS: typing.ClassVar = [
-        "k10temp",
-        "coretemp",
-        "cpu_thermal",
-        "soc_thermal",
-        "zenpower",
-    ]
 
     def __init__(self, window, **kwargs):
         super().__init__(orientation="h", name="cpu")
+
+        self.service = SystemService()
 
         # ── icon + circular progress (unchanged layout) ─────────────
         self.icon = Label(
@@ -84,9 +79,10 @@ class Cpu(Box):
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
 
-        # ── polling ─────────────────────────────────────────────────
-        self._tick()
-        GLib.timeout_add(1000, self._tick)
+        # ── service subscription ────────────────────────────────────
+        self.service.cpu_updated.connect(self._on_cpu_updated)
+        self.service.thermals_updated.connect(self._on_thermals_updated)
+        self._on_cpu_updated()
 
     # ────────────────────────────────────────────────────────────────
     #  Hover / show / hide
@@ -134,62 +130,17 @@ class Cpu(Box):
         return False
 
     # ────────────────────────────────────────────────────────────────
-    #  Data
+    #  Data & Service Updates
     # ────────────────────────────────────────────────────────────────
 
-    def get_cpu_usage(self) -> float:
-        """Get the current total CPU usage percentage safely."""
-        try:
-            return psutil.cpu_percent()
-        except Exception:
-            return 0.0
-
-    def _get_details(self):
-        """Safely fetch system metrics with granular fallback handlers."""
-        # 1. Frequency
-        try:
-            cur_freq = psutil.cpu_freq()
-        except Exception:
-            cur_freq = None
-
-        # 2. Per-core usage
-        try:
-            per_core_usage = psutil.cpu_percent(percpu=True)
-        except Exception:
-            per_core_usage = []
-
-        # 3. Temperature with driver fallback lookup
-        cpu_temp = None
-        try:
-            temps = psutil.sensors_temperatures()
-            if temps:
-                for driver in self.CPU_DRIVERS:
-                    if temps.get(driver):
-                        cpu_temp = temps[driver][0]
-                        break
-                # Fallback to the first available sensor if none of the known drivers matched
-                if not cpu_temp:
-                    first_key = next(iter(temps.keys()))
-                    if temps[first_key]:
-                        cpu_temp = temps[first_key][0]
-        except Exception:
-            cpu_temp = None
-
-        # 4. Fan speed (handles systems without fans gracefully)
-        cpu_fan_speed = None
-        try:
-            fans = psutil.sensors_fans()
-            if fans:
-                first_fan_key = next(iter(fans.keys()))
-                if fans[first_fan_key]:
-                    cpu_fan_speed = fans[first_fan_key][0]
-        except Exception:
-            cpu_fan_speed = None
-
-        return cur_freq, per_core_usage, cpu_temp, cpu_fan_speed
-
     def _build_stats_markup(self) -> str:
-        cur_freq, per_core_usage, cpu_temp, cpu_fan_speed = self._get_details()
+        cpu_data = self.service.cpu.latest
+        thermal_data = self.service.thermals.latest
+
+        cur_freq = cpu_data.get("freq")
+        per_core_usage = cpu_data.get("per_core") or []
+        cpu_temp = thermal_data.get("cpu_temp")
+        cpu_fan_speed = thermal_data.get("fan_speed")
         bar_chars = "▁▂▃▄▅▆▇█"
 
         lines = ["<b>CPU</b>"]
@@ -219,7 +170,7 @@ class Cpu(Box):
             lines.append(f"<tt>Core: {cores}</tt>")
 
         # Temperature line (omitted gracefully if sensor is missing)
-        if cpu_temp and getattr(cpu_temp, "current", None):
+        if cpu_temp and getattr(cpu_temp, "current", None) is not None:
             temp_val = cpu_temp.current
             temp_color = (
                 "#A3DC9A"
@@ -229,21 +180,17 @@ class Cpu(Box):
                 else "#FF5454"
             )
             lines.append(
-                f'Temp: <span foreground="{temp_color}">{temp_val}\u00b0C</span>'
+                f'Temp: <span foreground="{temp_color}">{temp_val:.1f}\u00b0C</span>'
             )
 
         # Fan speed line (omitted gracefully on fanless/unsupported systems)
-        if cpu_fan_speed and getattr(cpu_fan_speed, "current", None):
-            lines.append(f"Fan: {cpu_fan_speed.current} RPM")
+        if cpu_fan_speed and getattr(cpu_fan_speed, "current", None) is not None:
+            lines.append(f"Fan: {cpu_fan_speed.current:.0f} RPM")
 
         return "\n".join(lines)
 
-    # ────────────────────────────────────────────────────────────────
-    #  Polling (every 1 s)
-    # ────────────────────────────────────────────────────────────────
-
-    def _tick(self) -> bool:
-        value = self.get_cpu_usage()
+    def _on_cpu_updated(self, *_) -> None:
+        value = float(self.service.cpu.latest.get("usage", 0.0))
         self._history.append(value)
 
         # circular progress — only animate on jumps > 3 %
@@ -255,4 +202,6 @@ class Cpu(Box):
         if self.popup.get_visible():
             self.popup.update(self._history, self._build_stats_markup())
 
-        return True
+    def _on_thermals_updated(self, *_) -> None:
+        if self.popup.get_visible():
+            self.popup.update(self._history, self._build_stats_markup())

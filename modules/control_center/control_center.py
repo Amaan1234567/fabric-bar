@@ -20,15 +20,18 @@ class ControlCenter(PopupWindow):
 
     def __init__(self, app_data, parent, monitor=0, **kwargs):
         super().__init__(
+            name="control-center_window",
             layer="top",
             title="control_center",
-            anchor="top bottom right",
+            anchor="top right",
             exclusivity="none",
             visible=True,
             type="popup",
-            margin="30px 0px 40px 0px",
+            margin="30px 0px 0px 0px",
             parent=parent,
             monitor=monitor,
+            h_expand=False,
+            v_expand=False,
             **kwargs,
         )
 
@@ -65,8 +68,8 @@ class ControlCenter(PopupWindow):
             child=self.control_center_content,
             child_revealed=False,
             # transition_duration=200,
-            transition_type="slide-left",
-            size=[1, -1],
+            transition_type="slide-down",
+            # size=[1, -1],
         )
         self.add(self.revealer)
         # self.show()

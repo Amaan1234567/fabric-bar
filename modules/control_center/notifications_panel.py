@@ -18,7 +18,7 @@ from services.notification_service import Notification, NotificationService
 from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 from utils.variables import APP_ICON_MAP
 
-NOTIFICATION_IMAGE_SIZE = 120
+NOTIFICATION_IMAGE_SIZE = 140
 NOTIFICATION_BUTTONS_WRAP_THRESHOLD = 2
 
 
@@ -50,29 +50,31 @@ class NotificationItem(Box):
             name="notification-item-content",
             orientation="v",
             spacing=5,
-            h_align="fill",
+            h_align="start",
             h_expand=True,
             v_expand=True,
         )
 
         self.title_label = Label(
             name="notification-item-title",
-            label=truncate(self._notification.summary, 30),
+            label=truncate(self._notification.summary, 20),
             ellipsize=True,
             line_wrap="word-char",
-            max_chars_width=20,
+            max_chars_width=35,
             h_align="fill",
         )
-        self.column_content.add(self.title_label)
+        self.title_label.set_tooltip_text(self._notification.summary)
+        self.column_content.add(truncate(self.title_label, max_len=100))
 
         self.body_label = Label(
             name="notification-item-body",
-            label=truncate(self._notification.body, 80),
+            label=truncate(self._notification.body, 40),
             ellipsize=True,
             line_wrap="char",
             max_chars_width=25,
             h_align="fill",
         )
+        self.body_label.set_tooltip_text(truncate(self._notification.body, max_len=150))
         self.column_content.add(Box(v_expand=True))
         self.column_content.add(self.body_label)
         self.top_content.add(self.column_content)
@@ -275,6 +277,10 @@ class NotificationsPanel(Box):
             name="notifications-scrolled-window",
             kinetic_scroll=True,
             child=self.notifications_box,
+            max_content_size=[-1, NOTIFICATION_IMAGE_SIZE * 5],
+        )
+        self.notifications_scrolled_window.set_size_request(
+            -1, NOTIFICATION_IMAGE_SIZE * 5 + 20
         )
         self._load_notifications()
 
@@ -291,13 +297,6 @@ class NotificationsPanel(Box):
         )
         self.dnd_button_enabled = False
 
-        self.content = Box(
-            name="notifications-panel-container",
-            orientation="v",
-            spacing=10,
-            h_align="fill",
-        )
-
         self.title_bar = CenterBox(
             name="notifications-panel-title-bar",
             orientation="h",
@@ -310,9 +309,9 @@ class NotificationsPanel(Box):
                 Box(spacing=10, children=[self.dnd_button, self.clear_all_button])
             ],
         )
-        self.content.add(self.title_bar)
-        self.content.add(self.notifications_scrolled_window)
-        self.add(self.content)
+        self.add(self.title_bar)
+        self.add(self.notifications_scrolled_window)
+        # self.add(self.content)
 
     def _dismiss_all(self, *_):
         # Explicitly destroy all child widgets to free memory

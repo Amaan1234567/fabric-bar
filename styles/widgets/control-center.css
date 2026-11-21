@@ -1,3 +1,7 @@
+#control-center_window{
+  min-height: 900px;
+}
+
 #control-center {
   border-radius: 20px;
   border: solid;
