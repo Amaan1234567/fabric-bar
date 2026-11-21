@@ -323,7 +323,7 @@ class NotificationsPanel(Box):
 
         self.notifications_service.dismiss_all_notifications()
 
-    def toggle_dnd(self, button):
+    def toggle_dnd(self, _):
         """Toggle Do Not Disturb mode."""
         ctx = self.dnd_button.get_style_context()
         self.notifications_service.toggle_dnd()
