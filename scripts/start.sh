@@ -24,8 +24,8 @@ if [ -z "$OTHER_MONITORS" ]; then
 else
     echo "Detected side monitors: $OTHER_MONITORS"
     for id in $OTHER_MONITORS; do
-        echo "Launching side-monitors on Monitor ID: $id"
-        setsid python3 side-monitors.py --monitor-id "$id" > /dev/null 2>&1 &
+        echo "Launching side_monitors on Monitor ID: $id"
+        setsid python3 side_monitors.py --monitor-id "$id" > /dev/null 2>&1 &
     done
 fi
 

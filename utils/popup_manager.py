@@ -1,6 +1,9 @@
 """Singleton that ensures only one popup is visible at a time."""
 
-from gi.repository import GLib  # type: ignore
+from gi.repository import GLib
+from griffe import Object
+
+from custom_widgets.popup_window import PopupWindow  # type: ignore
 
 
 class _PopupManager:
@@ -10,7 +13,7 @@ class _PopupManager:
         self._current_popup = None
         self._current_widget = None  # the bar widget that owns the current popup
 
-    def request_show(self, popup, owner):
+    def request_show(self, popup : PopupWindow, owner: Object):
         """Called by a widget when it wants to show its popup.
 
         If a different popup is already visible, hide it first.
