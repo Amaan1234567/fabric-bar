@@ -30,8 +30,8 @@ class ControlCenter(PopupWindow):
             margin="30px 0px 0px 0px",
             parent=parent,
             monitor=monitor,
-            h_expand = False,
-            v_expand = False,
+            h_expand=False,
+            v_expand=False,
             **kwargs,
         )
 

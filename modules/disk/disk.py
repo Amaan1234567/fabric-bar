@@ -195,9 +195,9 @@ class DiskWidget(Box):
 
         color = "#A3DC9A" if pct < 70 else "#FCF67E" if pct < 90 else "#FF5454"
         pct_str = f'<span foreground="{color}">{pct:.1f}%</span>'
-        print(f"mpunt: {truncate(mount,show_end=True,max_len=20)}")
+        print(f"mpunt: {truncate(mount, show_end=True, max_len=20)}")
         return [
-            truncate(mount,show_end=True,max_len=20),
+            truncate(mount, show_end=True, max_len=20),
             f"{used_gb:.1f}/{total_gb:.1f} GB",
             f"{free_gb:.1f} GB",
             pct_str,

@@ -64,7 +64,7 @@ class NotificationItem(Box):
             h_align="fill",
         )
         self.title_label.set_tooltip_text(self._notification.summary)
-        self.column_content.add(truncate(self.title_label,max_len=100))
+        self.column_content.add(truncate(self.title_label, max_len=100))
 
         self.body_label = Label(
             name="notification-item-body",
@@ -74,7 +74,7 @@ class NotificationItem(Box):
             max_chars_width=25,
             h_align="fill",
         )
-        self.body_label.set_tooltip_text(truncate(self._notification.body,max_len=150))
+        self.body_label.set_tooltip_text(truncate(self._notification.body, max_len=150))
         self.column_content.add(Box(v_expand=True))
         self.column_content.add(self.body_label)
         self.top_content.add(self.column_content)
@@ -277,9 +277,11 @@ class NotificationsPanel(Box):
             name="notifications-scrolled-window",
             kinetic_scroll=True,
             child=self.notifications_box,
-            max_content_size=[-1,NOTIFICATION_IMAGE_SIZE*5]
+            max_content_size=[-1, NOTIFICATION_IMAGE_SIZE * 5],
         )
-        self.notifications_scrolled_window.set_size_request(-1,NOTIFICATION_IMAGE_SIZE*5 + 20)
+        self.notifications_scrolled_window.set_size_request(
+            -1, NOTIFICATION_IMAGE_SIZE * 5 + 20
+        )
         self._load_notifications()
 
         self.heading = Label(

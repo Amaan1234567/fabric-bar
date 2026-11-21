@@ -92,7 +92,11 @@ class DiskPopup(PopupWindow):
         self.unmounted_box.show_all()
 
     def _build_disk_row(self, disk: DiskMountInfo) -> Box:
-        name = truncate(disk.label or disk.device_node or disk.object_path,show_end=True,max_len=40)
+        name = truncate(
+            disk.label or disk.device_node or disk.object_path,
+            show_end=True,
+            max_len=40,
+        )
         size_gb = disk.size_bytes / CONVERSION_CONST if disk.size_bytes else 0.0
         size_str = f" ({size_gb:.1f} GB)" if size_gb > 0 else ""
         fs_str = f" [{disk.filesystem_type}]" if disk.filesystem_type else ""

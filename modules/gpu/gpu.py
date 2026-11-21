@@ -5,7 +5,7 @@ from collections import deque
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
-from gi.repository import GLib
+from gi.repository import GLib  # type: ignore
 
 from custom_widgets.animated_scale import AnimatedScale
 from modules.gpu.gpu_popup import GpuPopup
@@ -192,9 +192,7 @@ class GpuWidget(Box):
 
         fan_reading = self.service.thermals.latest.get("fan_speed")
         fan_rpm = (
-            getattr(fan_reading, "current", None)
-            if fan_reading is not None
-            else None
+            getattr(fan_reading, "current", None) if fan_reading is not None else None
         )
 
         blocks = []

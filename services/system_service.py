@@ -330,9 +330,7 @@ class StorageManager:
         }
         self.ignored_labels = {
             s.lower()
-            for s in (
-                ignored_labels if ignored_labels is not None else IGNORED_LABELS
-            )
+            for s in (ignored_labels if ignored_labels is not None else IGNORED_LABELS)
         }
         self.ignored_devices = set(ignored_devices or ())
         self._recent_notified: dict[str, float] = {}
@@ -415,9 +413,9 @@ class StorageManager:
             return True
         if disk.label.strip().lower() in self.ignored_labels:
             return True
-        if self.min_size_bytes > 0 and 0 < disk.size_bytes < self.min_size_bytes:
-            return True
-        return False
+        return bool(
+            self.min_size_bytes > 0 and 0 < disk.size_bytes < self.min_size_bytes
+        )
 
     def list_unmounted_filesystems(self) -> list[DiskMountInfo]:
         """Return mountable unmounted UDisks2 filesystems after filtering system/tiny partitions."""
