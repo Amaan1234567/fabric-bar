@@ -2,7 +2,6 @@
 
 from collections import deque
 
-import psutil
 from fabric.widgets.box import Box
 from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
@@ -11,6 +10,7 @@ from gi.repository import GLib  # type: ignore
 
 from custom_widgets.animated_cirular_scale import AnimatedCircularScale
 from modules.memory.memory_popup import MemoryPopup
+from services.system_service import SystemService
 from utils.popup_manager import popup_manager
 
 CONVERSION_CONST = 1073741824  # 1 Gigabyte = 1073741824 bytes
@@ -24,6 +24,8 @@ class Memory(Box):
     def __init__(self, window, **kwargs):
         super().__init__(orientation="h", name="memory")
 
+        self.service = SystemService()
+
         # ── icon + circular progress ────────────────────────────
         self.icon = Label("", name="memory-label")
         self.progress_bar = AnimatedCircularScale(
@@ -34,7 +36,6 @@ class Memory(Box):
             size=35,
             start_angle=105,
             end_angle=465,
-            # invert=True,
             min_value=0.0,
             max_value=100.0,
         )
@@ -70,11 +71,9 @@ class Memory(Box):
         self.popup.connect("enter-notify-event", self._on_popup_enter)
         self.popup.connect("leave-notify-event", self._on_popup_leave)
 
-        # self.popup.do_reposition("x")
-
-        # ── polling ─────────────────────────────────────────────
-        self._tick()
-        GLib.timeout_add(1000, self._tick)
+        # ── service subscription ────────────────────────────────
+        self.service.memory_updated.connect(self._on_memory_updated)
+        self._on_memory_updated()
 
     # ────────────────────────────────────────────────────────────
     #  Hover / show / hide
@@ -121,15 +120,15 @@ class Memory(Box):
         return False
 
     # ────────────────────────────────────────────────────────────
-    #  Data
+    #  Data & Service Updates
     # ────────────────────────────────────────────────────────────
 
-    def get_memory_usage(self) -> float:
-        return psutil.virtual_memory().percent
-
     def _build_stats_markup(self) -> str:
-        ram = psutil.virtual_memory()
-        swap = psutil.swap_memory()
+        latest = self.service.memory.latest
+        ram = latest.get("ram")
+        swap = latest.get("swap")
+        if ram is None or swap is None:
+            return "<b>Memory</b>"
 
         ram_color = (
             "#A3DC9A"
@@ -165,12 +164,8 @@ class Memory(Box):
             ]
         )
 
-    # ────────────────────────────────────────────────────────────
-    #  Polling (every 500ms)
-    # ────────────────────────────────────────────────────────────
-
-    def _tick(self) -> bool:
-        value = self.get_memory_usage()
+    def _on_memory_updated(self, *_) -> None:
+        value = float(self.service.memory.latest.get("usage", 0.0))
         self._history.append(value)
 
         if abs(self.progress_bar.value - value) > 3:
@@ -179,5 +174,3 @@ class Memory(Box):
 
         if self.popup.get_visible():
             self.popup.update(self._history, self._build_stats_markup())
-
-        return True

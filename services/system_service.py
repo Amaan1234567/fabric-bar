@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import shutil
+import subprocess
+import threading
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -205,7 +207,7 @@ class UPowerDevice:
 
 
 # ---------------------------------------------------------------------------
-# D-Bus Subsystem Managers (Extensible Pattern for UPower, UDisks2, etc.)
+# D-Bus Subsystem Managers (UPower & UDisks2)
 # ---------------------------------------------------------------------------
 
 
@@ -431,7 +433,9 @@ class StorageManager:
     def list_partitions(self, all_partitions: bool = False) -> list[Any]:
         return psutil.disk_partitions(all=all_partitions)
 
-    def notify_mount_error(self, disk_or_path: DiskMountInfo | str, err: Exception) -> None:
+    def notify_mount_error(
+        self, disk_or_path: DiskMountInfo | str, err: Exception
+    ) -> None:
         if isinstance(disk_or_path, DiskMountInfo):
             name = disk_or_path.display_name
             obj_path = disk_or_path.object_path
@@ -573,6 +577,336 @@ class StorageManager:
 
 
 # ---------------------------------------------------------------------------
+# System Polling Managers (CPU, Thermals, Memory, GPU, Network)
+# ---------------------------------------------------------------------------
+
+
+class CpuManager:
+    """Polls CPU usage, frequency, and per-core usage."""
+
+    def __init__(self, on_update: Callable[[dict[str, Any]], None]) -> None:
+        self.on_update = on_update
+        self.latest: dict[str, Any] = {
+            "usage": 0.0,
+            "freq": None,
+            "per_core": [],
+        }
+        self._poll()
+        GLib.timeout_add(1000, self._poll)
+
+    def _poll(self) -> bool:
+        try:
+            usage = float(psutil.cpu_percent())
+        except Exception:
+            usage = 0.0
+
+        try:
+            cur_freq = psutil.cpu_freq()
+        except Exception:
+            cur_freq = None
+
+        try:
+            per_core = list(psutil.cpu_percent(percpu=True))
+        except Exception:
+            per_core = []
+
+        self.latest = {
+            "usage": usage,
+            "freq": cur_freq,
+            "per_core": per_core,
+        }
+        self.on_update(self.latest)
+        return True
+
+
+class ThermalsManager:
+    """Polls temperatures from all sensors and fan speeds when available."""
+
+    CPU_DRIVERS = (
+        "k10temp",
+        "coretemp",
+        "cpu_thermal",
+        "soc_thermal",
+        "zenpower",
+    )
+
+    def __init__(self, on_update: Callable[[dict[str, Any]], None]) -> None:
+        self.on_update = on_update
+        self.latest: dict[str, Any] = {
+            "sensors": {},
+            "cpu_temp": None,
+            "fans": {},
+            "fan_speed": None,
+        }
+        self._poll()
+        GLib.timeout_add(1000, self._poll)
+
+    def _poll(self) -> bool:
+        sensors_map: dict[str, list[dict[str, Any]]] = {}
+        cpu_temp = None
+
+        try:
+            temps = psutil.sensors_temperatures()
+            if temps:
+                for driver, entries in temps.items():
+                    driver_key = str(driver)
+                    parsed_entries: list[dict[str, Any]] = []
+                    for idx, entry in enumerate(entries or []):
+                        current_val = getattr(entry, "current", None)
+                        if current_val is None:
+                            continue
+                        label = str(getattr(entry, "label", "") or f"Sensor {idx + 1}")
+                        parsed_entries.append(
+                            {
+                                "label": label,
+                                "current": float(current_val),
+                                "high": getattr(entry, "high", None),
+                                "critical": getattr(entry, "critical", None),
+                                "raw": entry,
+                            }
+                        )
+                    if parsed_entries:
+                        sensors_map[driver_key] = parsed_entries
+
+                for driver in self.CPU_DRIVERS:
+                    if sensors_map.get(driver):
+                        cpu_temp = sensors_map[driver][0]["raw"]
+                        break
+
+                if cpu_temp is None and sensors_map:
+                    first_driver = next(iter(sensors_map))
+                    cpu_temp = sensors_map[first_driver][0]["raw"]
+        except Exception as exc:
+            logger.debug(f"Failed to read temperature sensors: {exc}")
+
+        fans_map: dict[str, list[dict[str, Any]]] = {}
+        fan_speed = None
+
+        try:
+            fans = psutil.sensors_fans()
+            if fans:
+                for driver, entries in fans.items():
+                    driver_key = str(driver)
+                    parsed_fans: list[dict[str, Any]] = []
+                    for idx, entry in enumerate(entries or []):
+                        current_rpm = getattr(entry, "current", None)
+                        if current_rpm is None:
+                            continue
+                        label = str(getattr(entry, "label", "") or f"Fan {idx + 1}")
+                        parsed_fans.append(
+                            {
+                                "label": label,
+                                "current": float(current_rpm),
+                                "raw": entry,
+                            }
+                        )
+                    if parsed_fans:
+                        fans_map[driver_key] = parsed_fans
+
+                if fans_map:
+                    first_fan_driver = next(iter(fans_map))
+                    fan_speed = fans_map[first_fan_driver][0]["raw"]
+        except Exception as exc:
+            logger.debug(f"Failed to read fan sensors: {exc}")
+
+        self.latest = {
+            "sensors": sensors_map,
+            "cpu_temp": cpu_temp,
+            "fans": fans_map,
+            "fan_speed": fan_speed,
+        }
+        self.on_update(self.latest)
+        return True
+
+
+class MemoryManager:
+    """Polls RAM and swap memory statistics."""
+
+    def __init__(self, on_update: Callable[[dict[str, Any]], None]) -> None:
+        self.on_update = on_update
+        self.latest: dict[str, Any] = {
+            "usage": 0.0,
+            "ram": None,
+            "swap": None,
+        }
+        self._poll()
+        GLib.timeout_add(1000, self._poll)
+
+    def _poll(self) -> bool:
+        try:
+            ram = psutil.virtual_memory()
+            swap = psutil.swap_memory()
+            self.latest = {
+                "usage": float(ram.percent),
+                "ram": ram,
+                "swap": swap,
+            }
+            self.on_update(self.latest)
+        except Exception as exc:
+            logger.error(f"Failed to poll memory: {exc}")
+        return True
+
+
+class GpuManager:
+    """Polls NVIDIA GPU metrics in a background thread."""
+
+    MAX_DEVICES = 3
+
+    def __init__(self, on_update: Callable[[list[dict[str, Any]]], None]) -> None:
+        self.on_update = on_update
+        self.latest: list[dict[str, Any]] = []
+        self._running = False
+        self._trigger_poll()
+        GLib.timeout_add(1000, self._trigger_poll)
+
+    def _trigger_poll(self) -> bool:
+        if not self._running:
+            self._running = True
+            threading.Thread(target=self._fetch_gpu_data, daemon=True).start()
+        return True
+
+    def _fetch_gpu_data(self) -> None:
+        cmd = [
+            "nvidia-smi",
+            (
+                "--query-gpu=name,utilization.gpu,memory.used,memory.total,"
+                "temperature.gpu,clocks.gr,clocks.mem,power.draw"
+            ),
+            "--format=csv,noheader,nounits",
+        ]
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            lines = result.stdout.strip().split("\n")
+            devices_data: list[dict[str, Any]] = []
+            for index, line in enumerate(lines):
+                if index >= self.MAX_DEVICES:
+                    break
+                parts = [p.strip() for p in line.split(",")]
+                if len(parts) == 8:
+                    used_mib = float(parts[2])
+                    total_mib = float(parts[3])
+                    devices_data.append(
+                        {
+                            "name": parts[0],
+                            "gpu_util": float(parts[1]),
+                            "used_gb": used_mib / 1024,
+                            "vram_percent": (used_mib / total_mib) * 100
+                            if total_mib
+                            else 0.0,
+                            "temp": parts[4],
+                            "gpu_clock": parts[5],
+                            "mem_clock": parts[6],
+                            "power": parts[7],
+                            "index": index,
+                        }
+                    )
+            if devices_data:
+                _run_on_main_thread(self._commit, devices_data)
+        except Exception:
+            pass
+        finally:
+            self._running = False
+
+    def _commit(self, devices_data: list[dict[str, Any]]) -> None:
+        self.latest = devices_data
+        self.on_update(self.latest)
+
+
+class NetworkManager:
+    """Polls network download/upload speeds and optional per-process connections."""
+
+    POLL_TIME = 1
+
+    def __init__(self, on_update: Callable[[dict[str, Any]], None]) -> None:
+        self.on_update = on_update
+        self.collect_processes = False
+        self.latest: dict[str, Any] = {
+            "dl_kbs": 0.0,
+            "ul_kbs": 0.0,
+            "dl_bytes": 0,
+            "ul_bytes": 0,
+            "top_processes": [],
+        }
+        threading.Thread(target=self._poll_loop, daemon=True).start()
+
+    def _build_top_processes(
+        self, total_dl_bytes: int, total_ul_bytes: int
+    ) -> list[dict[str, Any]]:
+        conn_map: dict[int, int] = {}
+        try:
+            for conn in psutil.net_connections(kind="inet"):
+                if conn.pid and conn.status == "ESTABLISHED":
+                    conn_map[conn.pid] = conn_map.get(conn.pid, 0) + 1
+        except (psutil.AccessDenied, PermissionError):
+            pass
+
+        if not conn_map:
+            return []
+
+        entries: list[dict[str, Any]] = []
+        total_conns = 0
+        for pid, count in conn_map.items():
+            try:
+                name = psutil.Process(pid).name()
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+            entries.append({"name": name, "weight": count})
+            total_conns += count
+
+        if total_conns == 0:
+            return []
+
+        entries.sort(key=lambda e: e["weight"], reverse=True)
+        top = []
+        for entry in entries[:5]:
+            share = entry["weight"] / total_conns
+            top.append(
+                {
+                    "name": entry["name"],
+                    "count": entry["weight"],
+                    "dl_est": total_dl_bytes * share,
+                    "ul_est": total_ul_bytes * share,
+                }
+            )
+        return top
+
+    def _poll_loop(self) -> None:
+        initial_poll = True
+        while True:
+            initial = psutil.net_io_counters()
+            if initial_poll:
+                time.sleep(0.1)
+                initial_poll = False
+            else:
+                time.sleep(self.POLL_TIME)
+            final = psutil.net_io_counters()
+
+            dl_bytes = final.bytes_recv - initial.bytes_recv
+            ul_bytes = final.bytes_sent - initial.bytes_sent
+            dl_kbs = (dl_bytes / 1024) * self.POLL_TIME
+            ul_kbs = (ul_bytes / 1024) * self.POLL_TIME
+
+            top_procs = (
+                self._build_top_processes(dl_bytes, ul_bytes)
+                if self.collect_processes
+                else []
+            )
+
+            payload = {
+                "dl_kbs": dl_kbs,
+                "ul_kbs": ul_kbs,
+                "dl_bytes": dl_bytes,
+                "ul_bytes": ul_bytes,
+                "top_processes": top_procs,
+            }
+            _run_on_main_thread(self._commit, payload)
+
+    def _commit(self, payload: dict[str, Any]) -> None:
+        self.latest = payload
+        self.on_update(self.latest)
+
+
+# ---------------------------------------------------------------------------
 # SystemService Integration
 # ---------------------------------------------------------------------------
 
@@ -595,8 +929,28 @@ class SystemService(Service):
         """when cpu poll triggers"""
 
     @Signal
+    def cpu_updated(self):
+        """when cpu metrics update"""
+
+    @Signal
+    def thermals_updated(self):
+        """when thermal or fan sensors update"""
+
+    @Signal
     def memory_tick(self):
         """when memory poll triggers"""
+
+    @Signal
+    def memory_updated(self):
+        """when memory metrics update"""
+
+    @Signal
+    def gpu_updated(self):
+        """when gpu metrics update"""
+
+    @Signal
+    def network_updated(self):
+        """when network metrics update"""
 
     @Signal
     def sensors_tick(self):
@@ -637,6 +991,11 @@ class SystemService(Service):
             on_disk_inserted=self._handle_disk_inserted,
             on_disk_mounted=self._handle_disk_mounted,
         )
+        self.cpu = CpuManager(on_update=self._handle_cpu_update)
+        self.thermals = ThermalsManager(on_update=self._handle_thermals_update)
+        self.memory = MemoryManager(on_update=self._handle_memory_update)
+        self.gpu = GpuManager(on_update=self._handle_gpu_update)
+        self.network = NetworkManager(on_update=self._handle_network_update)
 
         self._initialized = True
 
@@ -656,3 +1015,21 @@ class SystemService(Service):
     def _handle_disk_mounted(self, disk_info: DiskMountInfo, mount_path: str) -> None:
         self._last_mounted_disk = (disk_info, mount_path)
         self.disk_mounted.emit()
+
+    def _handle_cpu_update(self, _data: dict[str, Any]) -> None:
+        self.cpu_tick.emit()
+        self.cpu_updated.emit()
+
+    def _handle_thermals_update(self, _data: dict[str, Any]) -> None:
+        self.sensors_tick.emit()
+        self.thermals_updated.emit()
+
+    def _handle_memory_update(self, _data: dict[str, Any]) -> None:
+        self.memory_tick.emit()
+        self.memory_updated.emit()
+
+    def _handle_gpu_update(self, _data: list[dict[str, Any]]) -> None:
+        self.gpu_updated.emit()
+
+    def _handle_network_update(self, _data: dict[str, Any]) -> None:
+        self.network_updated.emit()
