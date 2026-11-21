@@ -3,7 +3,7 @@ from fabric.widgets.button import Button
 from fabric.widgets.label import Label
 
 from custom_widgets.animated_scale import AnimatedScale
-from custom_widgets.HackedStackRevealer import HackedRevealer
+from custom_widgets.hacked_stack_revealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
 from services.background_op_service import BackgroundOp, BackgroundOpService
 from utils.helper_functions import truncate

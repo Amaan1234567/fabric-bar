@@ -10,7 +10,7 @@ from fabric.widgets.revealer import Revealer
 from gi.repository import Gdk, GLib  # type: ignore
 from loguru import logger
 
-from custom_widgets.HackedStackRevealer import HackedRevealer
+from custom_widgets.hacked_stack_revealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
 from services.network_service import EthernetService, NetworkService, WifiService
 

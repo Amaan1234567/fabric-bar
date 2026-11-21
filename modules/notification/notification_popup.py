@@ -10,7 +10,7 @@ from fabric.widgets.label import Label
 from gi.repository import GdkPixbuf, GLib, Gtk
 from loguru import logger
 
-from custom_widgets.HackedStackRevealer import HackedRevealer
+from custom_widgets.hacked_stack_revealer import HackedRevealer
 from custom_widgets.image_rounded import CustomImage
 from utils.helper_functions import pixbuf_cropping_if_image_is_not_1_1, truncate
 from utils.variables import APP_ICON_MAP

@@ -9,7 +9,7 @@ from fabric.widgets.eventbox import EventBox
 from fabric.widgets.label import Label
 from gi.repository import Gtk  # type: ignore
 
-from custom_widgets.HackedStackRevealer import HackedRevealer
+from custom_widgets.hacked_stack_revealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
 
 CELL_SIZE = 34

@@ -5,7 +5,7 @@ from fabric.widgets.button import Button
 from fabric.widgets.eventbox import EventBox
 from gi.repository import GLib  # type: ignore
 
-from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
+from custom_widgets.hacked_stack_revealer import HackedRevealer as Revealer
 from custom_widgets.popup_window import PopupWindow
 
 

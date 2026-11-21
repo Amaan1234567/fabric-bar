@@ -1,6 +1,6 @@
 """hold mpris popup."""
 
-from custom_widgets.HackedStackRevealer import HackedRevealer
+from custom_widgets.hacked_stack_revealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
 from modules.mpris.mpris_player_stack import MprisPlayerStack
 

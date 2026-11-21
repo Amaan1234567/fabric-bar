@@ -10,7 +10,7 @@ from fabric.widgets.label import Label
 from loguru import logger
 
 from custom_widgets.animated_scale import AnimatedScale
-from custom_widgets.HackedStackRevealer import HackedRevealer
+from custom_widgets.hacked_stack_revealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
 from utils.helper_functions import truncate
 

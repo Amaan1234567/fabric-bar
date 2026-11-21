@@ -10,7 +10,7 @@ from fabric.widgets.wayland import WaylandWindow as Window
 from gi.repository import GLib  # type: ignore
 
 from custom_widgets.animated_scale import AnimatedScale
-from custom_widgets.HackedStackRevealer import HackedRevealer as Revealer
+from custom_widgets.hacked_stack_revealer import HackedRevealer as Revealer
 
 _ICONS = {
     "muted": "󰖁",
