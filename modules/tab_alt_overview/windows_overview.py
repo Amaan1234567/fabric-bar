@@ -261,7 +261,6 @@ class AltTab(Window):
             min_content_size=(round(1920 * 0.2) * 3 + 40, round(1080 * 0.2) + 40),
             max_content_size=(round(1920 * 0.2) * 3 + 40, round(1080 * 0.2) + 40),
         )
-        print("signal names: " + str(self.content.get_signal_names()))
         self._grid = Box(
             name="alttab-grid",
             orientation="h",

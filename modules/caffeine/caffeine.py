@@ -11,7 +11,6 @@ class Caffeine(Button):
         super().__init__(
             name="caffeine-button", label="󰾪", on_clicked=self._toggle, **kwargs
         )
-        print(not exec_shell_command("pgrep -x hypridle").strip().isdigit())
         self.is_enabled = not exec_shell_command("pgrep -x hypridle").strip().isdigit()  # type: ignore
         self.set_hexpand(True)
         self.set_vexpand(False)
