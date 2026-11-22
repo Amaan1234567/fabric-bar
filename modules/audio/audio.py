@@ -90,7 +90,7 @@ class AudioWidget(Box):
         vol = round(spk.volume)
         desc = (spk.description or "").lower()
         muted = spk.muted
-        
+
         self.scale.animate_value(vol)
 
         if muted or vol == 0:

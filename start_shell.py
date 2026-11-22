@@ -14,6 +14,7 @@ from services.notification_service import NotificationService
 from services.playerctl_service import SimplePlayerctlService
 from utils.application_data_holder import Data
 from widgets.brightness_osd import BrightnessOSD  # This now uses the new Service
+from widgets.clipboard_history import ClipboardHistory
 from widgets.corners import ScreenCorners
 from widgets.theme_selector import ThemeSelector
 from widgets.top_bar import TopBar
@@ -55,6 +56,8 @@ def main(monitor_id=0):
     wallpaper_selector = WallpaperSelector()
     theme_selector = ThemeSelector()
 
+    clipboard_history = ClipboardHistory()
+
     app = Application(
         "hypr-fabric-bar-main",
         windows=[
@@ -76,6 +79,10 @@ def main(monitor_id=0):
     @Application.action()
     def toggle_theme_selector():
         theme_selector.toggle_window()
+
+    @Application.action()
+    def toggle_clipboard_history_window():
+        clipboard_history.toggle_window()
 
     @Application.action()
     def alt_tab_next():
