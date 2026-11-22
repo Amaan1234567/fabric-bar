@@ -1,21 +1,31 @@
 #!/usr/bin/env sh
 HYPRGAMEMODE=$(hyprctl getoption animations:enabled | awk 'NR==1{print $2}')
-if [ "$HYPRGAMEMODE" = 1 ] ; then
-    hyprctl --batch "\
-        keyword animations:enabled 0;\
-        keyword animation borderangle,0; \
-        keyword decoration:shadow:enabled 0;\
-        keyword decoration:blur:enabled 0;\
-	    keyword decoration:fullscreen_opacity 1;\
-        keyword general:gaps_in 0;\
-        keyword general:gaps_out 0;\
-        keyword general:border_size 1;\
-        keyword decoration:rounding 0"
+if [ "$HYPRGAMEMODE" = "true" ] ; then
+    hyprctl dispatch "function ()
+    hl.config({
+        general = {
+            gaps_in = 0,
+            gaps_out = 0,
+            border_size = 0,
+        },
+
+        animations = {
+            enabled = false,
+        },
+
+        decoration = {
+            shadow = { enabled = false },
+            blur = { enabled = false },
+            rounding = 0,
+        }
+    })
+    end
+    "
     notify-send "Gamemode [ON]"
     exit
 else
     notify-send "Gamemode [OFF]"
-    hyprctl reload
+    hyprctl dispatch "hl.dsp.reload_config()"
     exit 0
 fi
 exit 1
