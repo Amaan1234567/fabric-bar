@@ -3,6 +3,7 @@
 Follows the Fabrika Pager pattern for Glace lifecycle and capture,
 with a file-based toggle_window() like WallpaperSelector.
 """
+
 import json
 import random
 from collections.abc import Callable
@@ -10,8 +11,10 @@ from collections.abc import Callable
 import gi
 from fabric.hyprland.widgets import get_hyprland_connection
 from fabric.widgets.box import Box
+from fabric.widgets.button import Button
 from fabric.widgets.label import Label
 from fabric.widgets.overlay import Overlay
+from fabric.widgets.scrolledwindow import ScrolledWindow
 from fabric.widgets.wayland import WaylandWindow as Window
 from gi.repository import Gdk, GdkPixbuf, Glace, GLib, Gtk  # type: ignore
 from loguru import logger
@@ -89,7 +92,7 @@ class TickChoker:
 # ────────────────────────────────────────────────────────────
 
 
-class ClientPreview(Box):
+class ClientPreview(Button):
     """Live window thumbnail using Glace capture + TickChoker."""
 
     def __init__(self, client: Glace.Client, manager: Glace.Manager, **kwargs):
@@ -192,6 +195,7 @@ class ClientPreview(Box):
         """Update the style classes based on the client's activation state."""
         if self.client.get_activated():
             self.add_style_class("focused")
+            self.grab_focus()
         else:
             self.remove_style_class("focused")
 
@@ -199,6 +203,7 @@ class ClientPreview(Box):
         """Set the selection state of the window preview."""
         if yes:
             self.add_style_class("selected")
+            self.grab_focus()
         else:
             self.remove_style_class("selected")
 
@@ -247,13 +252,16 @@ class AltTab(Window):
         self._conn = get_hyprland_connection()
 
         # ── UI ──────────────────────────────────────────────
-        self.content = Box(
+        self.content = ScrolledWindow(
             name="alttab-backdrop",
             h_expand=True,
             v_expand=True,
             h_align="fill",
             v_align="fill",
+            min_content_size=(round(1920 * 0.2) * 3 + 40, round(1080 * 0.2) + 40),
+            max_content_size=(round(1920 * 0.2) * 3 + 40, round(1080 * 0.2) + 40),
         )
+        print("signal names: " + str(self.content.get_signal_names()))
         self._grid = Box(
             name="alttab-grid",
             orientation="h",
@@ -542,7 +550,7 @@ class AltTab(Window):
         now = GLib.get_monotonic_time() / 1_000_000
 
         if self.is_hidden:
-            self._selected = 1
+            self._selected = 0
             self._show()
         elif self._focus_order:
             if now - self._show_time < 0.06:
