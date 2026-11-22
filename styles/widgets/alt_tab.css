@@ -6,6 +6,8 @@
 #alttab-backdrop {
     background: alpha(var(--background), 0.55);
     border-radius: 30px;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 #alttab-grid {
