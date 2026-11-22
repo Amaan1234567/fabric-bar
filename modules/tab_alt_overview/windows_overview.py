@@ -3,14 +3,11 @@
 Follows the Fabrika Pager pattern for Glace lifecycle and capture,
 with a file-based toggle_window() like WallpaperSelector.
 """
-
 import json
 import random
 from collections.abc import Callable
 
 import gi
-
-gi.require_version("Glace", "0.1")
 from fabric.hyprland.widgets import get_hyprland_connection
 from fabric.widgets.box import Box
 from fabric.widgets.label import Label
@@ -20,6 +17,8 @@ from gi.repository import Gdk, GdkPixbuf, Glace, GLib, Gtk  # type: ignore
 from loguru import logger
 
 from custom_widgets.image_rounded import CustomImage
+
+gi.require_version("Glace", "0.1")
 
 _SCALE = 0.2
 _CAP_FPS = 2
@@ -462,7 +461,7 @@ class AltTab(Window):
         """Toggle the visibility of the AltTab switcher. If hidden,
         show it and select the first window. If visible, hide it.
         """
-        if self.is_hidden:
+        if self.is_hidden and len(self._client_views):
             self._selected = 1
             self._show()
         else:
@@ -538,6 +537,8 @@ class AltTab(Window):
         """Select the next window in the list, wrapping around. If the
         switcher is hidden, show it and select the first window.
         """
+        if not self._client_views:
+            return
         now = GLib.get_monotonic_time() / 1_000_000
 
         if self.is_hidden:
