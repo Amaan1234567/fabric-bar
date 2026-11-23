@@ -94,7 +94,7 @@ class ClipboardHistory(Window):
             min_content_size=(740, 600),
             max_content_size=(740, 600),
         )
-        self.element_box = Box(name="clipboard-history-content", orientation="v")
+        self.element_box = Box(name="clipboard-history-content", orientation="v",spacing=10)
         self.search_box = Entry(
             name="clipboard-history-search-box", placeholder="Search clipboard"
         )
