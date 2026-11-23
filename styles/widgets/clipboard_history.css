@@ -1,0 +1,40 @@
+#clipboard-history-window {
+    background-color: var(--backgroundWaybar);
+    padding: 20px;
+    border: 2px solid var(--color4);
+    border-radius: 15px;
+}
+
+#clipboard-history-scrolled-window {
+    padding: 10px;
+}
+
+#clipboard-element {
+    background-color: var(--color0);
+    color: var(--foreground);
+    padding: 8px;
+    border-radius: 5px;
+}
+
+#clipboard-element:focus {
+    background-color: var(--color4);
+    color: var(--background);
+    border-radius: 12px;
+}
+
+#clipboard-image{
+    border-radius: 10px;
+}
+
+#clipboard-history-search-box{
+    background-color: var(--background);
+    color: var(--color4);
+    padding: 5px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    border: 2px solid var(--color4);
+}
+#clipboard-history-search-box:focus {
+    background-color: var(--color4);
+    color: var(--foreground);
+}
