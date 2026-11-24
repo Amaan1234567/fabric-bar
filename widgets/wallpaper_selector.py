@@ -105,9 +105,7 @@ class WallpaperSelector(Window):
             name="wallpapers-container", orientation="h", spacing=20, h_expand=True
         )
 
-        # REMOVED the bad background thread spawning _create_buttons() here!
-        # _process_new_wallpaper_handler (via monitor_file initial_call=True)
-        # will handle checking/processing and call _create_buttons safely on main thread.
+        self._process_wallpaper_handler()
 
         self.scrolling_container.children = [self.buttons_box]
 
