@@ -17,8 +17,11 @@
 }
 
 #clipboard-element:focus {
-    background-color: var(--color4);
-    color: var(--background);
+    background-color: var(--color0);
+    color: var(--foreground);
+    border: solid;
+    border-width: 2px;
+    border-color: var(--color4);
     border-radius: 12px;
 }
 
@@ -32,9 +35,11 @@
     padding: 5px;
     border-radius: 10px;
     margin-bottom: 10px;
-    border: 2px solid var(--color4);
+    border: 2px solid var(--color0);
+    margin : 5px;
 }
 #clipboard-history-search-box:focus {
-    background-color: var(--color4);
+    background-color: var(--background);
     color: var(--foreground);
+    border-color: var(--color4);
 }

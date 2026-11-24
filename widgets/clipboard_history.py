@@ -233,6 +233,7 @@ class ClipboardHistory(Window):
         self._generation += 1
         gen = self._generation
         self._pending_buttons.clear()
+        self.search_box.set_text("")
         for child in list(self.element_box.children):
             child.destroy()
         self.elements.clear()
