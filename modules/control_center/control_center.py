@@ -25,7 +25,7 @@ class ControlCenter(PopupWindow):
             title="control_center",
             anchor="top right",
             exclusivity="none",
-            visible=True,
+            visible=False,
             type="popup",
             margin="30px 0px 0px 0px",
             parent=parent,
