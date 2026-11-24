@@ -2,6 +2,7 @@
 
 from fabric.utils import cooldown
 from fabric.widgets.box import Box
+from gi.repository import GLib
 
 from custom_widgets.hacked_stack_revealer import HackedRevealer
 from custom_widgets.popup_window import PopupWindow
@@ -18,7 +19,7 @@ from modules.control_center.wifi_toggle_button import WifiToggle
 class ControlCenter(PopupWindow):
     """control center widget."""
 
-    def __init__(self, app_data, parent, monitor=0, **kwargs):
+    def __init__(self, app_data, parent, pointing_to, monitor=0, **kwargs):
         super().__init__(
             name="control-center_window",
             layer="top",
@@ -29,6 +30,7 @@ class ControlCenter(PopupWindow):
             type="popup",
             margin="30px 0px 0px 0px",
             parent=parent,
+            pointing_to=pointing_to,
             monitor=monitor,
             h_expand=False,
             v_expand=False,
@@ -80,9 +82,9 @@ class ControlCenter(PopupWindow):
         # self.set_visible(not self.get_visible())
 
         if self.revealer.get_reveal_child():
-            # GLib.timeout_add(300, self.set_visible, not self.get_visible())
+            GLib.timeout_add(350, self.set_visible, not self.get_visible())
             self.revealer.set_reveal_child(False)
             # self.set_visible(False)
         else:
             self.revealer.set_reveal_child(True)
-            # self.set_visible(True)
+            self.set_visible(True)
