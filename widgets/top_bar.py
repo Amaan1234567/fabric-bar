@@ -105,12 +105,12 @@ class TopBar(Window):
         for widget_name in self.config["layout"]["dynamic_widgets"]:
             if widget_name == "spacer":
                 self.content.add(cur_box)
-                self.content.add(self.get_widget_registry(widget_name))
+                self.content.add(self.get_widget_registry(widget_name))  # type: ignore
                 logger.info(f"Adding widget: {widget_name} to dynamic layout")
                 cur_box = Box(orientation="h", spacing=10)
             else:
                 logger.info(f"Adding widget: {widget_name} to dynamic layout")
-                cur_box.add(self.get_widget_registry(widget_name))
+                cur_box.add(self.get_widget_registry(widget_name))  # type: ignore
         self.content.add(cur_box)
         self.add(self.content)
 

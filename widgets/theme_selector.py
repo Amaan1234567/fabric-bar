@@ -92,10 +92,10 @@ class ThemeSelector(Window):
         self.grab_focus()
 
     def _handle_key_press(self, _, key: Gdk.EventKey):
-        if key.keyval == Gdk.KEY_Escape:
+        if key.keyval == Gdk.KEY_Escape:  # type: ignore
             self._revert()
             self.toggle_window()
-        elif key.keyval == Gdk.KEY_Return:
+        elif key.keyval == Gdk.KEY_Return:  # type: ignore
             self._confirm()
         return True  # Return True to indicate the event was handled
 

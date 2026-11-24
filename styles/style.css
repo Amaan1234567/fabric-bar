@@ -23,6 +23,7 @@
 @import url("./widgets/alt_tab.css");
 @import url("./widgets/background_op.css");
 @import url("./widgets/caffeine.css");
+@import url("./widgets/clipboard_history.css");
 
 * {
   all: unset;
